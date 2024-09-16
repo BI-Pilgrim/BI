@@ -12,3 +12,12 @@ steps:
   - name: python:3.8-slim
     entrypoint: python3.8
     args: ["-m", "pytest", "-s", "dags/"]
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['build', 'steps']
+
+    options:
+    defaultLogsBucketBehavior: 'REGIONAL_USER_OWNED_BUCKET'
+
+# Specify the custom service account
+    serviceAccount: 'composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com'
