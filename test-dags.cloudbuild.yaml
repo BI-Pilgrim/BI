@@ -13,11 +13,8 @@ steps:
     entrypoint: python3.8
     args: ["-m", "pytest", "-s", "dags/"]
 steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['build', 'steps']
-
-    options:
-    logging: 'CLOUD_LOGGING_ONLY'
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['build', 'steps']
 
 # Specify the custom service account
     serviceAccount: 'composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com'
