@@ -13,5 +13,5 @@ steps:
     entrypoint: python3.8
     args: ["-m", "pytest", "-s", "dags/"]
 
-# Specify the custom service account and other build options during the build request
-# This part is handled in the gcloud command or the build trigger configuration, not in the YAML file itself
+options:
+  logging: 'CLOUD_LOGGING_ONLY'
