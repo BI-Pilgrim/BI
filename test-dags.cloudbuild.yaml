@@ -1,20 +1,17 @@
 steps:
-  # install dependencies
-  - name: python:3.8-slim
+  # Install dependencies
+  - name: 'python:3.8-slim'
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "-c", "constraints.txt", "--user"]
 
-  - name: python:3.8-slim
+  - name: 'python:3.8-slim'
     entrypoint: pip
     args: ["install", "-r", "requirements-test.txt", "--user"]
 
-  # run in python 3.8 which is latest version in Cloud Composer
-  - name: python:3.8-slim
+  # Run tests
+  - name: 'python:3.8-slim'
     entrypoint: python3.8
     args: ["-m", "pytest", "-s", "dags/"]
-steps:
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['build', 'steps']
 
-# Specify the custom service account
-    serviceAccount: 'composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com'
+# Specify the custom service account and other build options during the build request
+# This part is handled in the gcloud command or the build trigger configuration, not in the YAML file itself
