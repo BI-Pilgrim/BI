@@ -1,4 +1,4 @@
-steps:
+"""steps:
   # Install dependencies
   - name: 'python:3.8-slim'
     entrypoint: pip
@@ -14,4 +14,4 @@ steps:
     args: ["-m", "pytest", "-s", "dags/"]
 
 options:
-  logging: 'CLOUD_LOGGING_ONLY'
+  logging: 'CLOUD_LOGGING_ONLY'"""
