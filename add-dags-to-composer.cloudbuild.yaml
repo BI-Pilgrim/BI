@@ -26,4 +26,5 @@ steps:
       - 'gs://${_DAGS_BUCKET}/dags'
 
 options:
-  logging: 'CLOUD_LOGGING_ONLY'  # Use Cloud Logging only
+  logging: 'CLOUD_LOGGING_ONLY'
+
