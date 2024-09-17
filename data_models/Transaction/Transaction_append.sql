@@ -11,18 +11,19 @@ USING (
     amount as Trans_amount,
     created_at as Trans_created_at,
     processed_at as Trans_processed_at,
-    order_id as Trans_order_id,
-    id as Trans_id,
+    CAST(order_id as STRING) as Trans_order_id,
+    CAST(id as STRING) as Trans_id,
     payment_id as Trans_payment_id,
-    JSON_EXTRACT(payment_details, '$.avs_result_code') AS payment_avs_result_code,
-    JSON_EXTRACT(payment_details, '$.credit_card_bin') AS payment_credit_card_bin,
-    JSON_EXTRACT(payment_details, '$.credit_card_company') AS payment_credit_card_company,
-    JSON_EXTRACT(payment_details, '$.credit_card_expiration_month') AS payment_credit_card_expiration_month,
-    JSON_EXTRACT(payment_details, '$.credit_card_expiration_year') AS payment_credit_card_expiration_year,
-    JSON_EXTRACT(payment_details, '$.credit_card_name') AS payment_credit_card_name,
-    JSON_EXTRACT(payment_details, '$.credit_card_number') AS payment_credit_card_number,
-    JSON_EXTRACT(payment_details, '$.credit_card_wallet') AS payment_credit_card_wallet,
-    JSON_EXTRACT(payment_details, '$.cvv_result_code') AS payment_cvv_result_code,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.avs_result_code') AS STRING) AS payment_avs_result_code,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_bin') AS STRING) AS payment_credit_card_bin,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_company') AS STRING) AS payment_credit_card_company,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_expiration_month') AS STRING) AS payment_credit_card_expiration_month,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_expiration_year') AS STRING) AS payment_credit_card_expiration_year,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_name') AS STRING) AS payment_credit_card_name,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_number') AS STRING) AS payment_credit_card_number,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_wallet') AS STRING) AS payment_credit_card_wallet,
+    CAST(JSON_EXTRACT_SCALAR(payment_details, '$.cvv_result_code') AS STRING) AS payment_cvv_result_code,
+
 
   FROM `shopify-pubsub-project.airbyte711.transactions`
   WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
@@ -97,3 +98,7 @@ source.payment_credit_card_wallet,
 source.payment_cvv_result_code
 
   )
+
+
+
+
