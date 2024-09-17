@@ -1,7 +1,7 @@
 
 -- current_datetime("Asia/Kolkata"),
 
-CREATE TABLE `shopify-pubsub-project.Shopify_staging.Metafield_customers`
+CREATE OR REPLACE TABLE `shopify-pubsub-project.Shopify_staging.Metafield_customers`
 PARTITION BY DATE_TRUNC(customer_created_at,day)
 CLUSTER BY metafield_value
 OPTIONS(
@@ -11,11 +11,11 @@ OPTIONS(
  AS 
 SELECT 
 _airbyte_extracted_at,
-id as metafield_id,
+CAST(id AS STRING) as metafield_id,
 key as metafield_key,
 type as metafield_type,
 value as metafield_value,
-owner_id as customer_id,
+CAST(owner_id AS STRING) as customer_id,
 shop_url as metafield_shop_url,
 namespace as metafield_namespace,
 created_at as customer_created_at,
