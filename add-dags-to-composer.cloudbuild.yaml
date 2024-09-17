@@ -17,5 +17,11 @@
 #   logging: 'CLOUD_LOGGING_ONLY'
 
 steps:
-- name: 'gcr.io/cloud-builders/gsutil'
- args: ['-m', 'cp', '-r', '${_DAGS_DIRECTORY}', 'gs://${_DAGS_BUCKET}/dags']
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - '-m'
+      - 'cp'
+      - '-r'
+      - '${_DAGS_DIRECTORY}'
+      - 'gs://${_DAGS_BUCKET}/dags'
+
