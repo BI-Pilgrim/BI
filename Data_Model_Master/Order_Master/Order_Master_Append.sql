@@ -3,7 +3,6 @@ MERGE INTO `shopify-pubsub-project.Shopify_Production.Order_Master` AS target
 
 USING (
   
-
 SELECT
     O._airbyte_extracted_at,
     O.Order_note,
@@ -67,32 +66,43 @@ SELECT
     O.shipping_province_code,
     O.shipping_zip,
     O.payment_gateway_names,
-    T.Trans_test,
-    T.Trans_kind,
-    T.Trans_status,
-    T.Trans_gateway,
-    T.Trans_amount,
-    T.Trans_created_at,
-    T.Trans_processed_at,
-    T.Trans_order_id,
-    T.Trans_id,
-    T.Trans_payment_id,
-    T.payment_avs_result_code,
-    T.payment_credit_card_bin,
-    T.payment_credit_card_company,
-    T.payment_credit_card_expiration_month,
-    T.payment_credit_card_expiration_year,
-    T.payment_credit_card_name,
-    T.payment_credit_card_number,
-    T.payment_credit_card_wallet,
-    T.payment_cvv_result_code,
+    T.*,
 
   FROM
     `shopify-pubsub-project.Shopify_staging.Orders` AS O
-    LEFT OUTER JOIN `shopify-pubsub-project.Shopify_staging.Transactions` AS T 
-    ON O.Order_id = T.Trans_order_id
+    LEFT OUTER JOIN (select 
+Trans_test,
+Trans_kind,
+Trans_status,
+Trans_gateway,
+Trans_amount,
+Trans_created_at,
+Trans_processed_at,
+Trans_order_id,
+Trans_id,
+Trans_payment_id,
+payment_avs_result_code,
+payment_credit_card_bin,
+payment_credit_card_company,
+payment_credit_card_expiration_month,
+payment_credit_card_expiration_year,
+payment_credit_card_name,
+payment_credit_card_number,
+payment_credit_card_wallet,
+payment_cvv_result_code
+from (
+    SELECT  
+    *,
+    row_number() over(partition by Trans_order_id order by Trans_processed_at desc) as ranking
+    FROM `shopify-pubsub-project.Shopify_staging.Transactions` 
+
+  )
+  where ranking = 1 ) AS T 
+
+ON O.Order_id = T.Trans_order_id
+
  
-    WHERE date(O._airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(O._airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
  
  ) AS source
 ON target.Customer_id = source.Customer_id
@@ -349,3 +359,5 @@ source.payment_credit_card_wallet,
 source.payment_cvv_result_code
 
   )
+
+
