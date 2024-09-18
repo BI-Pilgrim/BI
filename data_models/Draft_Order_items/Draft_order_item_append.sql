@@ -1,5 +1,5 @@
 
-MERGE INTO `shopify-pubsub-project.Shopify_staging.Draft_Orders_Items` AS target
+MERGE INTO `shopify-pubsub-project.Shopify_staging.Draft_Order_items` AS target
 
 USING (
   select 
