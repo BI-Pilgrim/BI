@@ -1,6 +1,6 @@
 
 
-CREATE or replace TABLE `shopify-pubsub-project.Shopify_staging.Draft_Orders`
+CREATE or replace TABLE `shopify-pubsub-project.Shopify_staging.Draft_Orders_Items`
 PARTITION BY DATE_TRUNC(draft_order_created_at,day)
 CLUSTER BY draft_order_status
 OPTIONS(
