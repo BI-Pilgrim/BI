@@ -4,6 +4,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_Production.Order_Master` AS target
 USING (
   
 SELECT
+    distinct
     O._airbyte_extracted_at,
     O.Order_note,
     O.Order_cancelled_reason,
@@ -102,7 +103,7 @@ from (
 ON O.Order_id = T.Trans_order_id
 
  
-  WHERE date(O._airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(O._airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.Customer_id = source.Customer_id
