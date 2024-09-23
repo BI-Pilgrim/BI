@@ -78,7 +78,7 @@ JSON_EXTRACT_SCALAR(payment_gateway_names, '$') AS payment_gateway_names,
   WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
-ON target.Order_name = source.Order_name
+ON target.Order_id = source.Order_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
  
 target._airbyte_extracted_at = source._airbyte_extracted_at,
