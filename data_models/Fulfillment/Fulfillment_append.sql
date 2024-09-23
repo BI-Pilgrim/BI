@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Fulfillments` AS target
 
 USING (
   SELECT
+  distinct
    _airbyte_extracted_at as _airbyte_extracted_at,
     shop_url as fulfillment_shop_url,
     status as fulfillment_status,
@@ -20,10 +21,10 @@ USING (
     CAST(JSON_EXTRACT_SCALAR(tracking_urls[0]) AS STRING) as fulfillment_tracking_urls,
     CAST(JSON_EXTRACT_SCALAR(tracking_numbers[0]) AS STRING) as fulfillment_tracking_numbers,
   FROM `shopify-pubsub-project.airbyte711.fulfillments`
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
-ON target.fulfillment_order_id = source.fulfillment_order_id
+ON target.fulfillment_id = source.fulfillment_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
   target._airbyte_extracted_at = source._airbyte_extracted_at,
   target.fulfillment_shop_url = source.fulfillment_shop_url,
