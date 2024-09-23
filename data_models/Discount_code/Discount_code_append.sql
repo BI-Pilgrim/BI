@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Discount_Code` AS target
 
 USING (
   SELECT
+     distinct
     _airbyte_extracted_at as _airbyte_extracted_at,
     CAST(id AS STRING) as discount_id,
     code as disocunt_code,
@@ -15,7 +16,7 @@ USING (
     CAST(price_rule_id AS STRING) AS price_rule_id,
 
   FROM `shopify-pubsub-project.airbyte711.discount_codes`
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.discount_id = source.discount_id
