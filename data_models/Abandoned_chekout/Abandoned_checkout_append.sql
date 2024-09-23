@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Abandoned_checkout` AS target
 
 USING (
   SELECT
+  distinct
       _airbyte_extracted_at as _airbyte_extracted_at,
   source_name as aband_source_name,
   referring_site as aband_referring_site,
@@ -30,7 +31,7 @@ CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].code') AS STRING) AS disocunt_cod
 CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].type') AS STRING) AS discount_type
 
   FROM `shopify-pubsub-project.airbyte711.abandoned_checkouts`
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.abandoned_checkout_id = source.abandoned_checkout_id
