@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Refund_Order_items` AS target
 
 USING (
   select 
+  distinct
 _airbyte_extracted_at,
 Order_created_at,
 Order_name,
@@ -73,10 +74,10 @@ FROM  `shopify-pubsub-project.airbyte711.orders`
 
 ), UNNEST (refund_item_flat) AS FULL_FLAT
 )
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
-ON target.customer_id = source.customer_id
+ON target.item_refund_id = source.item_refund_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
 
 target._airbyte_extracted_at = source._airbyte_extracted_at,
