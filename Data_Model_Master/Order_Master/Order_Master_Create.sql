@@ -1,5 +1,6 @@
 
 
+
 CREATE or replace TABLE `shopify-pubsub-project.Shopify_Production.Order_Master`
 PARTITION BY DATE_TRUNC(Order_processed_at,day)
  
@@ -10,6 +11,7 @@ OPTIONS(
  AS
 
 SELECT
+    distinct
     O._airbyte_extracted_at,
     O.Order_note,
     O.Order_cancelled_reason,
