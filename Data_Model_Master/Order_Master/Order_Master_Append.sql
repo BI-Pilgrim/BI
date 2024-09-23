@@ -106,7 +106,7 @@ ON O.Order_id = T.Trans_order_id
   WHERE date(O._airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
-ON target.Customer_id = source.Customer_id
+ON target.Order_id = source.Order_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
 
 target._airbyte_extracted_at = source._airbyte_extracted_at,
