@@ -9,6 +9,7 @@ OPTIONS(
  AS
 
 SELECT
+    distinct
     C._airbyte_extracted_at,
     C.Customer_accepts_marketing,
     C.Customer_tax_exempt,
@@ -41,13 +42,11 @@ SELECT
     C.email_consent_opt_in_level,
     C.email_consent_state,
     MC._airbyte_extracted_at AS MC_airbyte_extracted_at,
-    MC.metafield_id,
-    MC.metafield_key,
-    MC.metafield_type,
-    MC.metafield_value,
+    MC.Gender_field,
+    MC.Personalization_field,
+    MC.Concerns_field,
     MC.customer_id AS MC_customer_id,
     MC.metafield_shop_url,
-    MC.metafield_namespace,
     MC.customer_created_at AS MC_customer_created_at,
     MC.customer_updated_at AS MC_customer_updated_at,
     MC.metafield_owner_resource
@@ -55,4 +54,7 @@ SELECT
     `shopify-pubsub-project.Shopify_staging.Customers` AS C
     LEFT OUTER JOIN `shopify-pubsub-project.Shopify_staging.Metafield_customers` AS MC 
     ON C.Customer_id = MC.customer_id
+
+
+
 
