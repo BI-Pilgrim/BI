@@ -7,6 +7,7 @@ OPTIONS(
  )
  AS 
 select 
+distinct
 _airbyte_extracted_at,
 Order_created_at,
 Order_name,
