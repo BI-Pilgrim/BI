@@ -140,7 +140,7 @@ with DAG(
 # Orders Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/sql/Orders_Append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/sql/Orders_append.sql', 'r') as file:
         sql_query_5 = file.read()
 
     append_order = BigQueryInsertJobOperator(
@@ -164,7 +164,7 @@ with DAG(
 # Transaction Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/sql/Transaction_Append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/sql/Transaction_append.sql', 'r') as file:
         sql_query_6 = file.read()
 
     append_transaction = BigQueryInsertJobOperator(
