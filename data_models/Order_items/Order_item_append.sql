@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Order_items` AS target
 
 USING (
   select 
+  distinct
 _airbyte_extracted_at,
 Order_created_at,
 Order_name,
@@ -43,9 +44,10 @@ FROM  `shopify-pubsub-project.airbyte711.orders`
 
 ), UNNEST (line_item_flat) AS FULL_FLAT
 )
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
-ON target.Order_name = source.Order_name
+ON target.order_item_id = source.order_item_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
    
 target._airbyte_extracted_at = source._airbyte_extracted_at,
