@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Orders` AS target
 
 USING (
   SELECT
+  distinct
 _airbyte_extracted_at,
 note as Order_note,
 cancel_reason as Order_cancelled_reason,
@@ -74,7 +75,7 @@ JSON_EXTRACT_SCALAR(shipping_address, '$.zip') AS shipping_zip,
 JSON_EXTRACT_SCALAR(payment_gateway_names, '$') AS payment_gateway_names,
 
   FROM `shopify-pubsub-project.airbyte711.orders`
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.Order_name = source.Order_name
