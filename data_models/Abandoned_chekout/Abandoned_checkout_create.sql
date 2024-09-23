@@ -9,6 +9,7 @@ OPTIONS(
  )
  AS 
 SELECT 
+ distinct
   _airbyte_extracted_at as _airbyte_extracted_at,
   source_name as aband_source_name,
   referring_site as aband_referring_site,
@@ -28,14 +29,15 @@ SELECT
   name as abandoned_checkout_name,
   token as abandoned_checkout_token,
 
-CAST(JSON_EXTRACT_SCALAR(customer, '$.id') AS STRING) AS customer_id,
+  CAST(JSON_EXTRACT_SCALAR(customer, '$.id') AS STRING) AS customer_id,
 
 
-CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].amount') AS FLOAT64) AS disocunt_amount,
-CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].code') AS STRING) AS disocunt_code,
-CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].type') AS STRING) AS discount_type
+  CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].amount') AS FLOAT64) AS disocunt_amount,
+  CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].code') AS STRING) AS disocunt_code,
+  CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].type') AS STRING) AS discount_type
 
 
 FROM  `shopify-pubsub-project.airbyte711.abandoned_checkouts`
+group by All
 
 
