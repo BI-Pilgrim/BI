@@ -10,6 +10,7 @@ OPTIONS(
  )
  AS 
 SELECT 
+distinct
 _airbyte_extracted_at as _airbyte_extracted_at,
 shop_url as fulfillment_shop_url,
 status as fulfillment_status,
