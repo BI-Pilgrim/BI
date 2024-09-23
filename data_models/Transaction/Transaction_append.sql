@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Transactions` AS target
 
 USING (
   SELECT
+     distinct
     _airbyte_extracted_at,
     test as Trans_test,
     kind as Trans_kind,
@@ -26,7 +27,7 @@ USING (
 
 
   FROM `shopify-pubsub-project.airbyte711.transactions`
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.Trans_id = source.Trans_id
