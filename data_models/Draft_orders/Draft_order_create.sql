@@ -9,6 +9,7 @@ OPTIONS(
  )
  AS 
 SELECT 
+distinct 
 _airbyte_extracted_at,
 status as draft_order_status,
 payment_terms as draft_order_payment_terms,
