@@ -3,7 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Customers` AS target
 
 USING (
   SELECT
-
+  distinct
   _airbyte_extracted_at,
   accepts_marketing as Customer_accepts_marketing,
   tax_exempt as Customer_tax_exempt,
@@ -40,7 +40,7 @@ USING (
   JSON_EXTRACT_SCALAR(email_marketing_consent, '$.state') AS email_consent_state,
 
   FROM `shopify-pubsub-project.airbyte711.customers`
-    WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+    WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.Customer_id = source.Customer_id
@@ -141,4 +141,7 @@ source.email_consent_updated_at,
 source.email_consent_opt_in_level,
 source.email_consent_state
   )
+
+
+
 
