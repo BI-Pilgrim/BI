@@ -3,6 +3,7 @@ MERGE INTO `shopify-pubsub-project.Shopify_staging.Draft_Orders` AS target
 
 USING (
   SELECT
+    distinct
     _airbyte_extracted_at,
     status as draft_order_status,
     payment_terms as draft_order_payment_terms,
@@ -27,7 +28,7 @@ USING (
     CAST(JSON_EXTRACT_SCALAR(applied_discount, '$.value_type') AS STRING) AS discount_value_type,
 
   FROM `shopify-pubsub-project.airbyte711.draft_orders`
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 1 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.draft_order_id = source.draft_order_id
