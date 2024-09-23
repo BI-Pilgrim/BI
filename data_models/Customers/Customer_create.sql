@@ -9,6 +9,7 @@ OPTIONS(
  AS
 
 SELECT
+  distinct
   _airbyte_extracted_at,
   accepts_marketing as Customer_accepts_marketing,
   tax_exempt as Customer_tax_exempt,
@@ -45,3 +46,7 @@ SELECT
   JSON_EXTRACT_SCALAR(email_marketing_consent, '$.state') AS email_consent_state,
 
   FROM `shopify-pubsub-project.airbyte711.customers`
+
+
+
+
