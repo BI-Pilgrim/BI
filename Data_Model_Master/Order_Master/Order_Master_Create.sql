@@ -1,6 +1,3 @@
-
-
-
 CREATE or replace TABLE `shopify-pubsub-project.Shopify_Production.Order_Master`
 PARTITION BY DATE_TRUNC(Order_processed_at,day)
  
