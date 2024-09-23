@@ -10,6 +10,7 @@ OPTIONS(
  )
  AS 
 SELECT 
+distinct
 _airbyte_extracted_at as _airbyte_extracted_at,
 CAST(id AS STRING) as discount_id,
 code as disocunt_code,
