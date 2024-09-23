@@ -8,6 +8,7 @@ OPTIONS(
  )
  AS 
 SELECT 
+distinct
 _airbyte_extracted_at,
 test as Trans_test,
 kind as Trans_kind,
