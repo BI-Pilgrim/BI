@@ -7,6 +7,7 @@ OPTIONS(
  )
  AS 
 SELECT 
+distinct
 _airbyte_extracted_at,
 note as Order_note,
 cancel_reason as Order_cancelled_reason,
