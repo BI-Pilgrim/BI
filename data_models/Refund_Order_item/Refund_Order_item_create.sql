@@ -25,8 +25,8 @@ order_adjustments_id,
 order_adjustments_kind,
 order_adjustments_reason,
 
-CAST(JSON_EXTRACT_SCALAR(Full_FLAT,'$.id') AS FLOAT64) as item_refund_id,
-CAST(JSON_EXTRACT_SCALAR(Full_FLAT,'$.line_item.id') AS FLOAT64) as order_item_id,
+CAST(JSON_EXTRACT_SCALAR(Full_FLAT,'$.id') AS STRING) as item_refund_id,
+CAST(JSON_EXTRACT_SCALAR(Full_FLAT,'$.line_item.id') AS STRING) as order_item_id,
 
 JSON_EXTRACT_SCALAR(Full_FLAT,'$.line_item.name') as refund_item_name,
 JSON_EXTRACT_SCALAR(Full_FLAT,'$.line_item.price') as refund_item_price,
