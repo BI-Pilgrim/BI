@@ -105,6 +105,7 @@ OPTIONS(
         from 
             (
                 select
+                
                 _airbyte_extracted_at,
                 draft_order_status,
                 draft_order_payment_terms,
@@ -128,6 +129,7 @@ OPTIONS(
                 FULL_FLAT,
                 FROM (
                     SELECT 
+                    
                     _airbyte_extracted_at,
                     status as draft_order_status,
                     payment_terms as draft_order_payment_terms,
