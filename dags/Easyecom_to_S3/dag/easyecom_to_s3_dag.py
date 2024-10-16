@@ -2,7 +2,6 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import subprocess
-import os
 
 # Define default arguments for the DAG
 default_args = {
@@ -18,7 +17,7 @@ default_args = {
 with DAG(
     dag_id='trigger_copy_easyecom_to_s3',
     default_args=default_args,
-    description='A simple DAG to copy invoices from easy ecom to s3 every day at 9 AM',
+    description='A simple DAG to copy invoices from EasyEcom to S3 every day at 9 AM',
     schedule_interval='0 9 * * *',  # Cron expression for 9 AM daily
     start_date=datetime(2024, 10, 16),  # Update this with the desired start date
     catchup=False,
@@ -29,8 +28,14 @@ with DAG(
         # Full path or relative path to the main.py script
         script_path = '/home/airflow/gcs/dags/python/main.py'  # Update this path to where main.py is stored
 
-        # Use subprocess to run the Python script with the specified path
-        subprocess.run(['python', script_path], check=True)
+        try:
+            # Use subprocess to run the Python script with the specified path
+            result = subprocess.run(['python', script_path], check=True, capture_output=True, text=True)
+            print("Script output:", result.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"Error occurred while running the script: {e}")
+            print(f"Command output: {e.output}")
+            raise
 
     # Define the PythonOperator to run the function
     run_main_task = PythonOperator(
