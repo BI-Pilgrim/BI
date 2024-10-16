@@ -2,7 +2,7 @@ import requests
 import boto3
 import datetime
 import logging
-from datetime import  timedelta
+from datetime import date
 
 # Setup logging
 logging.basicConfig(filename='easyecom_log.txt', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
@@ -75,11 +75,9 @@ def send_to_google_sheets(invoice_id, order_id, invoice_number,reference_code, o
 # Recursive function to get all orders from last day, handling pagination
 def get_orders(token=None, url=None):
     if not url:
-        today = datetime.datetime.now()
-        yesterday = today - timedelta(days=1)
-        Invoice_date = yesterday.strftime("%Y-%m-%d")
-        invoice_start_date = Invoice_date
-        invoice_end_date = Invoice_date
+        today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        invoice_start_date = date.today()
+        invoice_end_date = date.today()
         order_type = 1
         yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
         url = f"https://api.easyecom.io/orders/V2/getAllOrders?limit=250&invoice_start_date={invoice_start_date}&invoice_end_date={invoice_end_date}&isalllocation=1"
@@ -157,12 +155,6 @@ def main():
         logging.error("Failed to retrieve or validate JWT token. Cannot proceed with retrieving orders.")
     print(counter)
     print("Done")
-def hello_pubsub(event, context):
-   
-    main()
-
-
-    
 
 if __name__ == "__main__":
-    hello_pubsub('data', 'context')
+    main()
