@@ -178,7 +178,7 @@ select
     FULL_FLAT,
 FROM (
 SELECT 
-  _airbyte_emitted_at as _airbyte_extracted_at,
+  _airbyte_extracted_at as _airbyte_extracted_at,
   source_name as aband_source_name,
   referring_site as aband_referring_site,
   total_line_items_price as aband_total_line_items_price,
