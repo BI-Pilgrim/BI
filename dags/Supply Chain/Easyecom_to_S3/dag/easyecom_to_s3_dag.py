@@ -18,23 +18,28 @@ with DAG(
     dag_id='trigger_copy_easyecom_to_s3',
     default_args=default_args,
     description='A simple DAG to copy invoices from EasyEcom to S3 every day at 9 AM',
-    schedule_interval='0 9 * * *',  # Cron expression for 9 AM daily
+    schedule_interval='30 3 * * *',  # 3:30 AM UTC is 9:00 AM IST
     start_date=datetime(2024, 10, 16),  # Update this with the desired start date
     catchup=False,
 ) as dag:
 
     # Define a function to execute the main.py script
     def run_main_script():
-        # Full path or relative path to the main.py script
-        script_path = '/home/airflow/gcs/dags/python/main.py'  # Update this path to where main.py is stored
-
+        script_path = '/home/airflow/gcs/dags/python/main.py'
         try:
             # Use subprocess to run the Python script with the specified path
-            result = subprocess.run(['python', script_path], check=True, capture_output=True, text=True)
+            result = subprocess.run(
+                ['python', script_path],
+                check=True,
+                capture_output=True,
+                text=True
+            )
             print("Script output:", result.stdout)
+            print("Script errors:", result.stderr)
         except subprocess.CalledProcessError as e:
             print(f"Error occurred while running the script: {e}")
-            print(f"Command output: {e.output}")
+            print(f"Command output: {e.stdout}")
+            print(f"Command errors: {e.stderr}")
             raise
 
     # Define the PythonOperator to run the function
