@@ -3,7 +3,7 @@ import boto3
 from airflow.models import Variable
 import datetime
 import logging
-from datetime import date
+from datetime import date, timedelta
 
 # Setup logging
 logging.basicConfig(filename='easyecom_log.txt', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
@@ -86,7 +86,7 @@ def send_to_google_sheets(invoice_id, order_id, invoice_number,reference_code, o
 def get_orders(token=None, url=None):
     if not url:
         today = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        invoice_start_date = date.today()
+        invoice_start_date = date.today() - timedelta(days=1)
         invoice_end_date = date.today()
         order_type = 1
         yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
