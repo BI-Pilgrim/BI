@@ -19,8 +19,21 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           version: 'latest'
-          service_account_key: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: YOUR_GOOGLE_CLOUD_PROJECT_ID
+          service_account_key: |
+                            {
+                                "type": "service_account",
+                                "project_id": "shopify-pubsub-project",
+                                "private_key_id": "546893d971811d8a6eb88d561004acc01a0c334f",
+                                "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDr3MCYZX9VB3nP\nHQ1H/tidVwymSCBEGk2G6WNmyYPeep/vEhiqfojmr1BT+R8S4H3RlTRGJewJz4NQ\nzeOEW1b2YvpUF2LWbg/FXWCZMdGIjeWwcaBYFv4XKI2myhl2gNCxrwR3tHoyf1kf\nd3WMJneWGG5ZLVTctSIbGTPHcZ11VnEfgKHAaMj/7rq5S8BdTCbTjsmVFzMUkcf8\nPUcQ75WETMe9mruZY8lm1mBruuSWhRlWVsARXvtr+g3f4pEmW3PYjJhbo6oosvoL\n9aH8l/n/wF8+pUZ9HGtUmZwsj0QJpRXRXl1luFZFBvZrYfk9PkCCk8BGgXkybV2X\nM8ULzPOxAgMBAAECggEAF2lv56CpiT3m+idC1nrmMwX9QDMoGsJ2oBXiE0Wc9JQ8\n9FzaPHA3dBiCU3eGvVexvYA/MlhYy+eAfCCXvR9Y7DeKbBbvLWQ65gcdC8/NYe3d\n1wwMU7oiihdxKhVk/iWOsZhzC9PLDmCkLtKrhRgbZjdyGqF8izTimAiCIoG1VLxp\nUHvH/XJ6bKuvrxqfCNCRDWIDFqHo9KqbzYtGQeTHQFBjHi96kjmFlfIytU0s+Pud\nTT2BbuBdQ964AP31NkttF19FU8H5mVGrVOqo6cj4sZZke0MHf2101iWt9jH3Ubap\njyHSdacCb+85I0t9d+rPoxbMZXbDR1I6dorf0pWOLQKBgQD4raa7V772cCof3ev0\n8Dx0SJSnZaQFF9zkHpTaqInns+PzLp8KQ7/ZelZpGi21p6bcOBOJywpK0ulmqf9S\nh6K85p7g2keE9r147bJp3uEl4O8K6tA6bUhht5QkmqsKXFUFpVAXgQ8RGT8WVQ1/\nhD4RQLLyuDRiIWdVmVlqaru/hQKBgQDyzoDvJWGQ4DhyGHyqETKv9RlrkBc367Qi\nPnFyDuNEj7K6Tq1FqD0B607gkBPvslmRs/fiRVrfXAoOg2J+aS00GFAXTwQKOhWr\nXC9BHEC4xJGEHYtoYqDg2X8GD8OuENY3UQrQ8otMq4D/f/o6pMq4vYl/0Fk9lvDj\nNy/DypldPQKBgQCMu7GtOlZPH2Enka80ejSsVlsSdToiy8NtskTpjhIld6/ccxj8\ndSUAzfRTHMablFqhLHcaNzcG61+9gx2EtlAJ+bYWaFGrVPwbkOG0ercOecKuef8H\n4crhykPjh0ie32waetjdxGMjeRcz60RtUwjROL1NEaRLmL3jOprY17iTBQKBgQDv\nuWThODYA9O+l7nk+6+XwhfxID6Zs5sEdwir9oqdOLNYYTc+TY4yAVZO18WpNkPgP\n+/C0rScQOe4P8DYResRPl+WTbcceVcTJQCXDkiJwilrlZsoaEK6n8PURxgS72hG1\n4cTdEWrpErc1C2TB+6vPBAs6bzl8roc8vmLhWylaPQKBgBSwjvniKIRKXoEr8Sq7\nmavyBHzcibCNSGSupj603TryG/V2jNnMl0VLBJjRfcA/BzpRBH99utWZ4lboVg/L\nw9z13jZMuDqXtGvY8cVl2dDTmzWHurLBLCMX7gxLFNQtoTavyJBNLYkkwyaw20R+\nC9LFtUgI0zy/PbmbaJdTKMxk\n-----END PRIVATE KEY-----\n",
+                                "client_email": "github-to-composer-dags@shopify-pubsub-project.iam.gserviceaccount.com",
+                                "client_id": "113239390282081010614",
+                                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                                "token_uri": "https://oauth2.googleapis.com/token",
+                                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                                "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-to-composer-dags%40shopify-pubsub-project.iam.gserviceaccount.com",
+                                "universe_domain": "googleapis.com"
+                            }
+          project_id: shopify-pubsub-project
 
       # Step 3: Sync DAGs to Composer GCS Bucket
       - name: Sync DAGs to Composer
