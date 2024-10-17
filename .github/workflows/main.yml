@@ -38,4 +38,4 @@ jobs:
       # Step 3: Sync DAGs to Composer GCS Bucket
       - name: Sync DAGs to Composer
         run: |
-          gsutil -m rsync -r ./dags gs://YOUR_COMPOSER_BUCKET/dags/
+          gsutil -m rsync -r ./dags gs://asia-south2-composer-pilgri-b5eb683d-bucket/logs/
