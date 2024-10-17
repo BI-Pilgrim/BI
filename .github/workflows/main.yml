@@ -3,41 +3,34 @@ name: Sync DAGs to Cloud Composer
 on:
   push:
     branches:
-      - main  # Trigger the action on every push to the main branch
-
+      - main 
 jobs:
   sync-dags:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
+      
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Google Cloud SDK
+      
+      - name: List DAGs folder
+        run: ls -al ./dags/
+
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0.5.0  # Use the latest version
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}  # Reference the secret here
+
+      
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           version: 'latest'
-          service_account_key: |
-                            {
-                              "type": "service_account",
-                              "project_id": "shopify-pubsub-project",
-                              "private_key_id": "ba21bec0006a4088879e6798068ffb3a44fde9ee",
-                              "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCLysAvfuK37YG9\nrc37EloYNkapGtHh6eibj/PlUwyuGZoUAR3dQvAH2detMmnr8Hh41AE7S915f2cV\nfP1q5G00sCy+fCiIBwOUygmWc3RYcOC12QTi0xFTsi3HoLQsJGoTBt0RUGqx0NDl\nWJZboFejbshbGdFb3hn6I+21S38Rh9K/OraxuEFCcuHhqD6W/FylnWafzzku0TCC\nXvZYTjuNo0sIutmNlPNcfUZsfzttL8frUaXIn5DhooX6yzkv7Qd177klWy8Jf8Pu\nKHcu3J+6nx2FcfS22e5WNFdOTU+M83nTWwK5pytitP9eR9fG6hXC1Sk2BoJ2sSID\n4koPogbVAgMBAAECggEAQu4WSidEQa/TmI9oubc1r7X86uZOaw3lMuYfbkLvJURY\nww8tz0xHRFsGqoQitrZx19gZptxR8+QN5PntE4q+xqU7JxCnD0ncaxa4tHIe2GFj\nFW4MqtVHzHzY8mV9Hk1pBCcbHTkVfIFwIv7hLol8rGFUSFn6JTQX1+3v2AeHlUpv\namctMA7/gJvlqPFC6zQZC52ueZ+FqS0luwbUZXvDd+BVFszlNygFYRDjhqgwE0U4\n4Z4Ta1I5k6pQk9KUawgqcj0Hv8nBqGI1Zr7Qb1tGW+y7zzMl2wyrfUGq1dqcE8LC\nWxMJ0S3n8HUROCWlbZGAX0ooQFm1P4rujxeZ8OKQ2QKBgQDBM1tng5MF5X2R/uY7\nS6xgLa3vQuxnxo88rR4QD0ZhZPL1q1vhHoVTJ+gJgUFH44RzJzfOgkvi8Yy10stB\nNMgGZ1cirl3XFRYIojAMBGdRhFDMJz+bZmTusxrMEUm7jLyO0+LGr1EltLyqDTHk\n3dBylaOY4bJw6XYuCq3YkHz0YwKBgQC5OyV+JbU8BN3lDOn1WwSAP4299OFjT0T6\n5Z10iSfkLjz+8JWmLbeOxRG7rKKnpqusK5ObgoYXl6WlncSKIxWOWBOWLkSfGK/p\n27Cx7pfJN6rrgBy8gTVbdFNKIwJKJXW0mQ1AfkFjXqkRLsOAb4vGxi3UteOY/YHZ\nq4R8p1RxZwKBgBXsiwnTH4MCyN4ha+T8sGH1rRBCqusX2DdNeeTepuD0gLGqMXH5\nca2/EJDLjynmQqiCoc2YcZ4eRRZ5BkGvCKfZYET6PoHiza5LIWKruUHB3x1bstci\npn+D6Z2QtKpIzTj0CH79dBrwSJyPhMLw/O+T1Y3KxuITTCrrYVD7DIL7AoGAVSTf\n9h2FMmKWUQxfmt3MstsD35Zp6EluztmvR/sn8BZlCVczouCO6Lyjix4u4luVvB2H\ny0rzMnMNvJRJ3KmF5hmMX1NDTdJ+QkQu84tWEDNbiMcp7miCS1isVH7FNaoEchCM\na+HdUr0XgAN78FTV7nf4Zzd4uEGHZ7QUwWv1P+8CgYByy7wC9xloNnVKlynurQUh\nKlxclUK0uwJRme0CNbneSU8iwRrldzNwc+2ovpzpBEXrhYThTHyAMfO83jSaw+UF\n5lM9y8nE1LmFJXDItZbGne5s3B6y/H9+8MU0qXqLbSO8Aw2e93rCXU5eGMdwEZKC\nAEMRWxxYIiJj7lyWwKhJvg==\n-----END PRIVATE KEY-----\n",
-                              "client_email": "github-composer@shopify-pubsub-project.iam.gserviceaccount.com",
-                              "client_id": "110822354659112587198",
-                              "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                              "token_uri": "https://oauth2.googleapis.com/token",
-                              "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                              "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-composer%40shopify-pubsub-project.iam.gserviceaccount.com",
-                              "universe_domain": "googleapis.com"
-                            }
-
-
           project_id: shopify-pubsub-project
 
-      # Step 3: Sync DAGs to Composer GCS Bucket
+      
       - name: Sync DAGs to Composer
         run: |
-          gsutil -m rsync -r ./dags gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags/
+          gsutil -m rsync -r ./dags/ gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags/
