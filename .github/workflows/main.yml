@@ -21,18 +21,19 @@ jobs:
           version: 'latest'
           service_account_key: |
                             {
-                                "type": "service_account",
-                                "project_id": "shopify-pubsub-project",
-                                "private_key_id": "546893d971811d8a6eb88d561004acc01a0c334f",
-                                "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDr3MCYZX9VB3nP\nHQ1H/tidVwymSCBEGk2G6WNmyYPeep/vEhiqfojmr1BT+R8S4H3RlTRGJewJz4NQ\nzeOEW1b2YvpUF2LWbg/FXWCZMdGIjeWwcaBYFv4XKI2myhl2gNCxrwR3tHoyf1kf\nd3WMJneWGG5ZLVTctSIbGTPHcZ11VnEfgKHAaMj/7rq5S8BdTCbTjsmVFzMUkcf8\nPUcQ75WETMe9mruZY8lm1mBruuSWhRlWVsARXvtr+g3f4pEmW3PYjJhbo6oosvoL\n9aH8l/n/wF8+pUZ9HGtUmZwsj0QJpRXRXl1luFZFBvZrYfk9PkCCk8BGgXkybV2X\nM8ULzPOxAgMBAAECggEAF2lv56CpiT3m+idC1nrmMwX9QDMoGsJ2oBXiE0Wc9JQ8\n9FzaPHA3dBiCU3eGvVexvYA/MlhYy+eAfCCXvR9Y7DeKbBbvLWQ65gcdC8/NYe3d\n1wwMU7oiihdxKhVk/iWOsZhzC9PLDmCkLtKrhRgbZjdyGqF8izTimAiCIoG1VLxp\nUHvH/XJ6bKuvrxqfCNCRDWIDFqHo9KqbzYtGQeTHQFBjHi96kjmFlfIytU0s+Pud\nTT2BbuBdQ964AP31NkttF19FU8H5mVGrVOqo6cj4sZZke0MHf2101iWt9jH3Ubap\njyHSdacCb+85I0t9d+rPoxbMZXbDR1I6dorf0pWOLQKBgQD4raa7V772cCof3ev0\n8Dx0SJSnZaQFF9zkHpTaqInns+PzLp8KQ7/ZelZpGi21p6bcOBOJywpK0ulmqf9S\nh6K85p7g2keE9r147bJp3uEl4O8K6tA6bUhht5QkmqsKXFUFpVAXgQ8RGT8WVQ1/\nhD4RQLLyuDRiIWdVmVlqaru/hQKBgQDyzoDvJWGQ4DhyGHyqETKv9RlrkBc367Qi\nPnFyDuNEj7K6Tq1FqD0B607gkBPvslmRs/fiRVrfXAoOg2J+aS00GFAXTwQKOhWr\nXC9BHEC4xJGEHYtoYqDg2X8GD8OuENY3UQrQ8otMq4D/f/o6pMq4vYl/0Fk9lvDj\nNy/DypldPQKBgQCMu7GtOlZPH2Enka80ejSsVlsSdToiy8NtskTpjhIld6/ccxj8\ndSUAzfRTHMablFqhLHcaNzcG61+9gx2EtlAJ+bYWaFGrVPwbkOG0ercOecKuef8H\n4crhykPjh0ie32waetjdxGMjeRcz60RtUwjROL1NEaRLmL3jOprY17iTBQKBgQDv\nuWThODYA9O+l7nk+6+XwhfxID6Zs5sEdwir9oqdOLNYYTc+TY4yAVZO18WpNkPgP\n+/C0rScQOe4P8DYResRPl+WTbcceVcTJQCXDkiJwilrlZsoaEK6n8PURxgS72hG1\n4cTdEWrpErc1C2TB+6vPBAs6bzl8roc8vmLhWylaPQKBgBSwjvniKIRKXoEr8Sq7\nmavyBHzcibCNSGSupj603TryG/V2jNnMl0VLBJjRfcA/BzpRBH99utWZ4lboVg/L\nw9z13jZMuDqXtGvY8cVl2dDTmzWHurLBLCMX7gxLFNQtoTavyJBNLYkkwyaw20R+\nC9LFtUgI0zy/PbmbaJdTKMxk\n-----END PRIVATE KEY-----\n",
-                                "client_email": "github-to-composer-dags@shopify-pubsub-project.iam.gserviceaccount.com",
-                                "client_id": "113239390282081010614",
-                                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                                "token_uri": "https://oauth2.googleapis.com/token",
-                                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                                "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-to-composer-dags%40shopify-pubsub-project.iam.gserviceaccount.com",
-                                "universe_domain": "googleapis.com"
+                              "type": "service_account",
+                              "project_id": "shopify-pubsub-project",
+                              "private_key_id": "d5ae374dd5687ab81902eb5eec0c165709b2428f",
+                              "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDMkxD/dha+NFe5\nHc/jI5IRSCSeNxQ7iD/2xcfQfkR9JojLVlhGVlK4KJJCCjAx/HeDAT1NRKxpEiSv\nyrsfXZRLT2LJYl1FB8FmY6ybHY6YXRIvFraAtszMCtWidfEN2skUcq+VrhdA5iBt\n7gK6OI5zlw0ahi5dSNGYA4cGBWEUJF21oaBxKCPGz4Mu/z23+Gzd6i3F3nNyl+Rc\ne0h9RAF41Ne0HU90NFp3cxzBjNo1qdIrl1f97jUdLqasL4QvhmfkPMlyZmDYRmsi\nBHL7bfe29PP0IMoUlaVuCsS1JpucCVy1ZaNrVmbktMxN+tv5CotsRuBNd5+SHTWZ\nj0wywgihAgMBAAECggEALxVUDq+zmVA7tmfVnl3j8uVLRDzCA9eefSHVFLfS9Ijn\naAE17O5WOHth+iAVKpQEP5sL7Fo3YjFiTzFWMuhbRp/9SQNCGy6nRPUA12yMkqWt\nFzhfha1M4lNGCw+hDMLDj9i7b7QzNuUgJpzmdMyqgJEN24JxblfhoV6Cd5DKYJN6\nxGHEo+n+pRXMkUQHHqx5ZMT8Hx+m6FFnYq3RNt5O6cFU3vILTAf0B1bpCl66JmCu\nFpf/9mph0oRNkeoUgTHetJjQ+3SmpSurO6pYvMVX9m48s/D3zA8T0qI029PhDHMY\nC/DhOmu0JYm8lwCQpYRyjrN7kZLTpC8T+VoykPvijwKBgQDlqUOQnhJVA7uJyA1E\nt7t957PZvaU3DYtDibB3utwUChYExLm5encNI1XDG9gjhDk+7wKblLMsNV1EQLr2\nFCsT2W8onfpKEEtCfJFAQbxXy0JZe3UjcRRh/ldtKa6znjjqaWykJAql/je5cRNg\nItaNKEk/fiT7o0el2HibomIqrwKBgQDkCUT30qIU8M9/UfDFAv6RaCyN2sJJKrO/\n+XW+gtps8Y3syZxAehQy2wCM6DLKjH6CiAeEl0mKvpcgPdKxViIxb7yJMP6oumGL\njfWJp6jWbkLmD/3cM9R/PiQqK0hv5i/A/NuoaxDiZA8tNUryXFDT5FoN2u7+NTSn\nbn/B5eGVrwKBgQCB2vMZEkfLShEAFt1pvXmF9zz6IQEJ396ekXv2NvG5YvqQN6vL\n9DLcet5DM7tCWcEElKAk2C93D7Vsoi0UdtLkpkzz6l9bAVuMfGKksoaMHaGmdugE\n4itkPSuxzZ+6b/w+jt2e8cITmWposEcEVK57ogvImsrOfcRFQeDwHyDigQKBgQCa\np0q2BI1WRGeFgu4Wv0wlE5C7+DQx6RsVRLs9JIO8xSorACTPebv/LZY2+jeQNS6L\nmnP20Z/X0CCwhh1BlhgEjTJBnQ/pINaNDg8Ld8DDBO6sFwZldGVWkq92RfqPoX6b\nlSHoHAzMbW35jB4zNra+ri0BHo1drHn0X7WXrC+NEwKBgQDEE4dOY2szlDeE8cOn\nVW55Abe2U9dDLOygA1lwsCO3oathp0bnPtGbhc86f7HJoK1Yj7sIDxCBBGbjQw5d\noWBr4b6BFLbW4A/ypaYWPTMNw8GqJp/dA8038L+anaZs2t9UE2neW6sVtwXq5zXF\nineXCBLNTR0C/GGfJQCn0I86WA==\n-----END PRIVATE KEY-----\n",
+                              "client_email": "github-composer@shopify-pubsub-project.iam.gserviceaccount.com",
+                              "client_id": "112779809318363838652",
+                              "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                              "token_uri": "https://oauth2.googleapis.com/token",
+                              "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                              "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-composer%40shopify-pubsub-project.iam.gserviceaccount.com",
+                              "universe_domain": "googleapis.com"
                             }
+
           project_id: shopify-pubsub-project
 
       # Step 3: Sync DAGs to Composer GCS Bucket
