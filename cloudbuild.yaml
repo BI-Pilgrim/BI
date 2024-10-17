@@ -4,4 +4,4 @@ options:
 steps:
   # Copy DAGs to Composer bucket
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', '-r', 'dags/*', 'gs://YOUR_COMPOSER_BUCKET/dags/']
+    args: ['cp', '-r', 'dags/*', 'gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags-cb-test/']
