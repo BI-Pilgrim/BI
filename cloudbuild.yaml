@@ -1,3 +1,5 @@
+# logsBucket: 'gs://pilgrim-bi-logs/cloud_build_logs/'
+logging: CLOUD_LOGGING_ONLY
 steps:
   # Copy DAGs to Composer bucket
   - name: 'gcr.io/cloud-builders/gsutil'
