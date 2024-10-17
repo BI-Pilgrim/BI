@@ -1,6 +1,4 @@
-
 MERGE INTO `shopify-pubsub-project.Shopify_staging.Abandoned_checkout_lineitem` AS target
-
 USING (
 select 
 *
@@ -173,7 +171,7 @@ select
     FULL_FLAT,
 FROM (
 SELECT 
-  _airbyte_extracted_at as _airbyte_extracted_at,
+  _airbyte_emitted_at as _airbyte_extracted_at,
   source_name as aband_source_name,
   referring_site as aband_referring_site,
   total_line_items_price as aband_total_line_items_price,
@@ -204,7 +202,7 @@ FROM  `shopify-pubsub-project.airbyte711.abandoned_checkouts`
 )where ranking = 1 )
 group by ALL)
 
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 30 DAY)
  
  ) AS source
 ON target.abandoned_checkout_id = source.abandoned_checkout_id
@@ -342,6 +340,4 @@ WHEN NOT MATCHED THEN INSERT (
   source.item_variant_id,
   source.item_variant_price,
   source.item_variant_title
-
-
   )
