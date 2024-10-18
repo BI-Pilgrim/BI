@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import csv
 import time
-import os
+#import os
 from selenium import webdriver
 import pandas as pd
 from openpyxl import Workbook
@@ -45,8 +45,11 @@ def Search_page(nopage,key):
     Top_brands = []
 
     options = Options()
-    options.headless = True  # Enable headless mode
+    options.add_argument('--headless')  # Run in headless mode
+    options.add_argument('--disable-gpu')  # Disable GPU usage, sometimes necessary in headless mode
+    options.add_argument('--no-sandbox')  # Useful for running in Docker or cloud environments
     driver = webdriver.Firefox(options=options)
+    
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
         Prod_url,Asin = Scrape_Page(driver,url)
@@ -147,7 +150,9 @@ def Scrape_child_asin(df):
     std = "https://www.amazon.in/dp/"
     time_interval = 1
     options = Options()
-    options.headless = True  # Enable headless mode
+    options.add_argument('--headless')  # Run in headless mode
+    options.add_argument('--disable-gpu')  # Disable GPU usage, sometimes necessary in headless mode
+    options.add_argument('--no-sandbox')  # Useful for running in Docker or cloud environments
     driver = webdriver.Firefox(options=options)
 
     for index, row in df.iterrows():
@@ -211,7 +216,9 @@ def child_details(df):
     reviews_summary = []
     
     options = Options()
-    options.headless = True  # Enable headless mode
+    options.add_argument('--headless')  # Run in headless mode
+    options.add_argument('--disable-gpu')  # Disable GPU usage, sometimes necessary in headless mode
+    options.add_argument('--no-sandbox')  # Useful for running in Docker or cloud environments
     driver = webdriver.Firefox(options=options)
     
     prefixes = ["Visit the ", "Brand: "]
