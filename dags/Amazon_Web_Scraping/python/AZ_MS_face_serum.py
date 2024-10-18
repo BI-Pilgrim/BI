@@ -44,7 +44,9 @@ def Search_page(nopage,key):
 
     Top_brands = []
 
-    driver = webdriver.Firefox(options=Options(headless=True))
+    options = Options()
+    options.headless = True  # Enable headless mode
+    driver = webdriver.Firefox(options=options)
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
         Prod_url,Asin = Scrape_Page(driver,url)
@@ -144,7 +146,9 @@ def Scrape_child_asin(df):
     c_asin = []
     std = "https://www.amazon.in/dp/"
     time_interval = 1
-    driver = webdriver.Firefox(options=Options(headless=True))
+    options = Options()
+    options.headless = True  # Enable headless mode
+    driver = webdriver.Firefox(options=options)
 
     for index, row in df.iterrows():
         
@@ -206,7 +210,9 @@ def child_details(df):
     best_seller_category = []
     reviews_summary = []
     
-    driver = webdriver.Firefox(options=Options(headless=True))
+    options = Options()
+    options.headless = True  # Enable headless mode
+    driver = webdriver.Firefox(options=options)
     
     prefixes = ["Visit the ", "Brand: "]
     for index, row in df.iterrows():
