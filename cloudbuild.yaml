@@ -4,8 +4,10 @@ options:
 steps:
   # Copy DAGs to Composer bucket
   - name: 'gcr.io/cloud-builders/gsutil'
+    env:
+      - COMPOSER_ENV:composer-pilgrim-bi
     script: |-
     #!/bin/bash
-    gcloud composer environments update $_ENVIRONMENT_NAME --location $LOCATION --update-pypi-packages-from-file requirements.txt;
+    gcloud composer environments update $COMPOSER_ENV  --location asia-south1 --update-pypi-packages-from-file requirements.txt;
     gsutil cp -r dags/* gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags-cb-test/;
 
