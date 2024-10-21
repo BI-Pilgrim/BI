@@ -6,7 +6,6 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     env:
       COMPOSER_ENV=composer-pilgrim-bi
-    script: |
-      #/bin/bash
+    script: |#/bin/bash
       gsutil composer environments update $COMPOSER_ENV  --location asia-south1 --update-pypi-packages-from-file requirements.txt;
       gsutil cp -r dags/* gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags-cb-test/;
