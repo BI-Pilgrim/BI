@@ -9,5 +9,5 @@ steps:
     script: |
       #!/bin/bash
       echo "gsutil composer environments update $COMPOSER_ENV  --location asia-south2 --update-pypi-packages-from-file requirements.txt;" && \
-      gsutil composer environments update $COMPOSER_ENV  --location asia-south1 --update-pypi-packages-from-file requirements.txt || \
+      echo 'y' | gcloud composer environments update composer-pilgrim-bi  --location asia-south2 --update-pypi-packages-from-file requirements.txt || \
       gsutil cp -r dags/* gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags-cb-test/;
