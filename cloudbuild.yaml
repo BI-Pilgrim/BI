@@ -11,3 +11,6 @@ steps:
       echo "gcloud composer environments update ${_COMPOSER_NAME}  --location ${_COMPOSER_LOCATION} --update-pypi-packages-from-file requirements.txt;" && \
       echo 'y' | gcloud composer environments update ${_COMPOSER_NAME}  --location ${_COMPOSER_LOCATION} --update-pypi-packages-from-file requirements.txt || \
       gsutil cp -r dags/* gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags-cb-test/;
+substitutions:
+  _COMPOSER_NAME: "composer-pilgrim-bi"
+  _COMPOSER_LOCATION: "asia-south2"
