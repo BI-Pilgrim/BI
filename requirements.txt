@@ -7,7 +7,7 @@ google-cloud-bigquery
 gspread
 oauth2client
 boto3
-selenium>=4.0.0
+selenium~=4.0.0
 pandas_gbq
 beautifulsoup4
 requests

@@ -5,7 +5,7 @@ steps:
   # Copy DAGs to Composer bucket
   - name: 'gcr.io/cloud-builders/gsutil'
     env:
-      - 'COMPOSER_NAME=composer-pilgrim-bi'
+      - 'COMPOSER_NAME=composer-pilgrim-bi-dev'
       - 'COMPOSER_LOCATION=asia-south2'
     script: |
       #!/bin/bash
