@@ -6,7 +6,7 @@ from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 
-# Define the start date in UTC
+# Define the start date in UTC 
 START_DATE = timezone.datetime(2024, 9, 15, 23, 30, 0, tzinfo=timezone.utc)  # Corresponds to 5 AM IST on 2024-09-16
 
 GOOGLE_CONN_ID = "google_cloud_default"
