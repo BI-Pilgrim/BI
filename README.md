@@ -1,2 +1,2 @@
 # BI
-Central Repository for Business Intelligence
+Central Repository for Business Intelligence.
