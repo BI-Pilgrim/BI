@@ -1,14 +1,17 @@
-# logsBucket: 'gs://pilgrim-bi-logs/cloud_build_logs/'
 options:
   logging: CLOUD_LOGGING_ONLY
+  env:
+    - 'COMPOSER_NAME=composer-pilgrim-bi'
+    - 'COMPOSER_LOCATION=asia-south2'
 steps:
   # Copy DAGs to Composer bucket
   - name: 'gcr.io/cloud-builders/gsutil'
-    env:
-      - 'COMPOSER_NAME=composer-pilgrim-bi'
-      - 'COMPOSER_LOCATION=asia-south2'
     script: |
       #!/bin/bash
-      echo "gcloud composer environments update $COMPOSER_NAME  --location $COMPOSER_LOCATION --update-pypi-packages-from-file requirements.txt;" && \
-      echo 'y' | gcloud composer environments update $COMPOSER_NAME  --location $COMPOSER_LOCATION --update-pypi-packages-from-file requirements.txt || \
-      gsutil cp -r dags/* gs://asia-south2-composer-pilgri-b5eb683d-bucket/dags/;
+      echo "gcloud composer environments update $COMPOSER_NAME  --location $COMPOSER_LOCATION --update-pypi-packages-from-file requirements.txt;";
+      echo 'y' | gcloud composer environments update $COMPOSER_NAME  --location $COMPOSER_LOCATION --update-pypi-packages-from-file requirements.txt || echo "Complete";
+  - name: 'gcr.io/cloud-builders/gsutil'
+    script: |
+      #!/bin/bash
+      echo "gsutil cp -r dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');";
+      gsutil cp -r dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');
