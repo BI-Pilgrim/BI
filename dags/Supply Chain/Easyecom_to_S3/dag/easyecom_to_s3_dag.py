@@ -25,7 +25,7 @@ with DAG(
 
     # Define a function to execute the main.py script
     def run_main_script():
-        script_path = '/home/airflow/gcs/dags/python/main.py'
+        script_path = 'BI/dags/Supply Chain/Easyecom_to_S3/python/main.py'
         try:
             # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
