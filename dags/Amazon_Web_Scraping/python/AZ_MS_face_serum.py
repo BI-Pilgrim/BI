@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import csv
 import time
-#import os
+import os
 from selenium import webdriver
 import pandas as pd
 from openpyxl import Workbook
@@ -12,7 +12,6 @@ from pandas_gbq import to_gbq
 from datetime import date,timedelta
 import datetime
 from dateutil.relativedelta import relativedelta
-from selenium.webdriver.firefox.options import Options
 
 
 # In[12]:
@@ -26,7 +25,7 @@ def Search_page(nopage,key):
     print('Hold your seat belt tight and enjoy the show !!!....')
 
     categories = ['Face wash','Face Serum','Face Moisturizers','Shampoo','Hair Conditioner','Hair Growth Serum',
-                  'Sunscreen','Hair growth Oil','Body Lotion','Hair Mask','Facial Cleanser','Body Mist','EDP - Women','EDP - Men']
+                  'Sunscreen','Hair growth Oil','Body Lotion','Hair Mask','Facial Cleanser','Body Mist','EDP Women','EDP Men']
 
     keyword = key
 
@@ -41,15 +40,9 @@ def Search_page(nopage,key):
     MRP_price_m = []
     Prod_url_m = []
     Asin_m = []
-
     Top_brands = []
 
-    options = Options()
-    options.add_argument('--headless')  # Run in headless mode
-    options.add_argument('--disable-gpu')  # Disable GPU usage, sometimes necessary in headless mode
-    options.add_argument('--no-sandbox')  # Useful for running in Docker or cloud environments
-    driver = webdriver.Firefox(options=options)
-    
+    driver = webdriver.Firefox()
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
         Prod_url,Asin = Scrape_Page(driver,url)
@@ -128,7 +121,7 @@ def calculate_maxunitsold(unitsold):
     elif unitsold < 10000:
         return unitsold + 1000
     else:
-        return unitsold * 2
+        return unitsold + 10000
     
 
 def Find_competitor(df):
@@ -149,11 +142,7 @@ def Scrape_child_asin(df):
     c_asin = []
     std = "https://www.amazon.in/dp/"
     time_interval = 1
-    options = Options()
-    options.add_argument('--headless')  # Run in headless mode
-    options.add_argument('--disable-gpu')  # Disable GPU usage, sometimes necessary in headless mode
-    options.add_argument('--no-sandbox')  # Useful for running in Docker or cloud environments
-    driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox()
 
     for index, row in df.iterrows():
         
@@ -215,11 +204,7 @@ def child_details(df):
     best_seller_category = []
     reviews_summary = []
     
-    options = Options()
-    options.add_argument('--headless')  # Run in headless mode
-    options.add_argument('--disable-gpu')  # Disable GPU usage, sometimes necessary in headless mode
-    options.add_argument('--no-sandbox')  # Useful for running in Docker or cloud environments
-    driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox()
     
     prefixes = ["Visit the ", "Brand: "]
     for index, row in df.iterrows():
@@ -415,6 +400,157 @@ def child_details(df):
     return df
 
 
+# In[18]:
+
+
+def Brand_Scrape(df):
+    time_interval = 1
+
+    driver = webdriver.Firefox()
+    brands = []
+    urls = []
+    size = []
+    brand_value = []
+    scent = []
+    skin_type = []
+    benefits = []
+    item_form = []
+    item_weight = []
+    active_ingredient = []
+    unit_count = []
+    skin_tone = []
+    item_volume = []
+    special_feature = []
+    pack_size = []
+    spf_factor = []
+    hair_type = []
+    material_type_free = []
+    recomended_for = []
+    best_seller_beauty = []
+    best_seller_category = []
+    reviews_summary = []
+    
+    prefixes = ["Visit the ", "Brand: "]
+    for index, row in df.iterrows():
+        amazon_url = row['Product_URL']
+        driver.get(amazon_url)
+
+        brand_name = Extract_table(driver,'//*[@id="bylineInfo"]')
+        if brand_name:
+            if brand_name.startswith("Visit the "):
+                brand_name = brand_name[len("Visit the "):]
+            if brand_name.startswith("Brand: "):
+                brand_name = brand_name[len("Brand: "):]
+            if brand_name.endswith("Store"):
+                brand_name = brand_name[:-5]
+        brands.append(brand_name)
+        urls.append(amazon_url)
+        
+        try:
+            div_element = driver.find_element('xpath', '//div[@id="poExpander"]')
+            driver.execute_script("arguments[0].style.height = 'auto';", div_element)
+        
+        except:
+                print("No Expander in ",amazon_url)
+    
+        ml = Extract_table(driver,'//*[@id="variation_size_name"]//span[@class="selection"]')
+        size.append(ml)
+             
+        bv = Extract_table(driver,'//tr[@class= "a-spacing-small po-brand"]//td[2]')
+        brand_value.append(bv)
+        
+        sc = Extract_table(driver,'//tr[@class= "a-spacing-small po-scent"]//td[last()]//span')
+        scent.append(sc)
+        
+        sty = Extract_table(driver,'//tr[@class= "a-spacing-small po-skin_type"]//td[2]')
+        skin_type.append(sty)
+        
+        bf = Extract_table(driver,'//tr[@class= "a-spacing-small po-product_benefit"]//td[2]')
+        benefits.append(bf)
+        
+        itf = Extract_table(driver,'//tr[@class= "a-spacing-small po-item_form"]//td[2]')
+        item_form.append(itf)
+        
+        iw = Extract_table(driver,'//tr[@class= "a-spacing-small po-item_weight"]//td[2]')
+        item_weight.append(iw)
+        
+        ai = Extract_table(driver,'//tr[@class= "a-spacing-small po-active_ingredients"]//td[2]')
+        active_ingredient.append(ai)
+        
+        uc = Extract_table(driver,'//tr[@class= "a-spacing-small po-unit_count"]//td[2]')
+        unit_count.append(uc)
+        
+        st = Extract_table(driver,'//tr[@class= "a-spacing-small po-skin_tone"]//td[2]')
+        skin_tone.append(st)
+        
+        iv = Extract_table(driver,'//tr[@class= "a-spacing-small po-item_volume"]//td[2]')
+        item_volume.append(iv)
+        
+        ps = Extract_table(driver,'//tr[@class= "a-spacing-small po-number_of_items"]//td[2]')
+        pack_size.append(ps)
+        
+        spf = Extract_table(driver,'//tr[@class= "a-spacing-small po-sun_protection_factor"]//td[2]')
+        spf_factor.append(spf)
+        
+        ht = Extract_table(driver,'//tr[@class= "a-spacing-small po-hair_type"]//td[2]')
+        hair_type.append(ht)
+        
+        mt = Extract_table(driver,'//tr[@class= "a-spacing-small po-material_type_free"]//td[2]')
+        material_type_free.append(mt)
+        
+        sf = Extract_table(driver,'//tr[@class= "a-spacing-small po-special_features"]//td[2]')
+        special_feature.append(sf)
+        
+        rf = Extract_table(driver,'//tr[@class= "a-spacing-small po-recommended_uses_for_product"]//td[2]')
+        recomended_for.append(rf)    
+        
+        bsib = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[1]')
+        if bsib:
+            best_seller_beauty.append(bsib.split(" ")[0][1:].replace(",",""))
+        else:
+            best_seller_beauty.append(bsib)
+        
+        bsic = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[2]')
+        if bsic:
+            best_seller_category.append(bsic.split(" ")[0][1:].replace(",",""))
+        else:
+            best_seller_category.append(bsic)
+            
+        rdesc = Extract_table(driver,'//div[@id= "product-summary"]//p[1]')
+        reviews_summary.append(rdesc)
+            
+        time.sleep(time_interval)
+    driver.close()
+
+    op_df = pd.DataFrame({
+        'Size_of_SKU':size,
+        'Brand_Name':brands,
+        'Brand_value':brand_value,
+        'Best_Seller_in_Beauty':best_seller_beauty,
+        'Best_Seller_in_Category':best_seller_category,
+        'Scent_type':scent,
+        'Skin_type':skin_type,
+        'Benefits':benefits,
+        'Item_form':item_form,
+        'Item_weight':item_weight,
+        'Active_ingredient':active_ingredient,
+        'Net_volume':unit_count,
+        'Skin_tone':skin_tone,
+        'Item_volume':item_volume,
+        'Special_feature':special_feature,
+        'Pack_size':pack_size,
+        'SPF_factor':spf_factor,
+        'Hair_type':hair_type,
+        'Material_type_free':material_type_free,
+        'Special_feature':special_feature,
+        'Recomended_for':recomended_for,
+        'Reviews_Summary':reviews_summary
+    })
+    
+    return op_df
+
+
+# In[19]:
 
 
 def Metrics_derivation(df):
@@ -499,7 +635,7 @@ def convert_volume(weight_str):
 
         if weight_str in ['0', 'nan', '', None]:
             return 0
-        value, unit = weight_str.split()
+        value, *unit = weight_str.split()
         return float(value)
     else:
         return float(weight_str)
@@ -528,25 +664,24 @@ def datatype_normalizing(mtdf,column_dtype_mapping):
 def write_to_gbq(df):
     #  Define your project ID and destination table
     project_id = 'shopify-pubsub-project'
-    destination_table = 'Amazon_Market_Sizing.AMZ_Market_Sizing_temp'
+    destination_table = 'Amazon_Market_Sizing.AMZ_Market_Sizing'
     to_gbq(df, destination_table, project_id=project_id, if_exists='append')  # use 'replace', 'append', or 'fail' as needed
     print("Done appending in the table")
     
     
 
 
-keyword = 'face serum'
-No_of_pages = 1
+keyword = 'Hair Oil'
+No_of_pages = 10
 
 print('Card Scraping Started....',datetime.datetime.now())
 pdf = Search_page(No_of_pages,keyword)
 
 time.sleep(2)
 print('Child Asin Scraping Started....',datetime.datetime.now())
-#cdf = Scrape_child_asin(pdf)
+cdf = Scrape_child_asin(pdf)
 
-merged_df = pdf
-#pd.concat([pdf, cdf], axis=0, ignore_index=True)
+merged_df = pd.concat([pdf, cdf], axis=0, ignore_index=True)
 
 
 time.sleep(2)
@@ -561,7 +696,8 @@ final_op = mtrcsdf
 
 
 final_op['Category'] = keyword
-final_op['Date'] = date.today().replace(day=1) - relativedelta(months=1)
+final_op['Date'] = date.today()
+# date.today().replace(day=1) - relativedelta(months=1)
 
 column_dtype_mapping = {
     'Product_Title': 'str',
@@ -626,6 +762,7 @@ rfdf['Item_weight_in_gm'] = 0.0
 rfdf['Net_volume_in_ml'] = 0.0
 rfdf['Item_volume_in_ml'] = 0.0
 rfdf['SPF_factor_type'] = 0.0
+
 datatype_normalizing(rfdf,column_dtype_mapping)
 
 rfdf['Item_weight_in_gm'] = rfdf['Item_weight'].apply(convert_weight)
@@ -634,13 +771,13 @@ rfdf['Item_volume_in_ml'] = rfdf['Item_volume'].apply(convert_volume)
 rfdf['SPF_factor_type'] = rfdf['SPF_factor'].apply(convert_volume)
 
 
-# mtdf.to_csv(f'{keyword}_MS_with_brand.csv',index=False)
 print("Congrats!!! Market Sizing Done")
 print('Scraping Completed at....',datetime.datetime.now())
 
 
 rfdf = rfdf[rfdf['Parent_ASIN'] != '0']
 datatype_normalizing(rfdf,column_dtype_mapping)
-write_to_gbq(rfdf)
+# write_to_gbq(rfdf)
+rfdf.to_csv(f'{keyword}_MS_with_brand.csv',index=False)
 
 print("Done writing the table")
