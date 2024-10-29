@@ -1,3 +1,13 @@
+-- Before starting with the new data append first add the missing SKU from the Amazon coming data to the same table w.r.t previous month data 
+
+INSERT INTO `shopify-pubsub-project.Amazon_Market_Sizing.AMZ_Market_Sizing`
+select 
+ CM.* 
+from `shopify-pubsub-project.Amazon_Market_Sizing.AMZ_current_month_MS` as CM
+left join `shopify-pubsub-project.Amazon_Market_Sizing.AMZ_Market_Sizing` as ND 
+on CM.Child_ASIN = ND.Child_ASIN
+where ND.Child_ASIN is null;
+
 -- drop the current table
 DROP TABLE `shopify-pubsub-project.Amazon_Market_Sizing.AMZ_current_month_MS`;
 
