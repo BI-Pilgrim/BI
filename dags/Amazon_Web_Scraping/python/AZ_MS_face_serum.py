@@ -42,7 +42,13 @@ def Search_page(nopage,key):
     Asin_m = []
     Top_brands = []
 
-    driver = webdriver.Firefox()
+    options = webdriver.ChromeOptions()
+    # options.add_argument(...) add headless, datadir ....
+    options.add_experimental_option("debuggerAddress", "127.0.0.1:3003") 
+    driver = webdriver.Chrome(options=options)
+    driver.get('https://example.com')
+    assert driver.title == 'Example Domain'
+    
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
         Prod_url,Asin = Scrape_Page(driver,url)
