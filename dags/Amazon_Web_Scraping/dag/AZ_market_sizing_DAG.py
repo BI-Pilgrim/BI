@@ -5,7 +5,7 @@ import subprocess
 
 # Define default arguments for the DAG
 default_args = {
-    'owner': 'shafiq@discoverpilgrim.com',
+    'owner': 'rwitapa.mitra@discoverpilgrim.com',
     'depends_on_past': False,
     'email_on_failure': True,
     'email_on_retry': True,
@@ -15,15 +15,15 @@ default_args = {
 
 # Define the DAG
 with DAG(
-    dag_id='AZ_Market_Sizing_DAG',
+    dag_id='amazon_scraping',
     default_args=default_args,
-    description='A DAG to scrape the Amazaon category wise and do the market insight',
-    schedule_interval='30 1 * * *',  # 1:30 AM UTC is 7:00 AM IST
-    start_date=datetime(2024, 10, 19),  # Update this with the desired start date
+    description='A simple DAG to run scraping of Amaozon',
+    schedule_interval='30 1 * * *',  # 3:30 AM UTC is 9:00 AM IST
+    start_date=datetime(2024, 10, 16),  # Update this with the desired start date
     catchup=False,
 ) as dag:
 
-    # Define a function to execute the main.py script
+    # Define a function to execute the AZ_MS_face_serum.py script
     def run_main_script():
         script_path = 'gcs/dags/Amazon_Web_Scraping/python/AZ_MS_face_serum.py'
         try:
@@ -43,9 +43,9 @@ with DAG(
             raise
 
     # Define the PythonOperator to run the function
-    run_main_task = PythonOperator(
+    run_scrape_task = PythonOperator(
         task_id='run_main_script',
         python_callable=run_main_script,
     )
 
-    run_main_task
+    run_scrape_task
