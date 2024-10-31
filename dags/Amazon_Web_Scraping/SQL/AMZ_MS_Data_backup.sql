@@ -8,7 +8,6 @@ left join `shopify-pubsub-project.Amazon_Market_Sizing.AMZ_Market_Sizing` as ND
 on CM.Child_ASIN = ND.Child_ASIN
 where ND.Child_ASIN is null;
 
-
 -- drop the current table
 DROP TABLE `shopify-pubsub-project.Amazon_Market_Sizing.AMZ_current_month_MS`;
 
