@@ -46,8 +46,8 @@ def Search_page(nopage,key):
     # options.add_argument(...) add headless, datadir ....
     options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
     driver = webdriver.Chrome(options=options)
-    driver.get('https://example.com')
-    assert driver.title == 'Example Domain'
+    #driver.get('https://google.com')
+    #assert driver.title == 'Google'
     
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
@@ -148,7 +148,12 @@ def Scrape_child_asin(df):
     c_asin = []
     std = "https://www.amazon.in/dp/"
     time_interval = 1
-    driver = webdriver.Firefox()
+    options = webdriver.ChromeOptions()
+    # options.add_argument(...) add headless, datadir ....
+    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
+    driver = webdriver.Chrome(options=options)
+    #driver.get('https://google.com')
+    #assert driver.title == 'Google'
 
     for index, row in df.iterrows():
         
@@ -210,7 +215,12 @@ def child_details(df):
     best_seller_category = []
     reviews_summary = []
     
-    driver = webdriver.Firefox()
+    options = webdriver.ChromeOptions()
+    # options.add_argument(...) add headless, datadir ....
+    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
+    driver = webdriver.Chrome(options=options)
+    #driver.get('https://google.com')
+    #assert driver.title == 'Google'
     
     prefixes = ["Visit the ", "Brand: "]
     for index, row in df.iterrows():
@@ -412,7 +422,13 @@ def child_details(df):
 def Brand_Scrape(df):
     time_interval = 1
 
-    driver = webdriver.Firefox()
+    options = webdriver.ChromeOptions()
+    # options.add_argument(...) add headless, datadir ....
+    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
+    driver = webdriver.Chrome(options=options)
+    #driver.get('https://google.com')
+    #assert driver.title == 'Google'
+    
     brands = []
     urls = []
     size = []
