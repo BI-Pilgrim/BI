@@ -44,7 +44,7 @@ def Search_page(nopage,key):
 
     options = webdriver.ChromeOptions()
     # options.add_argument(...) add headless, datadir ....
-    options.add_experimental_option("debuggerAddress", "127.0.0.1:3003") 
+    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
     driver = webdriver.Chrome(options=options)
     driver.get('https://example.com')
     assert driver.title == 'Example Domain'
