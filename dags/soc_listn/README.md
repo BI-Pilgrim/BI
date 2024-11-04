@@ -1,1 +1,1 @@
-# Read Me file for SOcial Listening Project
+# Read Me file for Social Listening Project
