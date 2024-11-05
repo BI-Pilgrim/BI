@@ -15,7 +15,7 @@ default_args = {
 
 # Define the DAG
 with DAG(
-    dag_id='dag_test',
+    dag_id='sku_performance',
     default_args=default_args,
     description='Dag to append latest Sales data to bigquery',
     #schedule_interval='30 1 * * *',  # 3:30 AM UTC is 9:00 AM IST
