@@ -50,4 +50,4 @@ with DAG(
         python_callable=run_main_script,
     )
 
-    run_test_task
+    run_main_task
