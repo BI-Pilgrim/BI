@@ -27,7 +27,7 @@ with DAG(
 
     
     def run_main_script():
-        script_path = 'gcs/dags/Supply Chain/SKU_Performance/python/Extract_Sales.py'
+        script_path = 'gcs/dags/Supply Chain/SKU_Performance/python/Extract_Sales.py' 
         try:
             # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
