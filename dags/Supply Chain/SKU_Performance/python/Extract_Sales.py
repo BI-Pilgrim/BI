@@ -56,6 +56,6 @@ df["Taxable Value"] = df["Taxable Value"].round(2)
 
 
 project_id = 'shopify-pubsub-project'
-destination_table = 'Shopify_staging.test'
-to_gbq(df, destination_table, project_id=project_id, if_exists='append')  # use 'replace', 'append', or 'fail' as needed
+destination_table = 'Shopify_staging.Sales_Master'
+to_gbq(df, destination_table, project_id=project_id, if_exists='append')  
 print("Done appending in the table")
