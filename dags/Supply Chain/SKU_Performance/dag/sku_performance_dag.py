@@ -19,7 +19,7 @@ with DAG(
     default_args=default_args,
     description='Dag to append latest Sales data to bigquery',
     #schedule_interval='30 1 * * *',  # 3:30 AM UTC is 9:00 AM IST
-    schedule_interval='15 11 * * *' , # 4:45 PM IST (11:15 AM UTC)
+    schedule_interval='30 9 * * *' , # 3:00 PM IST (9.30 AM UTC)
 
     start_date=datetime(2024, 11, 5),  # Update this with the desired start date
     catchup=False,
