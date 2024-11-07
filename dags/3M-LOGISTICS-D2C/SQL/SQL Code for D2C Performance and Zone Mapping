@@ -1,0 +1,234 @@
+CREATE OR REPLACE TABLE `Supply_Chain_Reports.Logistics_3M_report` AS
+WITH 
+-- easy e com table
+Easyecom_table AS (
+    SELECT DISTINCT 
+        -- selecting the required columns
+        order_date,
+        TRIM(client_location) AS Location,
+        REPLACE(order_number, "'", '') AS order_number,
+        -- Extracting after the first two characters and casting it to a string
+    SUBSTR(CAST(order_number AS STRING), 6) AS order_number_free,
+        
+        order_status,
+        shipping_status,
+        
+        
+        
+  shipping_zip_code,
+        
+        manifested_at,
+        
+        delivered_at_datetime,
+        
+
+
+        -- Giving ranking to the orders
+        ROW_NUMBER() OVER (PARTITION BY order_number ORDER BY last_status_updatetime DESC) AS ranking
+    FROM `halo_115.easyecom_report_order_details`
+    WHERE channel_name = "Shopify"
+  and order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)
+    -- AND FORMAT_DATE('%Y%m%d', order_date) BETWEEN @DS_START_DATE AND @DS_END_DATE
+    -- AND DATE(DATETIME(SAFE_CAST(order_date AS TIMESTAMP), "Asia/Kolkata")) >= '2024-08-11' 
+     --AND DATE(DATETIME(SAFE_CAST(order_date AS TIMESTAMP), "Asia/Kolkata")) <= '2024-08-31'
+      AND order_status NOT IN ("CANCELLED", "Cancelled")
+  AND client_location != "Heavenly Secrets Private Limited"
+),
+-- selecting the distinct Easyecom data
+distincteasy_e_com AS (
+    SELECT * 
+    FROM Easyecom_table
+    WHERE ranking = 1
+),
+-- create initial final_status
+creating_final_status AS (
+    SELECT *,
+           CASE 
+               WHEN shipping_status = "Delivered" THEN "Delivered"
+               WHEN shipping_status IN ("Returned", "RTO In-Transit", "RTO initiated") THEN "RTO"
+               WHEN order_status = "Returned" THEN "RTO"
+               ELSE ""
+           END AS final_status
+    FROM distincteasy_e_com
+),
+-- click post table
+clickpost_table AS (
+    SELECT 
+
+        
+        pickup_date,
+        delivery_date,
+        order_id as order_id_clickpost,
+        ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY latest_timestamp DESC) AS ranking_clickpost,
+        CASE 
+            WHEN clickpost_unified_status = 'Delivered' THEN 'Delivered'
+            WHEN clickpost_unified_status IN ('RTO-Delivered', 'RTO-InTransit', 'RTO-Marked', 'RTO-OutForDelivery', 'RTO-Requested', 'Returned') THEN 'RTO'
+            WHEN clickpost_unified_status = "Cancelled" THEN "Cancelled"
+            WHEN clickpost_unified_status IN ('Damaged', 'Lost', 'OrderPlaced', 'OutForPickup', 'PickupFailed') THEN "Lost"
+            ELSE 'Pending'
+        END AS clickpost_status_d,
+        out_for_delivery_1st_attempt
+    FROM `pilgrim-dw.halo_115.clickpost_report_shipment`
+    WHERE out_for_delivery_1st_attempt != ''  
+    and order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 4 MONTH)
+ --  AND FORMAT_DATE('%Y%m%d', created_at) BETWEEN @DS_START_DATE AND @DS_END_DATE
+     --AND DATE(DATETIME(SAFE_CAST(created_at AS TIMESTAMP), "Asia/Kolkata")) >= '2024-08-01' 
+   --  AND DATE(DATETIME(SAFE_CAST(created_at AS TIMESTAMP), "Asia/Kolkata")) <= '2024-08-31'
+),
+-- selecting the distinct clickpost data
+distinctclickpost AS (
+    SELECT * 
+    FROM clickpost_table
+    WHERE ranking_clickpost = 1
+),
+-- Joining both our tables on the basis of their tracking number
+Easyclick AS (
+    SELECT EE.*, CP.*
+    FROM creating_final_status AS EE
+    LEFT JOIN distinctclickpost AS CP ON EE.order_number = CP.order_id_clickpost
+),
+-- Create the final final_status by only updating empty/null values
+create_full_final_status AS (
+    SELECT *,
+           CASE 
+               WHEN (final_status IS NULL OR final_status = '') THEN 
+                   CASE 
+                       WHEN clickpost_status_d = "Delivered" AND shipping_status != "Delivered" THEN "Delivered"
+                       WHEN clickpost_status_d = "Cancelled" THEN "Check_status"
+                       WHEN clickpost_status_d = "Lost" THEN "Lost"
+                       WHEN clickpost_status_d = "RTO" THEN "RTO"
+                       WHEN clickpost_status_d = "Pending" THEN "Pending"
+                       ELSE "Pending"
+                   END
+               ELSE final_status
+           END AS final_status_new
+    FROM Easyclick
+),
+--read globalreport
+globalReport as
+(
+    SELECT order_datetime,
+        order_id as order_id_global   ,
+        -- Giving ranking to the orders
+        ROW_NUMBER() OVER (PARTITION BY order_id ) AS ranking_globalReport
+    FROM `pilgrim-dw.halo_115.global_reports_project_level_report_order_items`
+
+),
+globalReportDistinct as(
+    select * 
+    from globalReport
+    where ranking_globalReport=1
+),
+-- Final join ensuring datatype match between `order_numberfree` and `order_id`
+create_full_final_statusglobalReport AS (
+SELECT GR.*, CFF.*,  
+FROM create_full_final_status AS CFF
+LEFT JOIN globalReportDistinct AS GR ON GR.order_id_global = CFF.order_number_free
+),
+fulldata as (
+select 
+* ,
+  SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S',delivered_at_datetime ) AS parsed_datetime
+from create_full_final_statusglobalReport
+  ),
+  fdata as (
+    select * ,
+
+
+  TIMESTAMP_sub(TIMESTAMP(PARSE_DATETIME('%Y-%m-%d %H:%M:%S', cast(parsed_datetime as string))),INTERVAL 5 HOUR) AS utc_timestamp
+  from fulldata
+  ),
+  
+fillDeiliveryDate AS (
+    SELECT *,
+           case 
+  when (delivery_date is null )
+  then utc_timestamp
+  else 
+                   SAFE_CAST(NULLIF(delivery_date, NULL
+                   ) AS TIMESTAMP) end AS delivery_date_new
+    FROM fdata
+)
+,
+fillpickupdate as (
+    select * , 
+    case 
+    when (pickup_date  is null)
+     then SAFE_CAST(NULLIF(manifested_at, NULL
+                   ) AS TIMESTAMP)
+    else 
+    pickup_date
+    end as pickup_date_new
+    from fillDeiliveryDate
+),convert_indian_std_time as (
+select *,
+ TIMESTAMP_ADD(TIMESTAMP(delivery_date_new), INTERVAL 5 HOUR) AS deliverydateist,
+ TIMESTAMP_ADD(TIMESTAMP(order_datetime), INTERVAL 5 HOUR) AS orderdateist,
+ TIMESTAMP_ADD(TIMESTAMP(pickup_date_new), INTERVAL 5 HOUR) as pickupdateist
+ 
+
+
+from 
+fillpickupdate
+),
+calculate AS (
+    SELECT *,
+           CASE 
+               WHEN final_status_new = 'Delivered' 
+               THEN DATETIME_DIFF(deliverydateist, orderdateist, second) / (60*60 * 24)
+           END AS O2D,
+          case WHEN final_status_new = 'Delivered' 
+               THEN DATETIME_DIFF(deliverydateist, pickupdateist, second) / (60*60 * 24)
+           END AS S2D,
+           case WHEN final_status_new in ('Delivered','RTO')
+               THEN DATETIME_DIFF(pickupdateist, orderdateist, second) / (60*60 * 24)
+           END AS O2S
+
+
+
+        from convert_indian_std_time
+
+
+)
+,
+
+
+zone_mapping as
+ (
+  select
+    distinct
+    WH_name,
+    Pincode_delivered,
+    Zone_
+  from `pilgrim-dw.Supply_chain.Warehouse_Zone_mapping`
+ ),
+ --join zonefulltb
+ zonefulltb as
+(
+ SELECT 
+  FO.*,
+  Z.Zone_, -- Zone column from the zone mapping
+FROM calculate AS FO
+LEFT JOIN zone_mapping AS Z
+  ON TRIM(Z.WH_name) = TRIM(FO.Location)
+  AND Z.Pincode_delivered = FO.shipping_zip_code
+
+)
+,
+zonefinalfull as (
+    select * ,
+    case 
+    when (Zone_="" or Zone_ is null)
+    then "roi"
+    else 
+    Zone_ end as final_zone
+    from zonefulltb
+)
+
+SELECT *,
+   CONCAT(
+        EXTRACT(WEEK FROM order_date), -- Week number of the year
+        ') ',
+        FORMAT_DATE('%d %b', DATE_TRUNC(order_date, WEEK(SUNDAY))),
+        ' - ',
+        FORMAT_DATE('%d %b', DATE_ADD(DATE_TRUNC(order_date, WEEK(SUNDAY)), INTERVAL 6 DAY))) as  Week from zonefinalfull;
