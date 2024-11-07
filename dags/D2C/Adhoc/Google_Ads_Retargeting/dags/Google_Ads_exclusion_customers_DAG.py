@@ -7,7 +7,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 
 # Define the start date in UTC 
-START_DATE = timezone.datetime(2024, 11, 7, 5, 30, 0, tzinfo=timezone.utc)  # Corresponds to 11 AM IST on 2024-11-7
+START_DATE = timezone.datetime(2024, 11, 7, 5, 30, 0, tzinfo=timezone.utc)  # Corresponds to 11 AM IST on 2024-11-7 
 
 GOOGLE_CONN_ID = "google_cloud_default"
 PROJECT_ID = "shopify-pubsub-project"
