@@ -24,7 +24,7 @@ creds = None
 #         token.write(creds.to_json())
 
 if not creds or not creds.valid:
-    flow = InstalledAppFlow.from_client_secrets_file('dags/Supply Chain/SKU_Performance/python/credentials.json', SCOPES)
+    flow = InstalledAppFlow.from_client_secrets_file('gs://asia-south2-composer-pilgri-3b86eec5-bucket/dags/Supply Chain/SKU_Performance/python/credentials.json', SCOPES)
     creds = flow.run_local_server(port=0)
 
 
