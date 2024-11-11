@@ -5,7 +5,7 @@ with latest_customers as
   distinct
   customer_first_name,
   customer_last_name,
-  ship_country,
+  'in' as ship_country,
   shipping_pincode,
   customer_email,
   customer_phone
