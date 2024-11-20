@@ -1,6 +1,6 @@
 
 
-CREATE or replace TABLE `shopify-pubsub-project.Shopify_staging.Abandoned_checkout`
+CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Abandoned_checkout`
 PARTITION BY DATE_TRUNC(aband_created_at,day)
 -- CLUSTER BY fulfillment_shipment_status
 OPTIONS(
@@ -32,12 +32,12 @@ SELECT
   CAST(JSON_EXTRACT_SCALAR(customer, '$.id') AS STRING) AS customer_id,
 
 
-  CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].amount') AS FLOAT64) AS disocunt_amount,
-  CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].code') AS STRING) AS disocunt_code,
+  CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].amount') AS FLOAT64) AS discount_amount,
+  CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].code') AS STRING) AS discount_code,
   CAST(JSON_EXTRACT_SCALAR(discount_codes, '$[0].type') AS STRING) AS discount_type
 
 
-FROM  `shopify-pubsub-project.airbyte711.abandoned_checkouts`
+FROM  `shopify-pubsub-project.pilgrim_bi_airbyte.abandoned_checkouts`
 group by All
 
 
