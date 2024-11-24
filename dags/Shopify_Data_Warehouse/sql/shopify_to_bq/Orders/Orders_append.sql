@@ -1,5 +1,5 @@
 
-MERGE INTO `shopify-pubsub-project.Shopify_staging.Orders` AS target
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` AS target
 
 USING (
   SELECT
@@ -73,8 +73,9 @@ JSON_EXTRACT_SCALAR(shipping_address, '$.province_code') AS shipping_province_co
 JSON_EXTRACT_SCALAR(shipping_address, '$.zip') AS shipping_zip,
 
 JSON_EXTRACT_SCALAR(payment_gateway_names, '$') AS payment_gateway_names,
+admin_graphql_api_id as admin_graphql_api_id
 
-  FROM `shopify-pubsub-project.airbyte711.orders`
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte.orders`
   WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
@@ -142,7 +143,8 @@ target.shipping_country_code = source.shipping_country_code,
 target.shipping_province = source.shipping_province,
 target.shipping_province_code = source.shipping_province_code,
 target.shipping_zip = source.shipping_zip,
-target.payment_gateway_names = source.payment_gateway_names
+target.payment_gateway_names = source.payment_gateway_names,
+target.admin_graphql_api_id = source.admin_graphql_api_id
 
 WHEN NOT MATCHED THEN INSERT (
  _airbyte_extracted_at,
@@ -206,7 +208,8 @@ shipping_country_code,
 shipping_province,
 shipping_province_code,
 shipping_zip,
-payment_gateway_names
+payment_gateway_names,
+admin_graphql_api_id
 )
   VALUES (
 source._airbyte_extracted_at,
@@ -270,7 +273,8 @@ source.shipping_country_code,
 source.shipping_province,
 source.shipping_province_code,
 source.shipping_zip,
-payment_gateway_names
+source.payment_gateway_names,
+source.admin_graphql_api_id
 
   )
 

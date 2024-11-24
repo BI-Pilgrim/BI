@@ -1,5 +1,6 @@
 
-CREATE or replace TABLE `shopify-pubsub-project.Shopify_staging.Customers`
+
+CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Customers`
 PARTITION BY DATE_TRUNC(Customer_created_at,day)
 -- CLUSTER BY 
 OPTIONS(
@@ -25,6 +26,7 @@ SELECT
   updated_at as Customer_updated_at,
   created_at as Customer_created_at,
   CAST(JSON_EXTRACT_SCALAR(accepts_marketing_updated_at) AS TIMESTAMP) as Customer_accepts_marketing_updated_at,
+  admin_graphql_api_id as admin_graphql_api_id,
 
   JSON_EXTRACT_SCALAR(default_address, '$.address1') AS Customer_address1,
   JSON_EXTRACT_SCALAR(default_address, '$.address2') AS Customer_address2,
@@ -45,8 +47,4 @@ SELECT
   JSON_EXTRACT_SCALAR(email_marketing_consent, '$.opt_in_level') AS email_consent_opt_in_level,
   JSON_EXTRACT_SCALAR(email_marketing_consent, '$.state') AS email_consent_state,
 
-  FROM `shopify-pubsub-project.airbyte711.customers`
-
-
-
-
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte.customers`

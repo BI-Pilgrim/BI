@@ -1,4 +1,5 @@
-CREATE or replace TABLE `shopify-pubsub-project.Shopify_staging.Orders`
+
+CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders`
 PARTITION BY DATE_TRUNC(Order_created_at,day)
 CLUSTER BY Order_fulfillment_status
 OPTIONS(
@@ -77,5 +78,6 @@ JSON_EXTRACT_SCALAR(shipping_address, '$.province_code') AS shipping_province_co
 JSON_EXTRACT_SCALAR(shipping_address, '$.zip') AS shipping_zip,
 
 JSON_EXTRACT_SCALAR(payment_gateway_names, '$') AS payment_gateway_names,
+admin_graphql_api_id as admin_graphql_api_id
 
-FROM  `shopify-pubsub-project.airbyte711.orders`
+FROM   `shopify-pubsub-project.pilgrim_bi_airbyte.orders`

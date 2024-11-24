@@ -39,5 +39,3 @@ SELECT
 
 FROM  `shopify-pubsub-project.airbyte711.abandoned_checkouts`
 group by All
-
-

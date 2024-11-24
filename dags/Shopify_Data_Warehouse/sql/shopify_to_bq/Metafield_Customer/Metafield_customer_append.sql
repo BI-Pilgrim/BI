@@ -1,5 +1,5 @@
 
-MERGE INTO `shopify-pubsub-project.Shopify_staging.Metafield_customers` AS target
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_customers` AS target
 
 USING (
   select
@@ -22,8 +22,9 @@ USING (
     COALESCE(MAX(case when key='gender' then value end),'NIL') as Gender_field,
     COALESCE(MAX(case when key='personalization_products' then value end),'NIL') as Personalization_field,
     COALESCE(MAX(case when key='concerns' then value end),'NIL') as Concerns_field,
+    admin_graphql_api_id as admin_graphql_api_id
     
-    FROM `shopify-pubsub-project.airbyte711.metafield_customers`
+    FROM `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_customers`
     group by ALL)
   WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
@@ -39,7 +40,8 @@ target.customer_updated_at = source.customer_updated_at,
 target.metafield_owner_resource = source.metafield_owner_resource,
 target.Gender_field = source.Gender_field,
 target.Personalization_field = source.Personalization_field,
-target.Concerns_field = source.Concerns_field
+target.Concerns_field = source.Concerns_field,
+target.admin_graphql_api_id = source.admin_graphql_api_id
 
 WHEN NOT MATCHED THEN INSERT (
 
@@ -51,7 +53,8 @@ customer_updated_at,
 metafield_owner_resource,
 Gender_field,
 Personalization_field,
-Concerns_field
+Concerns_field,
+admin_graphql_api_id
 
    )
   VALUES (
@@ -63,7 +66,8 @@ source.customer_updated_at,
 source.metafield_owner_resource,
 source.Gender_field,
 source.Personalization_field,
-source.Concerns_field
+source.Concerns_field,
+source.admin_graphql_api_id 
   )
 
 
