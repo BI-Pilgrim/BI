@@ -1,0 +1,1 @@
+ORDERS_TABLE_NAME = 'orders'

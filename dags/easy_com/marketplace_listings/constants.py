@@ -1,0 +1,1 @@
+MARKETPLACE_LISTINGS_TABLE_NAME = 'marketplace_listings'

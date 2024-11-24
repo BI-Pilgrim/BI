@@ -1,0 +1,1 @@
+INVENTORY_SNAPSHOT_TABLE_NAME = 'inventory_snapshot'
