@@ -1,5 +1,5 @@
 
-MERGE INTO `shopify-pubsub-project.Shopify_staging.Transactions` AS target
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Transactions` AS target
 
 USING (
   SELECT
@@ -24,9 +24,11 @@ USING (
     CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_number') AS STRING) AS payment_credit_card_number,
     CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_wallet') AS STRING) AS payment_credit_card_wallet,
     CAST(JSON_EXTRACT_SCALAR(payment_details, '$.cvv_result_code') AS STRING) AS payment_cvv_result_code,
+    formattedGateway as formattedGateway,
+    manuallyCapturable as manuallyCapturable
 
 
-  FROM `shopify-pubsub-project.airbyte711.transactions`
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte.transactions`
   WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
@@ -51,7 +53,9 @@ target.payment_credit_card_expiration_year = source.payment_credit_card_expirati
 target.payment_credit_card_name = source.payment_credit_card_name,
 target.payment_credit_card_number = source.payment_credit_card_number,
 target.payment_credit_card_wallet = source.payment_credit_card_wallet,
-target.payment_cvv_result_code = source.payment_cvv_result_code
+target.payment_cvv_result_code = source.payment_cvv_result_code,
+target.formattedGateway = source.formattedGateway,
+target.manuallyCapturable = source.manuallyCapturable
 
 WHEN NOT MATCHED THEN INSERT (
 _airbyte_extracted_at,
@@ -73,8 +77,9 @@ payment_credit_card_expiration_year,
 payment_credit_card_name,
 payment_credit_card_number,
 payment_credit_card_wallet,
-payment_cvv_result_code
-
+payment_cvv_result_code,
+formattedGateway ,
+manuallyCapturable
    )
   VALUES (
 source._airbyte_extracted_at,
@@ -96,7 +101,9 @@ source.payment_credit_card_expiration_year,
 source.payment_credit_card_name,
 source.payment_credit_card_number,
 source.payment_credit_card_wallet,
-source.payment_cvv_result_code
+source.payment_cvv_result_code,
+source.formattedGateway,
+source.manuallyCapturable 
 
   )
 
