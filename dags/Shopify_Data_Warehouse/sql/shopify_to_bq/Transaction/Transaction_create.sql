@@ -30,7 +30,8 @@ CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_number') AS STRING) AS 
 CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_wallet') AS STRING) AS payment_credit_card_wallet,
 CAST(JSON_EXTRACT_SCALAR(payment_details, '$.cvv_result_code') AS STRING) AS payment_cvv_result_code,
 formattedGateway as formattedGateway,
-manuallyCapturable as manuallyCapturable
+manuallyCapturable as manuallyCapturable,
+admin_graphql_api_id as admin_graphql_api_id
 
 
 FROM  `shopify-pubsub-project.pilgrim_bi_airbyte.transactions`
