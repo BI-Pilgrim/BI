@@ -51,4 +51,3 @@ sum(case when order_rank>1 and bought_HGS=1 and rolling_HGS_sum >1 then final_sa
 from final_tagging
 group by ALL
 order by 1
-
