@@ -1,0 +1,1 @@
+STATES_TABLE_NAME = 'states'

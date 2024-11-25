@@ -1,0 +1,1 @@
+LOCATIONS_TABLE_NAME = 'locations'
