@@ -1,0 +1,1 @@
+COUNTRIES_TABLE_NAME = 'countries'

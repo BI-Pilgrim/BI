@@ -1,0 +1,1 @@
+GRN_DETAILS_TABLE_NAME = 'grn_details'

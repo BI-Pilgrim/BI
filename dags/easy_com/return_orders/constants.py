@@ -1,0 +1,2 @@
+ALL_RETURN_ORDERS_TABLE_NAME = 'all_return_orders'
+PENDING_RETURN_ORDERS_TABLE_NAME = 'pending_return_orders'

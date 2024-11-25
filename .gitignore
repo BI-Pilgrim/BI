@@ -1,0 +1,4 @@
+.dev
+*.env
+*.ignore.*
+*.pyc

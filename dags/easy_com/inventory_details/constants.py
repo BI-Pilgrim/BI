@@ -1,0 +1,1 @@
+INVENTORY_DETAILS_TABLE_NAME = 'inventory_details'

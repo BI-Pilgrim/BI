@@ -1,0 +1,1 @@
+PURCHASE_ORDERS_TABLE_NAME = 'purchase_orders'

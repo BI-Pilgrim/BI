@@ -1,0 +1,1 @@
+CUSTOMERS_TABLE_NAME = 'customers'

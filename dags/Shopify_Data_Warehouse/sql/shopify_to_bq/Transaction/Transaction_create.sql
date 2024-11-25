@@ -1,5 +1,5 @@
 
-CREATE or replace TABLE `shopify-pubsub-project.Shopify_staging.Transactions`
+CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Transactions`
 PARTITION BY DATE_TRUNC(Trans_created_at,day)
 CLUSTER BY Trans_kind,Trans_status
 OPTIONS(
@@ -29,7 +29,9 @@ CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_name') AS STRING) AS pa
 CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_number') AS STRING) AS payment_credit_card_number,
 CAST(JSON_EXTRACT_SCALAR(payment_details, '$.credit_card_wallet') AS STRING) AS payment_credit_card_wallet,
 CAST(JSON_EXTRACT_SCALAR(payment_details, '$.cvv_result_code') AS STRING) AS payment_cvv_result_code,
+formattedGateway as formattedGateway,
+manuallyCapturable as manuallyCapturable,
+admin_graphql_api_id as admin_graphql_api_id
 
 
-FROM  `shopify-pubsub-project.airbyte711.transactions`
-
+FROM  `shopify-pubsub-project.pilgrim_bi_airbyte.transactions`

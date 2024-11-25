@@ -1,0 +1,1 @@
+KITS_TABLE_NAME = 'kits'

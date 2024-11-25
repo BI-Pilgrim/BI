@@ -1,0 +1,1 @@
+VENDORS_TABLE_NAME = 'vendors'
