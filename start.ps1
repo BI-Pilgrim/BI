@@ -12,6 +12,7 @@ function New-DevPath {
 
 New-DevPath -Path ./.dev/ -ItemType Directory
 New-DevPath -Path ./.dev/.python_history -ItemType File
+New-DevPath -Path ./local.env -ItemType File
 New-DevPath -Path ./.dev/.bash_history -ItemType File
 
 docker compose down; docker compose up --build
