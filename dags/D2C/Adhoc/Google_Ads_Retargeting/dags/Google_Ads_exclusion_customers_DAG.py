@@ -27,7 +27,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='Google_Ads_retargetting_exclusion_Customers',
+    dag_id='Google_Ads_retargetting_exclusion_Customers_1',
     schedule_interval='30 5 * * *',  # Cron expression for 11 AM IST (11:30 PM UTC)
     default_args=default_args,
     catchup=False
