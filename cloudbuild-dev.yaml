@@ -14,5 +14,6 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     script: |
       #!/bin/bash
-      echo "gsutil cp -r dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');";
-      gsutil cp -r dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');
+      
+      echo "gsutil rsync -r -J --delete-unmatched-destination-objects dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)')";
+      gsutil rsync -r -J --delete-unmatched-destination-objects dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');
