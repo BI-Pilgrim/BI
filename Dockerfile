@@ -12,6 +12,7 @@ RUN pip install -r requirements.txt
 COPY airflow_default_config /airflow_config
 COPY ./dags /dags/
 COPY setup.sh /airflow_config/
+RUN sed -i 's/\r/\n/g; s/\n$//' /airflow_config/setup.sh;
 
 EXPOSE 8080
 

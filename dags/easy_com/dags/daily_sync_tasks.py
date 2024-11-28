@@ -23,7 +23,7 @@ def update_csv_url_and_status():
     @task.python
     def sync():
         easyEComDownloadReportsAPI().sync_data()
-    sync()
+    resp = sync()
 
 
 # all the below Report uploading tasks should run once every day at 5 am
@@ -35,7 +35,7 @@ def sync_mini_sales_report():
     @task.python
     def sync():
         MiniSalesReportParserAPI().sync_data()
-    sync()
+    resp = sync()
 
 @dag("sync_tax_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_tax_report():
@@ -44,7 +44,7 @@ def sync_tax_report():
     @task.python
     def sync():
         TaxReportParserAPI().sync_data()
-    sync()
+    resp = sync()
 
 @dag("sync_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_returns_report():
@@ -53,7 +53,7 @@ def sync_returns_report():
     @task.python
     def sync():
         ReturnsReportParserAPI().sync_data()
-    sync()
+    resp = sync()
 
 @dag("sync_pending_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_pending_returns_report():
@@ -62,7 +62,7 @@ def sync_pending_returns_report():
     @task.python
     def sync():
         PendingReturnsReportParserAPI().sync_data()
-    sync()
+    resp = sync()
 
 @dag("sync_grn_details_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_grn_details_report():
@@ -71,7 +71,7 @@ def sync_grn_details_report():
     @task.python
     def sync():
         GRNDetailsReportParserAPI().sync_data()
-    sync()
+    resp = sync()
 
 @dag("sync_status_wise_stock_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_status_wise_stock_report():
@@ -80,7 +80,7 @@ def sync_status_wise_stock_report():
     @task.python
     def sync():
         StatusWiseStockReportParserAPI().sync_data()
-    sync()
+    resp = sync()
 
 @dag("sync_inventory_report", schedule='0 6 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_inventory_report():
@@ -95,8 +95,8 @@ def sync_inventory_report():
     def sync_inventory_by_bin():
         InventoryViewByBinReportParserAPI().sync_data()
 
-    sync_inventory_aging()
-    sync_inventory_by_bin()
+    resp1 = sync_inventory_aging()
+    resp2 = sync_inventory_by_bin()
 
 var_sync_reports_data = sync_reports_data()
 var_update_csv_url_and_status = update_csv_url_and_status()
