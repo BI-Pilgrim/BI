@@ -14,9 +14,6 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 
-# In[12]:
-
-
 def Search_page(nopage,key):
     time_interval = 1
 
@@ -24,8 +21,9 @@ def Search_page(nopage,key):
     num_of_pages = nopage
     print('Hold your seat belt tight and enjoy the show !!!....')
 
-    categories = ['Face wash','Face Serum','Face Moisturizers','Shampoo','Hair Conditioner','Hair Growth Serum',
-                  'Sunscreen','Hair growth Oil','Body Lotion','Hair Mask','Facial Cleanser','Body Mist','EDP Women','EDP Men']
+    categories = ['Face Wash','Face Serum','Face Moisturizers','Shampoo','Hair Conditioner','Hair Growth Serum',
+                  'Sunscreen','Hair Growth Oil','Body Lotion','Hair Mask','Facial Cleanser','Body Mist','EDP Women',
+                  'EDP Men','Eye Cream','Face cream']
 
     keyword = key
 
@@ -42,13 +40,7 @@ def Search_page(nopage,key):
     Asin_m = []
     Top_brands = []
 
-    options = webdriver.ChromeOptions()
-    # options.add_argument(...) add headless, datadir ....
-    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
-    driver = webdriver.Chrome(options=options)
-    #driver.get('https://google.com')
-    #assert driver.title == 'Google'
-    
+    driver = webdriver.Firefox()
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
         Prod_url,Asin = Scrape_Page(driver,url)
@@ -139,21 +131,13 @@ def Find_competitor(df):
     return top_10_brands
 
 
-# In[16]:
-
-
 def Scrape_child_asin(df):
     child_url = []
     p_asin = []
     c_asin = []
     std = "https://www.amazon.in/dp/"
     time_interval = 1
-    options = webdriver.ChromeOptions()
-    # options.add_argument(...) add headless, datadir ....
-    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
-    driver = webdriver.Chrome(options=options)
-    #driver.get('https://google.com')
-    #assert driver.title == 'Google'
+    driver = webdriver.Firefox()
 
     for index, row in df.iterrows():
         
@@ -215,12 +199,7 @@ def child_details(df):
     best_seller_category = []
     reviews_summary = []
     
-    options = webdriver.ChromeOptions()
-    # options.add_argument(...) add headless, datadir ....
-    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
-    driver = webdriver.Chrome(options=options)
-    #driver.get('https://google.com')
-    #assert driver.title == 'Google'
+    driver = webdriver.Firefox()
     
     prefixes = ["Visit the ", "Brand: "]
     for index, row in df.iterrows():
@@ -302,13 +281,13 @@ def child_details(df):
         
         bsib = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[1]')
         if bsib:
-            best_seller_beauty.append(bsib.split(" ")[0][1:])
+            best_seller_beauty.append(bsib.split(" ")[0])
         else:
             best_seller_beauty.append(bsib)
         
         bsic = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[2]')
         if bsic:
-            best_seller_category.append(bsic.split(" ")[0][1:])
+            best_seller_category.append(bsic.split(" ")[0])
         else:
             best_seller_category.append(bsic)
             
@@ -422,13 +401,7 @@ def child_details(df):
 def Brand_Scrape(df):
     time_interval = 1
 
-    options = webdriver.ChromeOptions()
-    # options.add_argument(...) add headless, datadir ....
-    options.add_experimental_option("debuggerAddress", "10.160.15.200:3000") 
-    driver = webdriver.Chrome(options=options)
-    #driver.get('https://google.com')
-    #assert driver.title == 'Google'
-    
+    driver = webdriver.Firefox()
     brands = []
     urls = []
     size = []
@@ -528,13 +501,13 @@ def Brand_Scrape(df):
         
         bsib = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[1]')
         if bsib:
-            best_seller_beauty.append(bsib.split(" ")[0][1:].replace(",",""))
+            best_seller_beauty.append(bsib.split(" ")[0])
         else:
             best_seller_beauty.append(bsib)
         
         bsic = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[2]')
         if bsic:
-            best_seller_category.append(bsic.split(" ")[0][1:].replace(",",""))
+            best_seller_category.append(bsic.split(" ")[0])
         else:
             best_seller_category.append(bsic)
             
@@ -628,6 +601,7 @@ def cleaning(df, col):
     df[col+'_type'] = df.apply(lambda row: classify(row[col], keyword_counts), axis=1)
 
     return df
+
 def convert_weight(weight_str):
 
     weight_str = weight_str.lower().strip()
@@ -693,7 +667,8 @@ def write_to_gbq(df):
     
 
 
-keyword = 'Hair Oil'
+keyword = 'Face moisturizer'
+
 No_of_pages = 10
 
 print('Card Scraping Started....',datetime.datetime.now())
@@ -718,7 +693,8 @@ final_op = mtrcsdf
 
 
 final_op['Category'] = keyword
-final_op['Date'] = date.today()
+final_op['Date_MS'] = date(2024,11,25)
+# date.today()
 # date.today().replace(day=1) - relativedelta(months=1)
 
 column_dtype_mapping = {
@@ -735,8 +711,8 @@ column_dtype_mapping = {
     'Size_of_SKU': 'str',
     'Brand_Name': 'str',
     'Brand_value': 'str',
-    'Best_Seller_in_Beauty': 'int',
-    'Best_Seller_in_Category': 'int',
+    'Best_Seller_in_Beauty': 'str',
+    'Best_Seller_in_Category': 'str',
     'Scent_type': 'str',
     'Skin_type': 'str',
     'Benefits': 'str',
@@ -758,8 +734,7 @@ column_dtype_mapping = {
     'Max_Revenue': 'float',        
     'Contribution': 'float',
     'Rolling_sum': 'float',
-    'Category': 'str',
-    'Date': 'datetime64[ns]',      
+    'Category': 'str',      
     'Benefits_type': 'str',
     'Active_ingredient_type': 'str',
     'Material_type_free_type': 'str',
@@ -767,11 +742,9 @@ column_dtype_mapping = {
     'Net_volume_in_ml':'float',
     'Item_volume_in_ml':'float',
     'SPF_factor_type':'float',
+    'Date_MS': 'datetime64[ns]',
 }
 
-
-# Load the CSV file into a DataFrame
-# df = pd.read_csv("D:\MRP_discount_scraping\Sunscreen_MS_with_brand.csv")
 bfdf = cleaning(final_op,'Benefits')
 aidf = cleaning(bfdf,'Active_ingredient')
 mtdf = cleaning(aidf,'Material_type_free')
@@ -785,7 +758,7 @@ rfdf['Net_volume_in_ml'] = 0.0
 rfdf['Item_volume_in_ml'] = 0.0
 rfdf['SPF_factor_type'] = 0.0
 
-datatype_normalizing(rfdf,column_dtype_mapping)
+rfdf = datatype_normalizing(rfdf,column_dtype_mapping)
 
 rfdf['Item_weight_in_gm'] = rfdf['Item_weight'].apply(convert_weight)
 rfdf['Net_volume_in_ml'] = rfdf['Net_volume'].apply(convert_volume)
@@ -796,10 +769,56 @@ rfdf['SPF_factor_type'] = rfdf['SPF_factor'].apply(convert_volume)
 print("Congrats!!! Market Sizing Done")
 print('Scraping Completed at....',datetime.datetime.now())
 
-
+final_column = [
+'Active_ingredient',
+'Active_ingredient_type',
+'ASIN',
+'Benefits',
+'Benefits_type',
+'Best_Seller_in_Beauty',
+'Best_Seller_in_Category',
+'Brand_value',
+'Category',
+'Hair_type',
+'Hair_type_type',
+'Item_form',
+'Item_volume',
+'Item_volume_in_ml',
+'Item_weight',
+'Item_weight_in_gm',
+'Material_type_free',
+'Material_type_free_type',
+'Max_Revenue',
+'Max_Unit_Sold',
+'MRP_Price',
+'Net_volume',
+'Net_volume_in_ml',
+'No_Of_Ratings',
+'Pack_size',
+'Parent_ASIN',
+'Per_100ml_price',
+'Product_Title',
+'Product_URL',
+'Recomended_for',
+'Recomended_for_type',
+'Revenue',
+'Reviews_Summary',
+'Scent_type',
+'Scent_type_type',
+'Selling_Price',
+'Size_of_SKU',
+'Skin_tone',
+'Skin_type',
+'SPF_factor',
+'SPF_factor_type',
+'Unit_Sold',
+'Date_MS',
+]
+rfdf = rfdf[final_column]
 rfdf = rfdf[rfdf['Parent_ASIN'] != '0']
-datatype_normalizing(rfdf,column_dtype_mapping)
-# write_to_gbq(rfdf)
+rfdf = datatype_normalizing(rfdf,column_dtype_mapping)
+
+write_to_gbq(rfdf)
 rfdf.to_csv(f'{keyword}_MS_with_brand.csv',index=False)
 
 print("Done writing the table")

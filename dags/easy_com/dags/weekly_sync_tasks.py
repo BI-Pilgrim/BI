@@ -9,6 +9,7 @@ def sync_vendors():
     def sync():
         from easy_com.vendors.get_vendors import easyEComVendorsAPI
         easyEComVendorsAPI().sync_data()
+    resp = sync()
 
 @dag("sync_countries_and_states", schedule='0 5 * * 2', start_date=datetime(year=2024,month=1,day=1))
 def sync_countries_and_states():
@@ -17,6 +18,7 @@ def sync_countries_and_states():
     def sync():
         from easy_com.countries.get_countries import easyEComCountriesAPI
         easyEComCountriesAPI().sync_data()
+    resp = sync()
 
 @dag("sync_locations", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
 def sync_locations():
@@ -25,6 +27,7 @@ def sync_locations():
     def sync():
         from easy_com.locations.get_locations import easyEComLocationsAPI
         easyEComLocationsAPI().sync_data()
+    resp = sync()
 
 @dag("sync_kits", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
 def sync_kits():
@@ -33,6 +36,7 @@ def sync_kits():
     def sync():
         from easy_com.kits.get_kits import easyEComKitsAPI
         easyEComKitsAPI().sync_data()
+    resp = sync()
 
 @dag("sync_customers", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
 def sync_customers():
@@ -41,6 +45,7 @@ def sync_customers():
     def sync():
         from easy_com.customers.get_customers import easyEComCustomersAPI
         easyEComCustomersAPI().sync_data()
+    resp = sync()
 
 @dag("sync_master_products", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
 def sync_master_products():
@@ -49,6 +54,7 @@ def sync_master_products():
     def sync():
         from easy_com.master_products.get_master_products import easyEComMasterProductAPI
         easyEComMasterProductAPI().sync_data()
+    resp = sync()
 
 @dag("sync_marketplaces", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
 def sync_marketplaces():
@@ -57,6 +63,7 @@ def sync_marketplaces():
     def sync():
         from easy_com.marketplaces.get_marketplaces import easyEComMarketPlacesAPI
         easyEComMarketPlacesAPI().sync_data()
+    resp = sync()
 
 sync_vendors()
 sync_countries_and_states()

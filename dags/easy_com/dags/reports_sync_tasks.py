@@ -9,6 +9,7 @@ def sync_orders():
     def sync():
         from easy_com.orders.get_orders import easyEComOrdersAPI
         easyEComOrdersAPI().sync_data()
+    resp = sync()
 
 @dag("sync_grn_details", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_grn_details():
@@ -17,6 +18,7 @@ def sync_grn_details():
     def sync():
         from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
         GRNDetailsReportParserAPI().sync_data()
+    resp = sync()
 
 @dag("sync_return_orders", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_return_orders():
@@ -28,6 +30,7 @@ def sync_return_orders():
 
         from easy_com.return_orders.get_pending_return_orders import easyEComPendingReturnOrdersAPI
         easyEComPendingReturnOrdersAPI().sync_data()
+    resp = sync()
 
 @dag("sync_inventory_details", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1))
 def sync_inventory_details():
@@ -39,6 +42,7 @@ def sync_inventory_details():
 
         from easy_com.inventory_snapshot.get_inventory_snapshot_details import easyEComInventorySnapshotDetailsAPI
         easyEComInventorySnapshotDetailsAPI().sync_data()
+    resp = sync()
 
 
 @dag("sync_purchase_orders", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1))
@@ -47,6 +51,7 @@ def sync_purchase_orders():
     def sync():
         from easy_com.purchase_order.get_purchase_orders import easyEComPurchaseOrdersAPI
         easyEComPurchaseOrdersAPI().sync_data()
+    resp = sync()
 
 orders = sync_orders()
 grn_details = sync_grn_details()

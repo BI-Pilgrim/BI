@@ -5,13 +5,13 @@ options:
     - 'COMPOSER_LOCATION=asia-south2'
 steps:
   # Copy DAGs to Composer bucket
-  - name: 'gcr.io/cloud-builders/gsutil'
+  - name: 'gcr.io/cloud-builders/gcloud'
     script: |
       #!/bin/bash
       echo "gcloud composer environments update $COMPOSER_NAME  --location $COMPOSER_LOCATION --update-pypi-packages-from-file requirements.txt;";
       echo 'y' | gcloud composer environments update $COMPOSER_NAME  --location $COMPOSER_LOCATION --update-pypi-packages-from-file requirements.txt || echo "Complete";
-  - name: 'gcr.io/cloud-builders/gsutil'
+  - name: 'gcr.io/cloud-builders/gcloud'
     script: |
       #!/bin/bash
-      echo "gsutil cp -r dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');";
-      gsutil cp -r dags/* $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');
+      echo "gcloud storage rsync -r -J --delete-unmatched-destination-objects dags/ $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)')";
+      gcloud storage rsync -r -J --delete-unmatched-destination-objects dags/ $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');
