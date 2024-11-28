@@ -39,7 +39,7 @@ with DAG(
 
 
     # Load SQL query from file
-    with open('gcs/dags/D2C/Adhoc/Google_Ads_Retargeting/SQL/Google_Ads_exlusion_customers.sql', 'r') as file:
+    with open('../SQL/Google_Ads_exlusion_customers.sql', 'r') as file:
         sql_query_1 = file.read()
 
     Customers_list = BigQueryInsertJobOperator(
