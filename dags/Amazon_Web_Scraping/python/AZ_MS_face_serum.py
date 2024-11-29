@@ -21,9 +21,8 @@ def Search_page(nopage,key):
     num_of_pages = nopage
     print('Hold your seat belt tight and enjoy the show !!!....')
 
-    categories = ['Face Wash','Face Serum','Face Moisturizers','Shampoo','Hair Conditioner','Hair Growth Serum',
-                  'Sunscreen','Hair Growth Oil','Body Lotion','Hair Mask','Facial Cleanser','Body Mist','EDP Women',
-                  'EDP Men','Eye Cream','Face cream']
+    categories = ['Face Wash','Facial Cleanser','Face Serum','Shampoo','Hair Conditioner','Hair Growth Serum','Hair Growth Oil',
+                  'Sunscreen','Body Lotion','Hair Mask','Body Mist','Face Cream','Anti-Aging Cream','Fairness Cream','Face Moisturizers']
 
     keyword = key
 
@@ -60,6 +59,7 @@ def Search_page(nopage,key):
 def Scrape_Page(driver,inp_url):
 
     driver.get(inp_url)
+    time.sleep(1)
     cards = driver.find_elements('xpath','//div[@data-cy="asin-faceout-container"]')
     Product_Title = []
     Prod_url = []
@@ -88,9 +88,6 @@ def Scrape_Page(driver,inp_url):
     return Prod_url,Asin
 
 
-# In[14]:
-
-
 def Extract_card(card,path):
     try:
         content = card.find_element('xpath',path)
@@ -105,9 +102,6 @@ def Extract_table(drive,path):
         return content.text.strip()
     except:
         return 0
-
-
-# In[15]:
 
 
 # Create a new column 'maxunitsold' based on conditions
@@ -143,6 +137,7 @@ def Scrape_child_asin(df):
         
         amazon_url = row['Product_URL']
         driver.get(amazon_url)
+        time.sleep(2)
         try:
             child_elements = driver.find_elements('xpath', './/div[@id="variation_size_name"]//ul//li')
             for li in child_elements:
@@ -161,12 +156,8 @@ def Scrape_child_asin(df):
     return pd.DataFrame({'Parent_ASIN':p_asin,'Child_ASIN':c_asin,'Product_URL':child_url})
 
 
-# In[17]:
-
-
 def child_details(df):
    
-
     child_prod_title = []
     child_qty_sold = []
     child_ratings = []
@@ -198,6 +189,7 @@ def child_details(df):
     best_seller_beauty = []
     best_seller_category = []
     reviews_summary = []
+    inbuilt_category = []
     
     driver = webdriver.Firefox()
     
@@ -205,7 +197,7 @@ def child_details(df):
     for index, row in df.iterrows():
         url =  row['Product_URL']
         driver.get(url)
-        
+        time.sleep(2)
         Prod_url.append(url)
         P_Asin.append(row['Parent_ASIN'])
         C_Asin.append(row['Child_ASIN'])
@@ -226,7 +218,7 @@ def child_details(df):
             driver.execute_script("arguments[0].style.height = 'auto';", div_element)
         
         except:
-                print("No Expander in ",url)
+            print("No Expander in ",url)
     
         ml = Extract_table(driver,'//*[@id="variation_size_name"]//span[@class="selection"]')
         size.append(ml)
@@ -279,17 +271,19 @@ def child_details(df):
         rf = Extract_table(driver,'//tr[@class= "a-spacing-small po-recommended_uses_for_product"]//td[2]')
         recomended_for.append(rf)    
         
-        bsib = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[1]')
+        bsib = Extract_table(driver,'//div[@id="detailBulletsWrapper_feature_div"]/ul[1]/li//span')
         if bsib:
-            best_seller_beauty.append(bsib.split(" ")[0])
+            best_seller_beauty.append(bsib.split(" ")[3])
         else:
             best_seller_beauty.append(bsib)
         
-        bsic = Extract_table(driver,'//table[@id= "productDetails_detailBullets_sections1"]//tr[last()]//td//span[1]//span[2]')
+        bsic = Extract_table(driver,'//div[@id="detailBulletsWrapper_feature_div"]/ul[1]/li//ul')
         if bsic:
             best_seller_category.append(bsic.split(" ")[0])
+            inbuilt_category.append(bsic.split(" ")[-1])
         else:
             best_seller_category.append(bsic)
+            inbuilt_category.append(bsic)
             
         rdesc = Extract_table(driver,'//div[@id= "product-summary"]//p[1]')
         reviews_summary.append(rdesc)
@@ -331,14 +325,12 @@ def child_details(df):
                 Selling_price.append(0)
 
 
-
             # Extract Unit Price per 100ml        
             up = Extract_table(driver,'//table[@class="a-lineitem a-align-top"]//tr[2]//td[2]//span[@class="aok-relative"]')
             if up:
                 Unit_price.append(up.split("₹")[1][:-1].replace(",",""))
             else:
                 Unit_price.append(0)
-
 
 
             # Extract MRP Price        
@@ -350,14 +342,12 @@ def child_details(df):
 
         else:
 
-
             # Extract Selling Price        
             sp = Extract_table(driver,'.//div[@id="corePriceDisplay_desktop_feature_div"]//div[@class="a-section a-spacing-none aok-align-center aok-relative"]//span[@class="a-price aok-align-center reinventPricePriceToPayMargin priceToPay"]//span[@class = "a-price-whole"]')
             if sp:
                 Selling_price.append(sp.replace("₹","").replace(",",""))
             else:
                 Selling_price.append(0)
-
 
 
             # Extract Unit Price per 100ml        
@@ -368,7 +358,6 @@ def child_details(df):
                 Unit_price.append(0)
 
 
-
             # Extract MRP Price        
             mrp = Extract_table(driver,'.//div[@id="corePriceDisplay_desktop_feature_div"]//div[@class="a-section a-spacing-small aok-align-center"]//span[@class="aok-relative"]//span[@class="a-price a-text-price"]')
             if mrp:
@@ -376,26 +365,24 @@ def child_details(df):
             else:
                 MRP_price.append(0)
 
-        time.sleep(2)
+        time.sleep(1)
 
     driver.close()
 
 
     df = pd.DataFrame({'Product_Title':child_prod_title, 'Parent_ASIN':P_Asin,'ASIN':C_Asin, 'Product_URL':Prod_url,
                     'No_Of_Ratings':child_ratings,'MRP_Price':MRP_price,'Per_100ml_price':Unit_price,
-                   'Selling_Price':Selling_price,'Unit_Sold':child_qty_sold,'AZ_URL':urls,'Size_of_SKU':size,
+                    'Selling_Price':Selling_price,'Unit_Sold':child_qty_sold,'AZ_URL':urls,'Size_of_SKU':size,
                     'Brand_Name':brands,'Brand_value':brand_value,'Best_Seller_in_Beauty':best_seller_beauty,
                     'Best_Seller_in_Category':best_seller_category,'Scent_type':scent,'Skin_type':skin_type,
                     'Benefits':benefits,'Item_form':item_form,'Item_weight':item_weight,'Active_ingredient':active_ingredient,
                     'Net_volume':unit_count,'Skin_tone':skin_tone,'Item_volume':item_volume,'Special_feature':special_feature,
                     'Pack_size':pack_size,'SPF_factor':spf_factor,'Hair_type':hair_type,'Material_type_free':material_type_free,
-                    'Special_feature':special_feature,'Recomended_for':recomended_for,'Reviews_Summary':reviews_summary})
+                    'Special_feature':special_feature,'Recomended_for':recomended_for,'Reviews_Summary':reviews_summary,
+                    'Inbuilt_category':inbuilt_category})
     
 
     return df
-
-
-# In[18]:
 
 
 def Brand_Scrape(df):
@@ -429,7 +416,7 @@ def Brand_Scrape(df):
     for index, row in df.iterrows():
         amazon_url = row['Product_URL']
         driver.get(amazon_url)
-
+        time.sleep(2)
         brand_name = Extract_table(driver,'//*[@id="bylineInfo"]')
         if brand_name:
             if brand_name.startswith("Visit the "):
@@ -545,8 +532,6 @@ def Brand_Scrape(df):
     return op_df
 
 
-# In[19]:
-
 
 def Metrics_derivation(df):
     df_unique = df.drop_duplicates(subset='ASIN')
@@ -555,7 +540,6 @@ def Metrics_derivation(df):
     df_unique['Max_Unit_Sold'] = df_unique['Unit_Sold'].apply(calculate_maxunitsold)
 
     df_unique[['No_Of_Ratings', 'MRP_Price','Selling_Price']] = df_unique[['No_Of_Ratings', 'MRP_Price','Selling_Price']].astype(float)
-#     df_unique[['Per_100ml_price']] = df_unique[['Per_100ml_price']].astype(float)
 
     # Calculate the revenue
     df_unique['Revenue'] = df_unique['Unit_Sold'] * df_unique['Selling_Price']
@@ -569,7 +553,6 @@ def Metrics_derivation(df):
     df_unique = df_unique.sort_values('Contribution', ascending=False)
     df_unique['Rolling_sum'] = df_unique['Contribution'].cumsum()
 
-#     df_unique.to_csv(f'{keyword}_MS_without_brand.csv',index=False)
     return df_unique
     
 def classify(bt, key):
@@ -637,17 +620,7 @@ def convert_volume(weight_str):
         return float(weight_str)
     
 def datatype_normalizing(mtdf,column_dtype_mapping):
-    
-    for col in mtdf.columns:
-        type_count = mtdf[col].apply(type).nunique()
-
-        if type_count > 1:
-            print(f"Converting column '{col}' to string due to mixed data types.")
-            mtdf[col] = mtdf[col].astype(str)
-        else:
-            print(f"Column '{col}' is consistent with a single data type.")
-
-        
+           
     for col, dtype in column_dtype_mapping.items():
         if col in mtdf.columns:
             try:
@@ -665,8 +638,6 @@ def write_to_gbq(df):
     print("Done appending in the table")
     
     
-
-
 keyword = 'Face moisturizer'
 
 No_of_pages = 10
@@ -674,7 +645,7 @@ No_of_pages = 10
 print('Card Scraping Started....',datetime.datetime.now())
 pdf = Search_page(No_of_pages,keyword)
 
-time.sleep(2)
+time.sleep(1)
 print('Child Asin Scraping Started....',datetime.datetime.now())
 cdf = Scrape_child_asin(pdf)
 
@@ -693,7 +664,7 @@ final_op = mtrcsdf
 
 
 final_op['Category'] = keyword
-final_op['Date_MS'] = date(2024,11,25)
+final_op['Date_MS'] = date(2024,11,1)
 # date.today()
 # date.today().replace(day=1) - relativedelta(months=1)
 
@@ -743,6 +714,7 @@ column_dtype_mapping = {
     'Item_volume_in_ml':'float',
     'SPF_factor_type':'float',
     'Date_MS': 'datetime64[ns]',
+    'Inbuilt_category':'str',
 }
 
 bfdf = cleaning(final_op,'Benefits')
@@ -770,49 +742,52 @@ print("Congrats!!! Market Sizing Done")
 print('Scraping Completed at....',datetime.datetime.now())
 
 final_column = [
-'Active_ingredient',
-'Active_ingredient_type',
+'Product_Title',
+'Parent_ASIN',
 'ASIN',
-'Benefits',
-'Benefits_type',
+'Product_URL',
+'No_Of_Ratings',
+'MRP_Price',
+'Per_100ml_price',
+'Selling_Price',
+'Unit_Sold',
+'AZ_URL',
+'Size_of_SKU',
+'Brand_Name',
+'Brand_value',
 'Best_Seller_in_Beauty',
 'Best_Seller_in_Category',
-'Brand_value',
-'Category',
-'Hair_type',
-'Hair_type_type',
-'Item_form',
-'Item_volume',
-'Item_volume_in_ml',
-'Item_weight',
-'Item_weight_in_gm',
-'Material_type_free',
-'Material_type_free_type',
-'Max_Revenue',
-'Max_Unit_Sold',
-'MRP_Price',
-'Net_volume',
-'Net_volume_in_ml',
-'No_Of_Ratings',
-'Pack_size',
-'Parent_ASIN',
-'Per_100ml_price',
-'Product_Title',
-'Product_URL',
-'Recomended_for',
-'Recomended_for_type',
-'Revenue',
-'Reviews_Summary',
 'Scent_type',
-'Scent_type_type',
-'Selling_Price',
-'Size_of_SKU',
-'Skin_tone',
 'Skin_type',
+'Benefits',
+'Item_form',
+'Item_weight',
+'Active_ingredient',
+'Net_volume',
+'Skin_tone',
+'Item_volume',
+'Special_feature',
+'Pack_size',
 'SPF_factor',
+'Hair_type',
+'Material_type_free',
+'Recomended_for',
+'Reviews_Summary',
+'Max_Unit_Sold',
+'Revenue',
+'Max_Revenue',
+'Contribution',
+'Rolling_sum',
+'Category',
+'Benefits_type',
+'Active_ingredient_type',
+'Material_type_free_type',
+'Item_weight_in_gm',
+'Net_volume_in_ml',
+'Item_volume_in_ml',
 'SPF_factor_type',
-'Unit_Sold',
 'Date_MS',
+'Inbuilt_category',
 ]
 rfdf = rfdf[final_column]
 rfdf = rfdf[rfdf['Parent_ASIN'] != '0']
@@ -820,5 +795,4 @@ rfdf = datatype_normalizing(rfdf,column_dtype_mapping)
 
 write_to_gbq(rfdf)
 rfdf.to_csv(f'{keyword}_MS_with_brand.csv',index=False)
-
 print("Done writing the table")
