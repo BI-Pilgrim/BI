@@ -1,4 +1,5 @@
 
+
 CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Refund_Orders`
 PARTITION BY DATE_TRUNC(Refund_created_at,day)
 CLUSTER BY order_id, refund_status
