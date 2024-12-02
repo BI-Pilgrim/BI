@@ -1,7 +1,6 @@
 
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_pages` AS target  
 USING (
-  SELECT
     SELECT 
 distinct
 _airbyte_extracted_at,
