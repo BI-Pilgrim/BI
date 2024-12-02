@@ -1,7 +1,7 @@
 
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_pages` AS target  
 USING (
-    SELECT 
+SELECT 
 distinct
 _airbyte_extracted_at,
 id as Metafield_page_id,
@@ -16,8 +16,10 @@ updated_at as Metafield_page_updated_at,
 description as Page_description,
 owner_resource,
 admin_graphql_api_id
+from `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_pages`
+WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS source
-  
+
 ON target.Metafield_page_id = source.Metafield_page_id
 
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at 
@@ -54,6 +56,7 @@ admin_graphql_api_id
     
   )
   VALUES (
+source._airbyte_extracted_at,
 source.Metafield_page_id,
 source.Metafield_page_key,
 source.Page_type,
