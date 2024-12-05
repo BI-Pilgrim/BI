@@ -1,26 +1,27 @@
 import base64
-import datetime
+from datetime import datetime
 from io import BytesIO
 import logging
 from airflow.decorators import task, dag
 from airflow.models import Variable
 import pandas as pd
 from utils.google_cloud import get_bq_client, get_gmail_client
+from openpyxl import load_workbook
 import json
-
-GMAIL_FB_APP_TESTING_TOKEN = json.loads(Variable.get("GMAIL_FB_APP_TESTING_TOKEN", "{}"))
 
 DF_COLS = ["date", "brand_name", "category_name", "ean_code", "sku", "nmv", "mrp", "qty", 
            "orders", "price_off_per", "abs_price_off", "off_invoice"]
 
-credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
 TABLE_NAME = "pilgrim_bi_purple.claims_report"
 
-@dag("purple_email_claims", schedule='0 0 * * *', start_date=datetime(year=2024,month=11,day=4), tasks=["purple"])
+@dag("purple_email_claims", schedule='0 22 * * *', start_date=datetime(year=2024,month=12,day=5), tags=["purple"])
 def purple_email_claims():
 
     @task.python
-    def sync():
+    def fetch_and_load_mails():
+        logging.info(f"Started Task")
+        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        GMAIL_FB_APP_TESTING_TOKEN = json.loads(Variable.get("GMAIL_FB_APP_TESTING_TOKEN", "{}"))
         gmail_client = get_gmail_client(GMAIL_FB_APP_TESTING_TOKEN)
         bq_client = get_bq_client(credentials_info)
         messages_client = gmail_client.users().messages()
@@ -42,12 +43,22 @@ def purple_email_claims():
             logging.info(f"processing {mail_attachment['filename']}")
             attachment_data = attachments_client.get(userId="me", messageId=mail["id"], id=mail_attachment['body']['attachmentId']).execute()
             attachment_bytes = BytesIO(base64.urlsafe_b64decode(attachment_data['data'] + '=' * (4 - len(attachment_data['data']) % 4)))
-            df = pd.read_excel(attachment_bytes, header=2, usecols='A:L', names=DF_COLS)
-            df["runid"] = int(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+            
+            wb = load_workbook(attachment_bytes, read_only=True)
+            sheet = wb[wb.sheetnames[0]]
+
+            i = 0
+            for x in sheet.iter_rows():
+                if x[0].value is not None: break
+                i += 1
+
+            df = pd.read_excel(attachment_bytes, header=i, usecols='A:L', names=DF_COLS)
+            df["runid"] = int(datetime.now().strftime("%Y%m%d%H%M%S"))
+            df['date'] = df['date'].dt.date
             table = bq_client.get_table(TABLE_NAME)
             bq_client.insert_rows_from_dataframe(TABLE_NAME, df, selected_fields=table.schema)
             messages_client.modify(userId="me", id=mail["id"], body=dict(removeLabelIds=["UNREAD"])).execute()
     
-    val = sync()
+    resp = fetch_and_load_mails()
 
-dag = purple_email_claims()
+purple_email_claims_dag = purple_email_claims()
