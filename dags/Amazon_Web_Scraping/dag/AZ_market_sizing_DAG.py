@@ -25,7 +25,7 @@ with DAG(
 
     # Define a function to execute the AZ_MS_face_serum.py script
     def run_main_script():
-        script_path = 'gcs/dags/Amazon_Web_Scraping/python/AZ_MS_face_ser'
+        script_path = 'gcs/dags/Amazon_Web_Scraping/python/AZ_MS_face_serum.py'
         try:
             # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
