@@ -16,7 +16,7 @@ DF_COLS = ["date", "brand_name", "category_name", "ean_code", "sku", "nmv", "mrp
 credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
 TABLE_NAME = "pilgrim_bi_purple.claims_report"
 
-@dag("purple_email_claims", schedule='0 22 * * *', start_date=datetime(year=2024,month=12,day=5), tasks=["purple"])
+@dag("purple_email_claims", schedule='0 0 * * *', start_date=datetime(year=2024,month=11,day=4), tasks=["purple"])
 def purple_email_claims():
 
     @task.python
