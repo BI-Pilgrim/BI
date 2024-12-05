@@ -32,11 +32,11 @@ else:
         pickle.dump(sp.session.headers["Cookie"], f)
 
 
-start = date(year=2024, month=11, day=1)
-end = date(year=2024, month=11, day=30)
+start = date(year=2024, month=12, day=4)
+end = date(year=2024, month=12, day=5)
 
 
-HARD_STOP = date(2021, 1, 1)
+HARD_STOP = date(2024, 11, 30)
 
 range_pair = []
 
@@ -49,7 +49,7 @@ def has_report(start, end)->bool:
 while(start>=HARD_STOP):
     range_pair.append((start, end))
     end = start
-    start = start-timedelta(days=30)
+    start = start-timedelta(days=1)
 
 last_saved = None
 
