@@ -58,12 +58,11 @@ def get_bq_client(credentials_info:str)->bigquery.Client:
     client = bigquery.Client(credentials=credentials, project="shopify-pubsub-project")
     return client
 
-@dag("flipkart_seller_earn_more_report", schedule=None)
+@dag("flipkart_seller_earn_more_report", schedule='0 7 * * *', start_date=datetime(year=2024,month=12,day=1))
 def flipkart_seller_earn_more_report():
 
     START = date.today()-timedelta(days=1)
     END = date.today()
-    
     
     @task.bash
     def install_playwright_chromium():
