@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.decorators import task, dag
 from datetime import datetime, timedelta
 
-@dag("sync_vendors", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_vendors", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "weekly"])
 def sync_vendors():
     # vendor data sync
     @task.python
@@ -11,7 +11,7 @@ def sync_vendors():
         easyEComVendorsAPI().sync_data()
     resp = sync()
 
-@dag("sync_countries_and_states", schedule='0 5 * * 2', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_countries_and_states", schedule='0 5 * * 2', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "weekly"])
 def sync_countries_and_states():
     # states and countries data sync
     @task.python
@@ -20,7 +20,7 @@ def sync_countries_and_states():
         easyEComCountriesAPI().sync_data()
     resp = sync()
 
-@dag("sync_locations", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_locations", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "weekly"])
 def sync_locations():
     # locations data sync
     @task.python
@@ -29,7 +29,7 @@ def sync_locations():
         easyEComLocationsAPI().sync_data()
     resp = sync()
 
-@dag("sync_kits", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_kits", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "weekly"])
 def sync_kits():
     # kit data sync
     @task.python
@@ -38,7 +38,7 @@ def sync_kits():
         easyEComKitsAPI().sync_data()
     resp = sync()
 
-@dag("sync_customers", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_customers", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "weekly"])
 def sync_customers():
     # customer data sync
     @task.python
@@ -47,7 +47,7 @@ def sync_customers():
         easyEComCustomersAPI().sync_data()
     resp = sync()
 
-@dag("sync_master_products", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_master_products", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "weekly"])
 def sync_master_products():
     # master product data sync
     @task.python
@@ -56,7 +56,7 @@ def sync_master_products():
         easyEComMasterProductAPI().sync_data()
     resp = sync()
 
-@dag("sync_marketplaces", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_marketplaces", schedule='0 4 * * 2', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "weekly"])
 def sync_marketplaces():
     # marketplaces data sync
     @task.python

@@ -13,5 +13,5 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     script: |
       #!/bin/bash
-      echo "gcloud storage rsync -r -J --delete-unmatched-destination-objects dags/ $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)')";
-      gcloud storage rsync -r -J --delete-unmatched-destination-objects dags/ $(gcloud composer environments describe composer-pilgrim-bi-staging --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');
+      echo "gcloud storage rsync -r -J --delete-unmatched-destination-objects dags/ $(gcloud composer environments describe $COMPOSER_NAME --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)')";
+      gcloud storage rsync -r -J --delete-unmatched-destination-objects dags/ $(gcloud composer environments describe $COMPOSER_NAME --location $COMPOSER_LOCATION --format='value[](config.dagGcsPrefix)');
