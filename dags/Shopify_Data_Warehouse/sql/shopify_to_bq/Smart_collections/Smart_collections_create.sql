@@ -61,7 +61,7 @@ SELECT DISTINCT
   published_scope,
   template_suffix,
   admin_graphql_api_id,
-  JSON_EXTRACT_SCALAR(fixed_rule, '$.column') AS column_name,
+  JSON_EXTRACT_SCALAR(fixed_rule, '$.column') AS type,
   JSON_EXTRACT_SCALAR(fixed_rule, '$.relation') AS relation,
   JSON_EXTRACT_SCALAR(fixed_rule, '$.condition') AS condition
 FROM 
