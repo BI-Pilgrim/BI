@@ -96,13 +96,9 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
         table_data = []
        
         location_keys = self.locations_api.get_all_location_keys()
-        print(location_keys)
-        print(len(location_keys))
         for location_key in location_keys:
             token = generate_location_key_token(location_key)
-            print(token)
-
-        
+            
             next_url = self.url
             max_count = 0
 
@@ -113,7 +109,6 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
                 try:
                     max_count += 1
                     data = self.send_get_request(next_url, auth_token=token)
-                    print(data)
                     table_data.extend(data.get("data", []))
                     next_url = data.get("nextUrl")  
                     next_url = self.base_url + next_url if next_url else None
