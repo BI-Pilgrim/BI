@@ -1,8 +1,7 @@
 import requests
-from airflow.models import Variable
 from easy_com.easy_com_api_connector import EasyComApiConnector
-from airflow.models import Variable
 from easy_com.grn_details.grn_details_schema import GrnDetails
+from easy_com.locations.get_locations import easyEComLocationsAPI
 from sqlalchemy import create_engine, inspect, MetaData, Table
 from sqlalchemy.dialects.postgresql import insert
 from google.oauth2 import service_account
@@ -15,6 +14,8 @@ import json
 
 from datetime import datetime
 
+from easy_com.easy_com_api_connector import generate_location_key_token
+
 class easyEComGrnDetailsAPI(EasyComApiConnector):
     def __init__(self):
         super().__init__()
@@ -23,13 +24,14 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
         self.dataset_id = "easycom"
         self.name = "Grn Details"
         self.table = GrnDetails
+        self.locations_api = easyEComLocationsAPI()
 
         self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
 
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = os.getenv("GOOGLE_BIGQUERY_CREDENTIALS")
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -89,29 +91,33 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
 
     def get_data(self):
         """Fetch data from the API."""
-        # NOTE: This method does not support nextUrl pagination so this will run at max 1 time for now but keeping it this way for future use
+        
         print(f"Getting {self.name} data for Easy eCom")
         table_data = []
-        next_url = self.url
-        max_count = 0
+       
+        location_keys = self.locations_api.get_all_location_keys()
+        for location_key in location_keys:
+            token = generate_location_key_token(location_key)
+            
+            next_url = self.url
+            max_count = 0
 
-        while next_url:
-            if max_count >= 10:
-                print("Reached maximum limit of 10 API requests")
-                break
-            try:
-                max_count += 1
-                data = self.send_get_request(next_url)
-                print(data)
-                table_data.extend(data.get("data", []))
-                next_url = data.get("nextUrl")
-                next_url = self.base_url + next_url if next_url else None
-            except Exception as e:
-                print(f"Error in getting {self.name} data for Easy eCom: {e}")
-                if table_data:
-                    print(f'Processing the {self.name} fetched so far')
-                    return table_data
-                else:
+            while next_url:
+                if max_count >= 10:
+                    print("Reached maximum limit of 10 API requests")
                     break
+                try:
+                    max_count += 1
+                    data = self.send_get_request(next_url, auth_token=token)
+                    table_data.extend(data.get("data", []))
+                    next_url = data.get("nextUrl")  
+                    next_url = self.base_url + next_url if next_url else None
+                except Exception as e:
+                    print(f"Error in getting {self.name} data for Easy eCom: {e}")
+                    if table_data:
+                        print(f'Processing the {self.name} fetched so far')
+                        return table_data
+                    else:
+                        break
 
         return table_data

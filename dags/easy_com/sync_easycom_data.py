@@ -33,8 +33,8 @@ from easy_com.orders.get_orders import easyEComOrdersAPI
 easyEComOrdersAPI().sync_data()
 
 # grn details data sync
-from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
-GRNDetailsReportParserAPI().sync_data()
+from easy_com.grn_details.get_grn_details import easyEComGrnDetailsAPI
+easyEComGrnDetailsAPI().sync_data()
 
 # Return Orders data sync
 from easy_com.return_orders.get_all_return_orders import easyEComAllReturnOrdersAPI
