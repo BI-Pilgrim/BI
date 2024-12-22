@@ -66,6 +66,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             end_datetime = (datetime.now() - timedelta(days=1))
             start_datetime = end_datetime
         
+        extracted_at = datetime.now()
         for report_type in constants.ReportTypes.get_all_types():
             report_data = self.get_data(report_type, start_datetime, end_datetime)
             if not report_data:
@@ -77,7 +78,7 @@ class easyEComReportsAPI(EasyComApiConnector):
 
             # insert data into BigQuery
             print(f'Inserting {self.name} data for report type {report_type} into BigQuery')
-            self.load_data_to_bigquery(report_data)
+            self.load_data_to_bigquery(report_data, extracted_at)
 
     def get_data(self, report_type, start_datetime, end_datetime):
         """Fetch data from the API."""
@@ -207,7 +208,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             USING {self.temp_table_id} S
             ON T.report_id = S.report_id
             WHEN MATCHED THEN
-                UPDATE SET T.status = '{status}'
+                UPDATE SET T.status = '{status}', ee_extracted_at=CURRENT_DATETIME
         '''
         update_data = [{"report_id": report_id, "status": status} for report_id in report_ids]
         self.update_data(update_data, merge_query)

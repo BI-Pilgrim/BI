@@ -67,6 +67,8 @@ class ReturnsReportParserAPI(EasyComApiConnector):
             return
         
         print(f"len(completed_reports): {len(completed_reports)}")
+        
+        extracted_at = datetime.now()
         # download the csv and convert every row to a record and insert into the big query table
         for report in completed_reports:
             print(f"Downloading the csv for report id: {report['report_id']}")
@@ -83,7 +85,7 @@ class ReturnsReportParserAPI(EasyComApiConnector):
 
             # Insert the transformed data into the table in chunks
             for data in transformed_data:
-                self.load_data_to_bigquery(data, passing_df=True)
+                self.load_data_to_bigquery(data, extracted_at, passing_df=True)
 
             # Update the data in the table
             report_ids = [report['report_id']]

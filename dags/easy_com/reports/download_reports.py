@@ -61,7 +61,7 @@ class easyEComDownloadReportsAPI(EasyComApiConnector):
             USING {self.temp_table_id} S
             ON T.report_id = S.report_id
             WHEN MATCHED THEN
-                UPDATE SET T.status = S.status, T.csv_url = S.csv_url
+                UPDATE SET T.status = S.status, T.csv_url = S.csv_url, T.ee_extracted_at=CURRENT_DATETIME
         '''
         self.update_data(completed_reports, merge_query)
 

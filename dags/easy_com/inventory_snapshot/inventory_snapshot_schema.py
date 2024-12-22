@@ -9,11 +9,9 @@
     },
 """
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from easy_com.utils import Base
 from easy_com.inventory_snapshot import constants
 from sqlalchemy_utils import JSONType
-
-Base = declarative_base()
 
 class InventorySnapshotDetails(Base):
     __tablename__ = constants.INVENTORY_SNAPSHOT_TABLE_NAME
@@ -23,4 +21,4 @@ class InventorySnapshotDetails(Base):
     job_type_id = Column(Integer, nullable=True)
     entry_date = Column(DateTime, nullable=True)
     file_url = Column(String, nullable=True)
-    
+    ee_extracted_at = Column(DateTime(True))

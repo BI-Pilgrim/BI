@@ -80,7 +80,7 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
 
         print(f'Transforming {self.name} data for Easy eCom')
         transformed_data = self.transform_data(data=table_data)
-
+        
         # Truncate the table by deleting all rows
         self.truncate_table()
 

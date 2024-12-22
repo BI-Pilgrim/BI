@@ -34,11 +34,9 @@
   ]
 }
 """
-from sqlalchemy import Column, Integer, String, Date, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Date, create_engine, DateTime
+from easy_com.utils import Base
 from easy_com.countries import constants
-
-Base = declarative_base()
 
 class Countries(Base):
     __tablename__ = constants.COUNTRIES_TABLE_NAME
@@ -47,3 +45,4 @@ class Countries(Base):
     default_currency_code = Column(String(255), nullable=True)
     code_2 = Column(String(255), nullable=True)
     code_3 = Column(String(255), nullable=True)
+    ee_extracted_at = Column(DateTime(True))

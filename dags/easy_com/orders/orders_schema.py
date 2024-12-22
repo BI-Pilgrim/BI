@@ -158,11 +158,9 @@
 }
 """
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from easy_com.orders import constants
 from sqlalchemy_utils import JSONType
-
-Base = declarative_base()
+from easy_com.utils import Base
 
 class Orders(Base):
     __tablename__ = constants.ORDERS_TABLE_NAME
@@ -259,5 +257,6 @@ class Orders(Base):
     customer_code = Column(String, nullable=True)
     suborders = Column(String, nullable=True) #json
     fulfillable_status = Column(String, nullable=True)
+    ee_extracted_at = Column(DateTime(True))
 
 

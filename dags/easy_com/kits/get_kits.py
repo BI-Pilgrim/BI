@@ -97,8 +97,9 @@ class easyEComKitsAPI(EasyComApiConnector):
         # Truncate the table by deleting all rows
         self.truncate_table()
 
+        extracted_at = datetime.now()
         # Insert the transformed data into the table
-        self.load_data_to_bigquery(transformed_data)
+        self.load_data_to_bigquery(transformed_data, extracted_at)
 
     def get_data(self):
         """Fetch data from the API."""

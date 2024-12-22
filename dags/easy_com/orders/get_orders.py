@@ -158,8 +158,9 @@ class easyEComOrdersAPI(EasyComApiConnector):
         print(f'Transforming {self.name} data for Easy eCom')
         transformed_data = self.transform_data(data=table_data)
 
+        extracted_at = datetime.now()
         # Insert the transformed data into the table
-        self.load_data_to_bigquery(transformed_data)
+        self.load_data_to_bigquery(transformed_data, extracted_at)
 
     def get_data(self, start_date, end_date):
         """Fetch data from the API."""

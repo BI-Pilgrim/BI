@@ -71,11 +71,12 @@ class EasyComApiConnector:
         inspector = inspect(self.engine)
         return table_name in inspector.get_table_names()
     
-    def load_data_to_bigquery(self, data, passing_df = False):
+    def load_data_to_bigquery(self, data, extracted_at, passing_df = False):
         """Load the data into BigQuery."""
         print(f"Loading {self.name} data to BigQuery")
         if not passing_df:
             data = pd.DataFrame(data)
+        data["ee_extracted_at"] = extracted_at
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND
         )

@@ -86,11 +86,9 @@
     ]
 }
 """
-from sqlalchemy import Column, Integer, String, Date, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, create_engine
+from easy_com.utils import Base
 from easy_com.states import constants
-
-Base = declarative_base()
 
 class States(Base):
     __tablename__ = constants.STATES_TABLE_NAME
@@ -102,3 +100,4 @@ class States(Base):
     postal_code = Column(String(255), nullable=True)
     country_id = Column(Integer, nullable=True)
     Zone = Column(String(255), nullable=True)
+    ee_extracted_at = Column(DateTime(True))
