@@ -1,5 +1,4 @@
 import requests
-from airflow.models import Variable
 from easy_com.easy_com_api_connector import EasyComApiConnector
 from easy_com.orders.orders_schema import Orders
 from sqlalchemy import create_engine, inspect, MetaData, Table
@@ -28,7 +27,7 @@ class easyEComOrdersAPI(EasyComApiConnector):
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = os.getenv("GOOGLE_BIGQUERY_CREDENTIALS")
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -144,16 +143,18 @@ class easyEComOrdersAPI(EasyComApiConnector):
             transformed_data.append(transformed_record)
         return transformed_data
 
-    def sync_data(self):
+    def sync_data(self, start_date=None, end_date=None):
         """Sync data from the API to BigQuery."""
-        end_date = (datetime.now() - timedelta(days=1))
-        start_date = end_date - timedelta(days=1)
+        if not (start_date and end_date):
+            end_date = (datetime.now() - timedelta(days=1))
+            start_date = end_date - timedelta(days=1)
+
         start_date = start_date.strftime("%Y-%m-%d 00:00:00")
         end_date = end_date.strftime("%Y-%m-%d 00:00:00")
         table_data = self.get_data(start_date, end_date)
         if not table_data:
             print(f"No {self.name} data found for Easy eCom")
-            return
+            return "No data found"
 
         print(f'Transforming {self.name} data for Easy eCom')
         transformed_data = self.transform_data(data=table_data)
@@ -172,28 +173,21 @@ class easyEComOrdersAPI(EasyComApiConnector):
         max_count = 0
 
         while next_url:
-            if max_count >= 100:
+            if max_count >= 10000:
                 print(f"Reached maximum limit of {max_count} API requests")
                 return None
             try:
                 max_count += 1
-                print(f"Making request {max_count} for {self.name}")
+                # print(f"Making request {max_count} for {self.name}")
                 response_data = self.send_get_request(next_url, params={"start_date": start_date, "end_date": end_date, "limit": 250})
                 data = response_data.get("data", []).get("orders", [])
-                print(f'Transforming {self.name} data for Easy eCom')
-                transformed_data = self.transform_data(data=data)
-                print('last order created at:', transformed_data[-1].get("order_date"))
-
+                
                 table_data.extend(data)
-                print(len(table_data))
                 next_url = response_data.get("data", {}).get("nextUrl")
                 next_url = self.base_url + next_url if next_url else None
             except Exception as e:
+                print(response_data)
                 print(f"Error in getting {self.name} data for Easy eCom: {e}")
-                if table_data:
-                    print(f'Processing the {self.name} fetched so far')
-                    return table_data
-                else:
-                    break
+                return []            
 
         return table_data

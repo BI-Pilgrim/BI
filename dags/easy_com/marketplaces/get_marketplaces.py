@@ -89,7 +89,7 @@ class easyEComMarketPlacesAPI(EasyComApiConnector):
         
         # TODO: we are limiting it to only 10 marketplaces for now because to avoid making api requests for 1k market places.
         # We have to find a better way to do this or limit the market places or do parallel processing
-        for marketplace in data[:10]:
+        for marketplace in data:
             self.marketplaces_listing_api.sync_data(marketplace_id=marketplace["id"])
 
 
