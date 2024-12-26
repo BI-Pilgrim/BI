@@ -16,8 +16,8 @@ def sync_grn_details():
     # grn details data sync
     @task.python
     def sync():
-        from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
-        GRNDetailsReportParserAPI().sync_data()
+        from easy_com.grn_details.get_grn_details import easyEComGrnDetailsAPI
+        easyEComGrnDetailsAPI().sync_data()
     resp = sync()
 
 @dag("sync_return_orders", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "report"])
