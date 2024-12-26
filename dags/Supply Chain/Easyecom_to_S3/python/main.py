@@ -10,9 +10,9 @@ logging.basicConfig(filename='easyecom_log.txt', level=logging.INFO, format='%(a
 
 
 # Retrieve sensitive info from Airflow Variables
-easy_ecom_email = Variable.get("easy_ecom_email")
-easy_ecom_password = Variable.get("easy_ecom_password")
-easy_ecom_location_key = Variable.get("easy_ecom_location_key")
+easy_ecom_email = Variable.get("EASYCOM_EMAIL")
+easy_ecom_password = Variable.get("EASYCOM_PASSWORD")
+easy_ecom_location_key = Variable.get("EASYCOM_LOCATION_KEY")
 aws_access_key_id = Variable.get("aws_access_key_id")
 aws_secret_access_key = Variable.get("aws_secret_access_key")
 

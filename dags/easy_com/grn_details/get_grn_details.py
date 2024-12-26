@@ -83,11 +83,12 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
         print(f'Transforming {self.name} data for Easy eCom')
         transformed_data = self.transform_data(data=table_data)
         
+        extracted_at = datetime.now()
         # Truncate the table by deleting all rows
         self.truncate_table()
 
         # Insert the transformed data into the table
-        self.load_data_to_bigquery(transformed_data)
+        self.load_data_to_bigquery(transformed_data, extracted_at)
 
     def get_data(self):
         """Fetch data from the API."""

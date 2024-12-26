@@ -12,6 +12,7 @@ import os
 import base64
 import json
 
+from datetime import datetime
 
 class easyEComStatesAPI(EasyComApiConnector):
     def __init__(self):
@@ -24,7 +25,7 @@ class easyEComStatesAPI(EasyComApiConnector):
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = self.get_google_credentials_info()
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -74,11 +75,12 @@ class easyEComStatesAPI(EasyComApiConnector):
             print("No states data found for Easy eCom")
             return
 
+        extracted_at = datetime.now()
         print('Transforming states data for Easy eCom')
         transformed_data = self.transform_data(data=states)
 
         # Insert the transformed data into the table
-        self.load_data_to_bigquery(transformed_data)
+        self.load_data_to_bigquery(transformed_data, extracted_at)
 
     def truncate_table(self):
         """Truncate the BigQuery table by deleting all rows."""
