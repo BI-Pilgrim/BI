@@ -30,11 +30,9 @@
 }
 """
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from easy_com.utils import Base
 from easy_com.purchase_order import constants
 from sqlalchemy_utils import JSONType
-
-Base = declarative_base()
 
 class PurchaseOrders(Base):
     __tablename__ = constants.PURCHASE_ORDERS_TABLE_NAME
@@ -50,3 +48,4 @@ class PurchaseOrders(Base):
     vendor_name = Column(String, nullable=True)
     vendor_c_id = Column(Integer, nullable=True)
     po_items = Column(String, nullable=True)
+    ee_extracted_at = Column(DateTime(True))

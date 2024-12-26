@@ -50,11 +50,9 @@
 }
 """
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from easy_com.utils import Base
 from easy_com.master_products import constants
 from sqlalchemy_utils import JSONType
-
-Base = declarative_base()
 
 class MasterProducts(Base):
     __tablename__ = constants.MASTER_PRODUCT_TABLE_NAME
@@ -94,4 +92,5 @@ class MasterProducts(Base):
     cp_inventory = Column(Integer, nullable=True)
     custom_fields = Column(String, nullable=True)
     sub_products = Column(String, nullable=True)
+    ee_extracted_at = Column(DateTime(True))
     

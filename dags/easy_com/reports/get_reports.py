@@ -1,5 +1,4 @@
 import requests
-from airflow.models import Variable
 from easy_com.easy_com_api_connector import EasyComApiConnector
 from easy_com.locations.get_locations import easyEComLocationsAPI
 from easy_com.reports.reports_schema import Reports
@@ -33,7 +32,7 @@ class easyEComReportsAPI(EasyComApiConnector):
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = os.getenv("GOOGLE_BIGQUERY_CREDENTIALS")
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -60,12 +59,16 @@ class easyEComReportsAPI(EasyComApiConnector):
             transformed_data.append(transformed_record)
         return transformed_data
 
-    def sync_data(self, start_data = None, end_date = None):
+    def sync_data(self, start_date = None, end_date = None):
         """Sync data from the API to BigQuery."""
-        if not (start_data and end_date):
+        if not (start_date and end_date):
             end_datetime = (datetime.now() - timedelta(days=1))
             start_datetime = end_datetime
+        else:
+            start_datetime = start_date
+            end_datetime = end_date
         
+        extracted_at = datetime.now()
         for report_type in constants.ReportTypes.get_all_types():
             report_data = self.get_data(report_type, start_datetime, end_datetime)
             if not report_data:
@@ -77,7 +80,7 @@ class easyEComReportsAPI(EasyComApiConnector):
 
             # insert data into BigQuery
             print(f'Inserting {self.name} data for report type {report_type} into BigQuery')
-            self.load_data_to_bigquery(report_data)
+            self.load_data_to_bigquery(report_data, extracted_at)
 
     def get_data(self, report_type, start_datetime, end_datetime):
         """Fetch data from the API."""
@@ -207,7 +210,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             USING {self.temp_table_id} S
             ON T.report_id = S.report_id
             WHEN MATCHED THEN
-                UPDATE SET T.status = '{status}'
+                UPDATE SET T.status = '{status}', ee_extracted_at=CURRENT_DATETIME
         '''
         update_data = [{"report_id": report_id, "status": status} for report_id in report_ids]
         self.update_data(update_data, merge_query)

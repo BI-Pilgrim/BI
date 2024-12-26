@@ -29,11 +29,9 @@
 }
 """
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from easy_com.marketplace_listings import constants
-from sqlalchemy_utils import JSONType
+from easy_com.utils import Base
 
-Base = declarative_base()
 
 class MarketPlaceListings(Base):
     __tablename__ = constants.MARKETPLACE_LISTINGS_TABLE_NAME
@@ -46,5 +44,6 @@ class MarketPlaceListings(Base):
     uid = Column(String(255), nullable=True)
     identifier = Column(String(255), nullable=True)
     title = Column(String, nullable=True)
+    ee_extracted_at = Column(DateTime(True))
 
 

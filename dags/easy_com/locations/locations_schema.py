@@ -95,11 +95,9 @@
 #     }
 #   ]
 # }
-from sqlalchemy import Column, Integer, String, Date, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Date, create_engine, DateTime
+from easy_com.utils import Base
 from easy_com.locations import constants
-
-Base = declarative_base()
 
 class Location(Base):
     __tablename__ = constants.LOCATIONS_TABLE_NAME
@@ -131,3 +129,4 @@ class Location(Base):
     
     # Other Location Information
     stockHandle = Column(Integer, nullable=True)
+    ee_extracted_at = Column(DateTime(True))

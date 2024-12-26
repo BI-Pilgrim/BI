@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 from airflow.models import Variable
 from easy_com.easy_com_api_connector import EasyComApiConnector
@@ -88,11 +89,12 @@ class easyEComCustomersAPI(EasyComApiConnector):
         print('Transforming customers data for Easy eCom')
         transformed_data = self.transform_data(data=customers)
 
+        extracted_at = datetime.now()
         # Truncate the table by deleting all rows
         self.truncate_table()
 
         # Insert the transformed data into the table
-        self.load_data_to_bigquery(transformed_data)
+        self.load_data_to_bigquery(transformed_data, extracted_at)
 
     def truncate_table(self):
         """Truncate the BigQuery table by deleting all rows."""
@@ -100,10 +102,11 @@ class easyEComCustomersAPI(EasyComApiConnector):
         truncate_query = f"DELETE FROM `{table_ref}` WHERE true"
         self.client.query(truncate_query).result()  # Executes the DELETE query
 
-    def load_data_to_bigquery(self, data):
+    def load_data_to_bigquery(self, data, extracted_at):
         """Load the data into BigQuery."""
         print("Loading Customers data to BigQuery")
         df = pd.DataFrame(data)
+        df["ee_extracted_at"] = extracted_at
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND
         )
