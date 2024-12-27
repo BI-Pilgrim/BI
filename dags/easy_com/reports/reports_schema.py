@@ -1,9 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from easy_com.utils import Base
 from easy_com.reports import constants
 from sqlalchemy_utils import JSONType
-
-Base = declarative_base()
 
 class Reports(Base):
     __tablename__ = constants.REPORTS_PRODUCT_TABLE_NAME
@@ -15,3 +13,4 @@ class Reports(Base):
     status = Column(String(255), nullable=True)
     csv_url = Column(String, nullable=True)
     inventory_type = Column(String(255), nullable=True)
+    ee_extracted_at = Column(DateTime(True))

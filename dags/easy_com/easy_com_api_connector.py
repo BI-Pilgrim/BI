@@ -1,11 +1,12 @@
 
+import time
 import requests
-from airflow.models import Variable
 import os
 
 import pandas as pd
 from google.cloud import bigquery
 from sqlalchemy import create_engine, inspect
+from airflow.models import Variable
 
 from datetime import datetime
 
@@ -14,8 +15,10 @@ import re
 import zipfile
 import io
 
+
 BASE_URL = "https://api.easyecom.io"
 TOKEN = ''
+
 def generate_api_token():
     global TOKEN
     if not TOKEN:
@@ -30,6 +33,19 @@ def generate_api_token():
         TOKEN = response_json.get("data", {}).get("token", {}).get("jwt_token") or ''
     
     return TOKEN
+
+def generate_location_key_token(location_key):
+    auth_api_end_point = BASE_URL + "/access/token"
+    body = {
+        "email": os.getenv("EASYCOM_EMAIL"),
+        "password": os.getenv("EASYCOM_PASSWORD"),
+        "location_key": location_key
+    }
+    response = requests.post(auth_api_end_point, json=body)
+    response_json = response.json()
+    location_key_token = response_json.get("data", {}).get("token", {}).get("jwt_token") or ''
+    
+    return location_key_token
 
 
 
@@ -46,11 +62,20 @@ class EasyComApiConnector:
             "Content-Type": "application/json"
         }
 
-    def send_get_request(self, url, params=None):
-        if params:
-            response = requests.get(url, headers=self.headers, params=params)
+    def send_get_request(self, url, params=None, auth_token = None):
+
+        if auth_token:
+            headers = {
+                "Authorization": f"Bearer {auth_token}",
+                "Content-Type": "application/json"
+            }
         else:
-            response = requests.get(url, headers=self.headers)
+            headers = self.headers
+
+        if params:
+            response = requests.get(url, headers=headers, params=params)
+        else:
+            response = requests.get(url, headers=headers)
         return response.json()
     
     def send_post_request(self, url, body):
@@ -71,16 +96,26 @@ class EasyComApiConnector:
         inspector = inspect(self.engine)
         return table_name in inspector.get_table_names()
     
-    def load_data_to_bigquery(self, data, passing_df = False):
+    def load_data_to_bigquery(self, data, extracted_at, passing_df = False, _retry=0, max_retry=3):
         """Load the data into BigQuery."""
         print(f"Loading {self.name} data to BigQuery")
         if not passing_df:
             data = pd.DataFrame(data)
+        data["ee_extracted_at"] = extracted_at
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND
         )
-        job = self.client.load_table_from_dataframe(data, self.table_id, job_config=job_config)
-        job.result()
+        try:
+            job = self.client.load_table_from_dataframe(data, self.table_id, job_config=job_config)
+            job.result()
+        except Exception as e:
+            if _retry<max_retry: 
+                mint = 60
+                print(f"SLEEPING :: Error inserting to BQ retrying in {mint} min")
+                time.sleep(60*mint) # 15 min
+                return self.load_data_to_bigquery(data, extracted_at, passing_df=passing_df, _retry=_retry+1, max_retry=max_retry)
+            raise e
+        
 
     def update_data(self, data, merge_query):
         """Update the data in BigQuery."""
@@ -134,7 +169,7 @@ class EasyComApiConnector:
                     if chunk:
                         file.write(chunk)
 
-        data_frames =  pd.read_csv(file_path, chunksize=1000)
+        data_frames =  pd.read_csv(file_path, chunksize=10000)
 
         # os.remove(file_path)
         return data_frames
@@ -147,3 +182,15 @@ class EasyComApiConnector:
         if not name[0].isalpha() and name[0] != '_':
             name = '_' + name
         return name
+    
+    def convert(self, val, _type, **kwargs):
+        if val is None: return val
+        try:
+            if _type == datetime:
+                return datetime.strptime(val, kwargs["strptime"])
+            return _type(val)
+        except:
+            return None
+        
+    def get_google_credentials_info():
+        return Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")

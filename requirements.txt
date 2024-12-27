@@ -9,8 +9,9 @@ openpyxl~=3.1.5
 python-dateutil===2.9.0.post0
 
 apache-airflow-providers-google
-google-api-python-client
-google-auth-oauthlib
+google-api-python-client~=2.154.0
+google-auth-oauthlib~=1.2.1
+google-auth-httplib2~=0.2.0
 google-cloud-bigquery==3.27.0
 selenium~=4.0.0
 gspread
@@ -22,3 +23,4 @@ geckodriver-autoinstaller
 webdriver-manager>=3.0.0
 chromedriver-autoinstaller==0.6.2
 undetected-chromedriver
+google-cloud-bigquery-storage~=2.27.0

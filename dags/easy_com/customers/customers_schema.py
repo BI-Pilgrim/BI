@@ -90,11 +90,10 @@
 #   ]
 # }
 
-from sqlalchemy import Column, Integer, String, Date, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Date, create_engine, DateTime
+from easy_com.utils import Base
 from easy_com.customers import constants
 
-Base = declarative_base()
 
 class Customer(Base):
     __tablename__ = constants.CUSTOMERS_TABLE_NAME
@@ -122,3 +121,4 @@ class Customer(Base):
     dispatch_zipcode = Column(String(20), nullable=True)
     dispatch_state = Column(String(100), nullable=True)
     dispatch_country = Column(String(100), nullable=True)
+    ee_extracted_at = Column(DateTime(True))

@@ -29,7 +29,7 @@ class easyEComKitsAPI(EasyComApiConnector):
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = self.get_google_credentials_info()
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -97,8 +97,9 @@ class easyEComKitsAPI(EasyComApiConnector):
         # Truncate the table by deleting all rows
         self.truncate_table()
 
+        extracted_at = datetime.now()
         # Insert the transformed data into the table
-        self.load_data_to_bigquery(transformed_data)
+        self.load_data_to_bigquery(transformed_data, extracted_at)
 
     def get_data(self):
         """Fetch data from the API."""

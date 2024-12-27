@@ -34,11 +34,9 @@
 }
 """
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from easy_com.utils import Base
 from easy_com.inventory_details import constants
 from sqlalchemy_utils import JSONType
-
-Base = declarative_base()
 
 class InventoryDetails(Base):
     __tablename__ = constants.INVENTORY_DETAILS_TABLE_NAME
@@ -72,4 +70,5 @@ class InventoryDetails(Base):
     product_unique_code = Column(String, nullable=True)
     description = Column(String, nullable=True)
     is_combo = Column(Integer, nullable=True)
+    ee_extracted_at = Column(DateTime(True))
 

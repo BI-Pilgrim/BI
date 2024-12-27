@@ -51,11 +51,9 @@
 }
 """
 from sqlalchemy import Column, Integer, String, DateTime, Float, ARRAY, JSON, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from easy_com.utils import Base
 from easy_com.kits import constants
 from sqlalchemy_utils import JSONType
-
-Base = declarative_base()
 
 class Kits(Base):
     __tablename__ = constants.KITS_TABLE_NAME
@@ -81,4 +79,5 @@ class Kits(Base):
     brand = Column(String(255), nullable=True)
     c_id = Column(Integer, nullable=True)
     sub_products = Column(String, nullable=True)
+    ee_extracted_at = Column(DateTime(True))
 

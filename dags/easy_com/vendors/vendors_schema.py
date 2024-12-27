@@ -25,11 +25,10 @@
 #             "fssai_number": "",
 #             "fssai_expiry": ""
 #         },
-from sqlalchemy import Column, Integer, String, Date, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, create_engine
+from easy_com.utils import Base
 from easy_com.vendors import constants
 
-Base = declarative_base()
 
 class Vendor(Base):
     __tablename__ = constants.VENDORS_TABLE_NAME
@@ -58,3 +57,5 @@ class Vendor(Base):
     dl_expiry = Column(String(50), nullable=True)
     fssai_number = Column(String(50), nullable=True)
     fssai_expiry = Column(String(50), nullable=True)
+    
+    ee_extracted_at = Column(DateTime(True))

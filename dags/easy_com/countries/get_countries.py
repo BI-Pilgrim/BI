@@ -13,6 +13,7 @@ import pandas as pd
 import os
 import base64
 import json
+from datetime import datetime
 
 
 class easyEComCountriesAPI(EasyComApiConnector):
@@ -26,7 +27,7 @@ class easyEComCountriesAPI(EasyComApiConnector):
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = self.get_google_credentials_info()
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -74,12 +75,13 @@ class easyEComCountriesAPI(EasyComApiConnector):
 
         print('Transforming countries data for Easy eCom')
         transformed_data = self.transform_data(data=locations)
+        extracted_at = datetime.now()
 
         # Truncate the table by deleting all rows
         self.truncate_table()
 
         # Insert the transformed data into the table
-        self.load_data_to_bigquery(transformed_data)
+        self.load_data_to_bigquery(transformed_data, extracted_at)
 
     def truncate_table(self):
         """Truncate the BigQuery table by deleting all rows."""
@@ -87,10 +89,11 @@ class easyEComCountriesAPI(EasyComApiConnector):
         truncate_query = f"DELETE FROM `{table_ref}` WHERE true"
         self.client.query(truncate_query).result()  # Executes the DELETE query
 
-    def load_data_to_bigquery(self, data):
+    def load_data_to_bigquery(self, data, extracted_at):
         """Load the data into BigQuery."""
         print("Loading Countries data to BigQuery")
         df = pd.DataFrame(data)
+        df["ee_extracted_at"] = extracted_at
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND
         )

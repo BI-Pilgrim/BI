@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from easy_com.reports.get_reports import easyEComReportsAPI
 
     
-@dag("sync_reports_data", schedule='0 1 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_reports_data", schedule='0 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_reports_data():
     
     @task.python
@@ -13,7 +13,7 @@ def sync_reports_data():
     resp = sync()
 
 
-@dag("update_csv_url_and_status", schedule='0 */2 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("update_csv_url_and_status", schedule='0 */2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def update_csv_url_and_status():
     """
     This api sync data every 2 hours and check if the report is avvailable and get the csv url and status and updates it
@@ -28,7 +28,7 @@ def update_csv_url_and_status():
 
 # all the below Report uploading tasks should run once every day at 5 am
 
-@dag("sync_mini_sales_report", schedule='0 4 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_mini_sales_report", schedule='0 4 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_mini_sales_report():
     from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
     
@@ -37,7 +37,7 @@ def sync_mini_sales_report():
         MiniSalesReportParserAPI().sync_data()
     resp = sync()
 
-@dag("sync_tax_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_tax_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_tax_report():
     from easy_com.reports.parsers.tax_report import TaxReportParserAPI
     
@@ -46,7 +46,7 @@ def sync_tax_report():
         TaxReportParserAPI().sync_data()
     resp = sync()
 
-@dag("sync_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_returns_report():
     from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
     
@@ -55,7 +55,7 @@ def sync_returns_report():
         ReturnsReportParserAPI().sync_data()
     resp = sync()
 
-@dag("sync_pending_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_pending_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_pending_returns_report():
     from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
     
@@ -64,7 +64,7 @@ def sync_pending_returns_report():
         PendingReturnsReportParserAPI().sync_data()
     resp = sync()
 
-@dag("sync_grn_details_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_grn_details_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_grn_details_report():
     from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
     
@@ -73,7 +73,7 @@ def sync_grn_details_report():
         GRNDetailsReportParserAPI().sync_data()
     resp = sync()
 
-@dag("sync_status_wise_stock_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_status_wise_stock_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_status_wise_stock_report():
     from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
     
@@ -82,7 +82,7 @@ def sync_status_wise_stock_report():
         StatusWiseStockReportParserAPI().sync_data()
     resp = sync()
 
-@dag("sync_inventory_report", schedule='0 6 * * *', start_date=datetime(year=2024,month=1,day=1))
+@dag("sync_inventory_report", schedule='0 6 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_inventory_report():
     from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
     from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI

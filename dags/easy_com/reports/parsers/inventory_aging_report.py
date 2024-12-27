@@ -33,7 +33,7 @@ class InventoryAgingReportParserAPI(EasyComApiConnector):
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = self.get_google_credentials_info()
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -70,6 +70,7 @@ class InventoryAgingReportParserAPI(EasyComApiConnector):
         # Truncate the table by deleting all rows
         self.truncate_table(table_name=self.table_name)
 
+        extracted_at = datetime.now()
         # download the csv and convert every row to a record and insert into the big query table
         for report in completed_reports:
             print(f"Downloading the csv for report id: {report['report_id']}")
@@ -84,7 +85,7 @@ class InventoryAgingReportParserAPI(EasyComApiConnector):
             
             # Insert the transformed data into the table in chunks
             for data in transformed_data:
-                self.load_data_to_bigquery(data, passing_df=True)
+                self.load_data_to_bigquery(data, extracted_at, passing_df=True)
 
             # Update the data in the table
             report_ids = [report['report_id']]
