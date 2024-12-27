@@ -3,7 +3,7 @@ WITH Customer_State_Sales AS
     select 
   date_trunc(order_date,year) as year,
   customer_email as customer_id,
-  CASE
+  max(CASE
       WHEN lower(SHIP_STATE) LIKE '%andaman%' THEN 'Andaman & Nicobar'
       WHEN lower(SHIP_STATE) LIKE '%andh%' THEN 'Andhra Pradesh'
       WHEN lower(SHIP_STATE) LIKE '%aruna%' THEN 'Arunachal Pradesh'
@@ -41,7 +41,7 @@ WITH Customer_State_Sales AS
       WHEN lower(SHIP_STATE) LIKE '%uttarak%' THEN 'Uttarakhand'
       WHEN lower(SHIP_STATE) LIKE '%bengal%' THEN 'West Bengal'
       ELSE 'Others'
-    END AS state,
+    END) AS state,
     CASE WHEN custom_main_category = 'Hair Care' THEN 'Hair Care'
       WHEN custom_main_category IN ('Lip Care', 'Face Care', 'Body Care') THEN 'Skin Care'
       WHEN custom_main_category = 'Makeup' THEN 'Makeup'
@@ -74,6 +74,5 @@ SELECT
 
 FROM
     StateRevenuePercentiles;
-
 
 
