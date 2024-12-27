@@ -45,7 +45,7 @@ WITH Customer_State_Sales AS
   sum(final_sale_quantity) as total_qty
   FROM `pilgrim-dw.halo_115.global_reports_project_level_report_order_items` 
   where customer_id not in ('','0') and order_status not in ('cancelled','refunded')
-  and order_date>='2024-01-01'
+  and order_date>='2024-01-01' and channel = 'Shopify'
   group by All
 ),
 
