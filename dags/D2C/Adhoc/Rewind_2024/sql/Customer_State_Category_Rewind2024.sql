@@ -60,7 +60,7 @@ StateRevenuePercentiles AS (
         state,
        custom_main_category,
        total_qty,
-        NTILE(10) OVER (PARTITION BY state,custom_main_category ORDER BY total_qty DESC) AS top_10_percentile,
+        NTILE(10) OVER (PARTITION BY state,custom_main_category ORDER BY total_qty DESC) AS top_10_percentile
         FROM
         Customer_State_Sales
 )
