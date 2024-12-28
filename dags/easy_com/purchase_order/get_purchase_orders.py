@@ -76,7 +76,7 @@ class easyEComPurchaseOrdersAPI(EasyComApiConnector):
         table_data = self.get_data(start_datetime, end_datetime)
         if not table_data:
             print(f"No {self.name} data found for Easy eCom")
-            return
+            return "No data found"
 
         print(f'Transforming {self.name} data for Easy eCom')
         transformed_data = self.transform_data(data=table_data)

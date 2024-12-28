@@ -11,6 +11,7 @@ import calendar
 # reports data sync
 from easy_com.reports.get_reports import easyEComReportsAPI
 from easy_com.orders.get_orders import easyEComOrdersAPI
+from easy_com.purchase_order.get_purchase_orders import easyEComPurchaseOrdersAPI
 import time
 
 def backfill_reports(month, year):
@@ -60,6 +61,21 @@ def back_fill_orders(start_date, end_date):
         print("Skipping between the dates {} to {}".format(start_date, end_date))
         
 
+def backfill_purchase_orders(start_date, end_date):
+    data = None
+    last_ran_pair = None
+
+    if(os.path.exists("eecom_purchase_orders_prev_run_range.pkl")):
+        with open("eecom_purchase_orders_prev_run_range.pkl", "rb") as f:
+            last_ran_pair = pickle.load(f)
+
+    if last_ran_pair is None or start_date < last_ran_pair[0]:
+        data = easyEComPurchaseOrdersAPI().sync_data(start_date=start_date, end_date=end_date)
+        if (data and data == "No data found") or not data:
+            print("No data found between the dates {} to {}".format(start_date, end_date))
+
+        with open("eecom_purchase_orders_prev_run_range.pkl", "wb") as f:
+            pickle.dump((start_date, end_date), f)
 
 # if __name__ == "__main__":
 #     from tqdm import tqdm
@@ -70,6 +86,7 @@ def back_fill_orders(start_date, end_date):
 #         back_fill_orders(range_[0], range_[1])
 
 if __name__ == "__main__":
-    backfill_reports(9, 2024)
-    backfill_reports(10, 2024)
-    backfill_reports(11, 2024)
+    run_ranges = sorted(ranges(datetime(2023,1,1), datetime.now(), 6), reverse=True)
+    print(run_ranges)
+    for range_ in run_ranges:
+        back_fill_orders(range_[0], range_[1])
