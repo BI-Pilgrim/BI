@@ -67,9 +67,13 @@ class easyEComReportsAPI(EasyComApiConnector):
         else:
             start_datetime = start_date
             end_datetime = end_date
-        
+
+        end_datetime = end_datetime.replace(hour=23, minute=59, second=59, microsecond=0)
         extracted_at = datetime.now()
         for report_type in constants.ReportTypes.get_all_types():
+            if self.report_already_exists(report_type, start_datetime, end_datetime):
+                print(f"Report {report_type} already exists in BigQuery")
+                continue
             report_data = self.get_data(report_type, start_datetime, end_datetime)
             if not report_data:
                 print(f"No {self.name} data found for report type {report_type}")
@@ -120,7 +124,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             "report_id": data.get("reportId"),
             "report_type": report_type,
             "start_date": start_datetime.replace(hour=0, minute=0, second=0, microsecond=0),
-            "end_date": end_datetime.replace(hour=0, minute=0, second=0, microsecond=0),
+            "end_date": end_datetime.replace(hour=23, minute=59, second=59, microsecond=0),
             "created_on": datetime.now(),
             "status": constants.ReportStatus.IN_PROGRESS.value,
             "csv_url": None,
@@ -192,7 +196,8 @@ class easyEComReportsAPI(EasyComApiConnector):
     def delete_record_id(self, record_id):
         """Delete a record from BigQuery."""
         table = self.table.__tablename__
-        delete_query = f"DELETE FROM `{table}` WHERE record_id = {record_id}"
+        delete_query = f"DELETE FROM {self.table_id} WHERE report_id = '{record_id}'"
+        print(delete_query)
         self.client.query(delete_query).result()
 
     def get_completed_reports(self, report_type):
@@ -214,4 +219,12 @@ class easyEComReportsAPI(EasyComApiConnector):
         '''
         update_data = [{"report_id": report_id, "status": status} for report_id in report_ids]
         self.update_data(update_data, merge_query)
+
+    def report_already_exists(self, report_type, start_datetime, end_datetime):
+        """Check if the report already exists in BigQuery."""
+        print(report_type, start_datetime, end_datetime)
+        query = f"SELECT * FROM {self.table_id} WHERE report_type = '{report_type}' AND start_date = '{start_datetime}' AND end_date = '{end_datetime}'"
+        with self.engine.connect() as connection:
+            result = connection.execute(query)
+            return result.first() is not None
         

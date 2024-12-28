@@ -125,6 +125,7 @@ class easyEComAllReturnOrdersAPI(EasyComApiConnector):
         extracted_at = datetime.now()
         # Insert the transformed data into the table
         self.load_data_to_bigquery(transformed_data, extracted_at)
+        return "Data synced successfully"
 
     def get_data(self):
         """Fetch data from the API."""
