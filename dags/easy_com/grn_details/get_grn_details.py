@@ -56,7 +56,7 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
                 "grn_status_id": record["grn_status_id"],
                 "grn_status": record["grn_status"],
                 "grn_created_at": datetime.strptime(record["grn_created_at"], "%Y-%m-%d %H:%M:%S") if record.get("grn_created_at") else None,
-                "grn_invoice_date": datetime.strptime(record["grn_invoice_date"], "%Y-%m-%d %H:%M:%S") if record.get("grn_invoice_date") else None,
+                "grn_invoice_date": datetime.strptime(record["grn_invoice_date"], "%Y-%m-%d") if record.get("grn_invoice_date") else None,
                 "po_id": record["po_id"],
                 "po_number": record["po_number"],
                 "po_ref_num": record["po_ref_num"],
@@ -104,8 +104,8 @@ class easyEComGrnDetailsAPI(EasyComApiConnector):
             max_count = 0
 
             while next_url:
-                if max_count >= 10:
-                    print("Reached maximum limit of 10 API requests")
+                if max_count >= 100:
+                    print("Reached maximum limit of 100 API requests")
                     break
                 try:
                     max_count += 1
