@@ -61,11 +61,15 @@ def back_fill_orders(start_date, end_date):
         
 
 
-if __name__ == "__main__":
-    from tqdm import tqdm
-    run_ranges = sorted(ranges(datetime(2021,1,1), datetime.now(), 6), reverse=True)
-    print(run_ranges)
-    # for range_ in tqdm(run_ranges):
-    for range_ in run_ranges:
-        back_fill_orders(range_[0], range_[1])
+# if __name__ == "__main__":
+#     from tqdm import tqdm
+#     run_ranges = sorted(ranges(datetime(2021,1,1), datetime.now(), 6), reverse=True)
+#     print(run_ranges)
+#     # for range_ in tqdm(run_ranges):
+#     for range_ in run_ranges:
+#         back_fill_orders(range_[0], range_[1])
 
+if __name__ == "__main__":
+    backfill_reports(9, 2024)
+    backfill_reports(10, 2024)
+    backfill_reports(11, 2024)

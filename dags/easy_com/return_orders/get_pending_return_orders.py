@@ -13,6 +13,8 @@ import base64
 import json
 
 from datetime import datetime
+from easy_com.easy_com_api_connector import generate_location_key_token
+
 
 class easyEComPendingReturnOrdersAPI(EasyComApiConnector):
     def __init__(self):
@@ -128,26 +130,30 @@ class easyEComPendingReturnOrdersAPI(EasyComApiConnector):
         # NOTE: This method does not support nextUrl pagination so this will run at max 1 time for now but keeping it this way for future use
         print(f"Getting {self.name} data for Easy eCom")
         table_data = []
-        next_url = self.url
-        max_count = 0
 
-        while next_url:
-            if max_count >= 10:
-                print("Reached maximum limit of 10 API requests")
-                break
-            try:
-                max_count += 1
-                data = self.send_get_request(next_url)
-                pending_returns = data.get("data") or {}
-                table_data.extend(pending_returns.get('pending_returns', []))
-                next_url = data.get("nextUrl")
-                next_url = self.base_url + next_url if next_url else None
-            except Exception as e:
-                print(f"Error in getting {self.name} data for Easy eCom: {e}")
-                if table_data:
-                    print(f'Processing the {self.name} fetched so far')
-                    return table_data
-                else:
+        location_keys = self.locations_api.get_all_location_keys()
+        for location_key in location_keys:
+            token = generate_location_key_token(location_key)
+            next_url = self.url
+            max_count = 0
+
+            while next_url:
+                if max_count >= 10:
+                    print("Reached maximum limit of 10 API requests")
                     break
+                try:
+                    max_count += 1
+                    data = self.send_get_request(next_url)
+                    pending_returns = data.get("data") or {}
+                    table_data.extend(pending_returns.get('pending_returns', []))
+                    next_url = data.get("nextUrl")
+                    next_url = self.base_url + next_url if next_url else None
+                except Exception as e:
+                    print(f"Error in getting {self.name} data for Easy eCom: {e}")
+                    if table_data:
+                        print(f'Processing the {self.name} fetched so far')
+                        return table_data
+                    else:
+                        break
 
         return table_data

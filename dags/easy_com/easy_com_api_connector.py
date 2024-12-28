@@ -37,8 +37,8 @@ def generate_api_token():
 def generate_location_key_token(location_key):
     auth_api_end_point = BASE_URL + "/access/token"
     body = {
-        "email": os.getenv("EASYCOM_EMAIL"),
-        "password": os.getenv("EASYCOM_PASSWORD"),
+        "email": Variable.get("EASYCOM_EMAIL"),
+        "password": Variable.get("EASYCOM_PASSWORD"),
         "location_key": location_key
     }
     response = requests.post(auth_api_end_point, json=body)
