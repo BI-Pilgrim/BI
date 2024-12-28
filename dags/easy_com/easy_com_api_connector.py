@@ -192,5 +192,5 @@ class EasyComApiConnector:
         except:
             return None
         
-    def get_google_credentials_info():
+    def get_google_credentials_info(self):
         return Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
