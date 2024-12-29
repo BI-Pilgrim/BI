@@ -13,6 +13,9 @@ import base64
 import json
 
 from datetime import datetime
+from easy_com.easy_com_api_connector import generate_location_key_token
+from easy_com.locations.get_locations import easyEComLocationsAPI
+
 
 class easyEComPendingReturnOrdersAPI(EasyComApiConnector):
     def __init__(self):
@@ -22,6 +25,7 @@ class easyEComPendingReturnOrdersAPI(EasyComApiConnector):
         self.dataset_id = "easycom"
         self.name = "Pending Return Orders"
         self.table = PendingReturnOrders
+        self.locations_api = easyEComLocationsAPI()
 
         self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
 
@@ -63,19 +67,16 @@ class easyEComPendingReturnOrdersAPI(EasyComApiConnector):
                 "replacement_order": record["replacement_order"],
                 "marketplace": record["marketplace"],
                 "marketplace_id": record["marketplace_id"],
-                "salesman_user_id": record["warehouseId"],
+                "salesman_user_id": record["salesmanUserId"],
                 "order_date": datetime.strptime(record["order_date"], "%Y-%m-%d %H:%M:%S") if record.get("order_date") else None,
                 "invoice_date": datetime.strptime(record["invoice_date"], "%Y-%m-%d %H:%M:%S") if record.get("invoice_date") else None,
                 "import_date": datetime.strptime(record["import_date"], "%Y-%m-%d %H:%M:%S") if record.get("import_date") else None,
                 "last_update_date": datetime.strptime(record["last_update_date"], "%Y-%m-%d %H:%M:%S") if record.get("last_update_date") else None,
                 "manifest_date": datetime.strptime(record["manifest_date"], "%Y-%m-%d %H:%M:%S") if record.get("manifest_date") else None,
-                "return_date": datetime.strptime(record["return_date"], "%Y-%m-%d") if record.get("return_date") else None,
                 "manifest_no": record["manifest_no"],
                 "invoice_number": record["invoice_number"],
-                "marketplace_credit_note_num": record["marketplace_credit_note_num"],
                 "marketplace_invoice_num": record["marketplace_invoice_num"],
                 "batch_id": record["batch_id"],
-                "batch_created_at": datetime.strptime(record["batch_created_at"], "%Y-%m-%d %H:%M:%S") if record.get("batch_created_at") else None,
                 "payment_mode": record["payment_mode"],
                 "payment_mode_id": record["payment_mode_id"],
                 "buyer_gst": record["buyer_gst"],
@@ -128,26 +129,30 @@ class easyEComPendingReturnOrdersAPI(EasyComApiConnector):
         # NOTE: This method does not support nextUrl pagination so this will run at max 1 time for now but keeping it this way for future use
         print(f"Getting {self.name} data for Easy eCom")
         table_data = []
-        next_url = self.url
-        max_count = 0
 
-        while next_url:
-            if max_count >= 10:
-                print("Reached maximum limit of 10 API requests")
-                break
-            try:
-                max_count += 1
-                data = self.send_get_request(next_url)
-                pending_returns = data.get("data") or {}
-                table_data.extend(pending_returns.get('pending_returns', []))
-                next_url = data.get("nextUrl")
-                next_url = self.base_url + next_url if next_url else None
-            except Exception as e:
-                print(f"Error in getting {self.name} data for Easy eCom: {e}")
-                if table_data:
-                    print(f'Processing the {self.name} fetched so far')
-                    return table_data
-                else:
+        location_keys = self.locations_api.get_all_location_keys()
+        for location_key in location_keys:
+            token = generate_location_key_token(location_key)
+            next_url = self.url
+            max_count = 0
+
+            while next_url:
+                if max_count >= 10:
+                    print("Reached maximum limit of 10 API requests")
                     break
+                try:
+                    max_count += 1
+                    data = self.send_get_request(next_url)
+                    pending_returns = data.get("data") or {}
+                    table_data.extend(pending_returns.get('pending_returns', []))
+                    next_url = data.get("nextUrl")
+                    next_url = self.base_url + next_url if next_url else None
+                except Exception as e:
+                    print(f"Error in getting {self.name} data for Easy eCom: {e}")
+                    if table_data:
+                        print(f'Processing the {self.name} fetched so far')
+                        return table_data
+                    else:
+                        break
 
         return table_data

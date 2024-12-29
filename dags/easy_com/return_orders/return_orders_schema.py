@@ -161,6 +161,7 @@ class BaseReturnOrders(Base):
     total_invoice_tax = Column(Float, nullable=True)
     invoice_collectable_amount = Column(Float, nullable=True)
     items = Column(String, nullable=True)
+    ee_extracted_at = Column(DateTime(True))
 
 class AllReturnOrders(BaseReturnOrders):
     __tablename__ = constants.ALL_RETURN_ORDERS_TABLE_NAME

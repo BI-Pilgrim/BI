@@ -1,109 +1,60 @@
+from airflow import DAG
 from airflow.decorators import task, dag
 from datetime import datetime, timedelta
-from easy_com.reports.get_reports import easyEComReportsAPI
 
-    
-@dag("sync_reports_data", schedule='0 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_reports_data():
-    
+@dag("sync_orders", schedule='0 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+def sync_orders():
+    # order data sync
     @task.python
     def sync():
-        easyEComReportsAPI().sync_data()
-        return ""
+        from easy_com.orders.get_orders import easyEComOrdersAPI
+        easyEComOrdersAPI().sync_data()
+    resp = sync()
+
+@dag("sync_grn_details", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+def sync_grn_details():
+    # grn details data sync
+    @task.python
+    def sync():
+        from easy_com.grn_details.get_grn_details import easyEComGrnDetailsAPI
+        easyEComGrnDetailsAPI().sync_data()
+    resp = sync()
+
+@dag("sync_return_orders", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+def sync_return_orders():
+    # Return Orders data sync
+    @task.python
+    def sync():
+        from easy_com.return_orders.get_all_return_orders import easyEComAllReturnOrdersAPI
+        easyEComAllReturnOrdersAPI().sync_data()
+
+        from easy_com.return_orders.get_pending_return_orders import easyEComPendingReturnOrdersAPI
+        easyEComPendingReturnOrdersAPI().sync_data()
+    resp = sync()
+
+@dag("sync_inventory_details", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+def sync_inventory_details():
+    # inventory data sync
+    @task.python
+    def sync():
+        from easy_com.inventory_details.get_inventory_details import easyEComInventoryDetailsAPI
+        easyEComInventoryDetailsAPI().sync_data()
+
+        from easy_com.inventory_snapshot.get_inventory_snapshot_details import easyEComInventorySnapshotDetailsAPI
+        easyEComInventorySnapshotDetailsAPI().sync_data()
     resp = sync()
 
 
-@dag("update_csv_url_and_status", schedule='0 */2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def update_csv_url_and_status():
-    """
-    This api sync data every 2 hours and check if the report is avvailable and get the csv url and status and updates it
-    """
-    from easy_com.reports.download_reports import easyEComDownloadReportsAPI
-    
+@dag("sync_purchase_orders", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+def sync_purchase_orders():
     @task.python
     def sync():
-        easyEComDownloadReportsAPI().sync_data()
+        from easy_com.purchase_order.get_purchase_orders import easyEComPurchaseOrdersAPI
+        easyEComPurchaseOrdersAPI().sync_data()
     resp = sync()
 
-
-# all the below Report uploading tasks should run once every day at 5 am
-
-@dag("sync_mini_sales_report", schedule='0 4 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_mini_sales_report():
-    from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
-    
-    @task.python
-    def sync():
-        MiniSalesReportParserAPI().sync_data()
-    resp = sync()
-
-@dag("sync_tax_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_tax_report():
-    from easy_com.reports.parsers.tax_report import TaxReportParserAPI
-    
-    @task.python
-    def sync():
-        TaxReportParserAPI().sync_data()
-    resp = sync()
-
-@dag("sync_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_returns_report():
-    from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
-    
-    @task.python
-    def sync():
-        ReturnsReportParserAPI().sync_data()
-    resp = sync()
-
-@dag("sync_pending_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_pending_returns_report():
-    from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
-    
-    @task.python
-    def sync():
-        PendingReturnsReportParserAPI().sync_data()
-    resp = sync()
-
-@dag("sync_grn_details_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_grn_details_report():
-    from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
-    
-    @task.python
-    def sync():
-        GRNDetailsReportParserAPI().sync_data()
-    resp = sync()
-
-@dag("sync_status_wise_stock_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_status_wise_stock_report():
-    from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
-    
-    @task.python
-    def sync():
-        StatusWiseStockReportParserAPI().sync_data()
-    resp = sync()
-
-@dag("sync_inventory_report", schedule='0 6 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
-def sync_inventory_report():
-    from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
-    from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI
-    
-    @task.python
-    def sync_inventory_aging():
-        InventoryAgingReportParserAPI().sync_data()
-    
-    @task.python
-    def sync_inventory_by_bin():
-        InventoryViewByBinReportParserAPI().sync_data()
-
-    resp1 = sync_inventory_aging()
-    resp2 = sync_inventory_by_bin()
-
-var_sync_reports_data = sync_reports_data()
-var_update_csv_url_and_status = update_csv_url_and_status()
-var_sync_mini_sales_report = sync_mini_sales_report()
-var_sync_tax_report = sync_tax_report()
-var_sync_returns_report = sync_returns_report()
-var_sync_pending_returns_report = sync_pending_returns_report()
-var_sync_grn_details_report = sync_grn_details_report()
-var_sync_status_wise_stock_report = sync_status_wise_stock_report()
-var_sync_inventory_report = sync_inventory_report()
+orders = sync_orders()
+grn_details = sync_grn_details()
+return_orders = sync_return_orders()
+inventory_details = sync_inventory_details()
+purchase_orders = sync_purchase_orders()

@@ -14,6 +14,8 @@ import json
 from datetime import datetime, timedelta
 from easy_com.easy_com_api_connector import generate_location_key_token
 
+from easy_com.locations.get_locations import easyEComLocationsAPI
+
 class easyEComPurchaseOrdersAPI(EasyComApiConnector):
     def __init__(self):
         super().__init__()
@@ -25,10 +27,11 @@ class easyEComPurchaseOrdersAPI(EasyComApiConnector):
 
         self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
 
+        self.locations_api = easyEComLocationsAPI()
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = self.get_google_credentials_info()
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -66,17 +69,23 @@ class easyEComPurchaseOrdersAPI(EasyComApiConnector):
             transformed_data.append(transformed_record)
         return transformed_data
 
-    def sync_data(self):
+    def sync_data(self, start_date = None, end_date = None):
         """Sync data from the API to BigQuery."""
-        start_datetime = (datetime.now() - timedelta(days=1))
-        end_datetime = start_datetime
-        start_datetime = start_datetime.strftime("%Y-%m-%d 00:00:00")
-        end_datetime = end_datetime.strftime("%Y-%m-%d 23:59:59")
+        if not start_date and not end_date:
+            start_datetime = (datetime.now() - timedelta(days=1))
+            end_datetime = start_datetime
+            start_datetime = start_datetime.strftime("%Y-%m-%d 00:00:00")
+            end_datetime = end_datetime.strftime("%Y-%m-%d 23:59:59")
+        else:
+            start_datetime = start_date
+            end_datetime = end_date
+            start_datetime = start_datetime.strftime("%Y-%m-%d 00:00:00")
+            end_datetime = end_datetime.strftime("%Y-%m-%d 23:59:59")
 
         table_data = self.get_data(start_datetime, end_datetime)
         if not table_data:
             print(f"No {self.name} data found for Easy eCom")
-            return
+            return "No data found"
 
         print(f'Transforming {self.name} data for Easy eCom')
         transformed_data = self.transform_data(data=table_data)
@@ -104,16 +113,16 @@ class easyEComPurchaseOrdersAPI(EasyComApiConnector):
                 try:
                     max_count += 1
                     data = self.send_get_request(next_url, params={"created_after": start_datetime, "created_before": end_datetime, "limit": 10}, auth_token=token)
-                    print(data)
+                    # print(data)
                     table_data.extend(data.get("data", []))
                     next_url = data.get("nextUrl")
                     next_url = self.base_url + next_url if next_url else None
                 except Exception as e:
                     print(f"Error in getting {self.name} data for Easy eCom: {e}")
-                    if table_data:
-                        print(f'Processing the {self.name} fetched so far')
-                        return table_data
-                    else:
-                        break
+                    # if table_data:
+                    #     print(f'Processing the {self.name} fetched so far')
+                    #     return table_data
+                    # else:
+                    #     break
 
         return table_data
