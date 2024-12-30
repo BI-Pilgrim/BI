@@ -21,10 +21,10 @@ D.total_qty,
 D.GMV_value,
 D.Purchased_vales,
 D.Amount_Saved,
-from `shopify-pubsub-project.adhoc_data.Customer_State_Category_level_top10_percentile` as A
-left join `shopify-pubsub-project.adhoc_data.QUARTERWISE_SPLIT_TOP_10_CUSTOMERS_Rewind2024` as B
+from `shopify-pubsub-project.adhoc_data.Customer_state_category_top10_Rewind2024` as A
+left join `shopify-pubsub-project.adhoc_data.Customer_Quarter_Top10_Rewind2024` as B
 using(customer_id)
-left join `shopify-pubsub-project.adhoc_data.TOP_1_10_20_50_CUSTOMER_IN_STATE_Rewind2024` as C
+left join `shopify-pubsub-project.adhoc_data.Customer__State_Top_1_10_20_50_Rewind2024` as C
 using(customer_id)
-left join `shopify-pubsub-project.adhoc_data.Customer_Top_Product_and_Discount_Rewind2024` as D
+left join `shopify-pubsub-project.adhoc_data.Customer_Top_Producst_and_Discount_Rewind2024` as D
 using(customer_id)
