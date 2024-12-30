@@ -1,3 +1,4 @@
+
 WITH Customer_State_Sales AS
 (
     select 
@@ -7,12 +8,6 @@ WITH Customer_State_Sales AS
   when ship_state in ('Bihar state','Bihar') then 'Bihar'
   else ship_state
   end as state,
-   
-    CASE WHEN custom_main_category = 'Hair Care' THEN 'Hair Care'
-      WHEN custom_main_category IN ('Lip Care', 'Face Care', 'Body Care') THEN 'Skin Care'
-      WHEN custom_main_category = 'Makeup' THEN 'Makeup'
-      ELSE 'Others'
-    END AS custom_main_category,
   sum(final_sale_quantity) as total_qty
   FROM `pilgrim-dw.halo_115.global_reports_project_level_report_order_items` 
   where customer_id not in ('','0') and order_status not in ('cancelled','refunded') and channel = 'Shopify'
@@ -47,12 +42,10 @@ customer_state_mapping as (
   where ranking = 1
 ),
 
-
 base as (
   select 
     A.customer_id,
     B.state,
-    custom_main_category,
     total_qty
   from Customer_State_Sales as A
   left join customer_state_mapping as B
@@ -61,39 +54,37 @@ base as (
 
 ),
 
-
 StateRevenuePercentiles AS (
     SELECT
-        distinct
-        customer_id,
         state,
-        custom_main_category,
+        customer_id,
         total_qty,
-        NTILE(10) OVER (PARTITION BY state,custom_main_category ORDER BY total_qty DESC) AS top_10_percentile
-        FROM
+        NTILE(100) OVER (PARTITION BY state ORDER BY total_qty DESC) AS revenue_percentile,
+        NTILE(10) OVER (PARTITION BY state ORDER BY total_qty DESC) AS top_10_percentile,
+        NTILE(5) OVER (PARTITION BY state ORDER BY total_qty DESC) AS top_20_percentile,
+        NTILE(2) OVER (PARTITION BY state ORDER BY total_qty DESC) AS top_50_percentile
+    FROM
         base
 ),
-
-final_tagging as 
-(SELECT
+final_base as (
+SELECT
     distinct
-    customer_id,
     state,
-    CASE WHEN top_10_percentile <= 1  AND custom_main_category = 'Skin Care' THEN 'Yes' ELSE 'No' END AS Skin_Care_top_10,
-    CASE WHEN top_10_percentile <= 1  AND custom_main_category = 'Hair Care' THEN 'Yes' ELSE 'No' END AS Hair_Care_top_10,
-    CASE WHEN top_10_percentile <= 1  AND custom_main_category = 'Makeup' THEN 'Yes' ELSE 'No' END AS Makeup_top_10,
-
+    customer_id,
+    CASE WHEN revenue_percentile <= 1 THEN 'Yes' ELSE 'No' END AS top_1_percentile,
+    CASE WHEN top_10_percentile <= 1 THEN 'Yes' ELSE 'No' END AS top_10_percentile,
+    CASE WHEN top_20_percentile <= 1 THEN 'Yes' ELSE 'No' END AS top_20_percentile,
+    CASE WHEN top_50_percentile <= 1 THEN 'Yes' ELSE 'No' END AS top_50_percentile
 FROM
-    StateRevenuePercentiles)
-
+    StateRevenuePercentiles
+)
 
 select 
-customer_id,
 state,
-max(Skin_Care_top_10) as Skin_Care_top_10,
-max(Hair_Care_top_10) as Hair_Care_top_10,
-max(Makeup_top_10) as Makeup_top_10,
-
-from final_tagging
-where state != 'N/A'
-group by All
+customer_id,
+max(top_1_percentile) as top_1_percentile,
+max(top_10_percentile) as top_10_percentile,
+max(top_20_percentile) as top_20_percentile,
+max(top_50_percentile) as top_50_percentile,
+from final_base
+group by all
