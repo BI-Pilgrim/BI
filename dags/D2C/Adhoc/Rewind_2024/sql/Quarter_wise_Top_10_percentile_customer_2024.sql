@@ -19,11 +19,11 @@ CustomerQuarterlyRanking AS (
         NTILE(10) OVER (PARTITION BY quarter ORDER BY total_qty DESC) AS qty_percentile
     FROM
         CustomerQuarterlySales
-)
-SELECT
+),
+final_base as 
+(SELECT
     distinct
     customer_id,
-    -- total_qty,
     CASE
         WHEN qty_percentile <= 1 and quarter = '2024-01-01' THEN 'Yes'
         ELSE 'No'
@@ -46,5 +46,14 @@ SELECT
         ELSE 'No'
     END AS OND24
 FROM
-    CustomerQuarterlyRanking;
+    CustomerQuarterlyRanking)
+
+    select 
+    customer_id,
+    max(JFM24) as JFM24,
+    max(AMJ24) as AMJ24,
+    max(JAS24) as JAS24,
+    max(OND24) as OND24,
+    from final_base
+    group by 1
 
