@@ -1,47 +1,13 @@
 WITH Customer_State_Sales AS
 (
     select 
-  date_trunc(order_date,year) as year,
   customer_email as customer_id,
-  max(CASE
-      WHEN lower(SHIP_STATE) LIKE '%andaman%' THEN 'Andaman & Nicobar'
-      WHEN lower(SHIP_STATE) LIKE '%andh%' THEN 'Andhra Pradesh'
-      WHEN lower(SHIP_STATE) LIKE '%aruna%' THEN 'Arunachal Pradesh'
-      WHEN lower(SHIP_STATE) LIKE '%assa%' THEN 'Assam'
-      WHEN lower(SHIP_STATE) LIKE '%bihar%' THEN 'Bihar'
-      WHEN lower(SHIP_STATE) LIKE '%chandigarh%' THEN 'Chandigarh'
-      WHEN lower(SHIP_STATE) LIKE '%chhat%' THEN 'Chhattisgarh'
-      WHEN lower(SHIP_STATE) LIKE '%dadra%' THEN 'Dadra & Nagar Haveli'
-      WHEN lower(SHIP_STATE) LIKE '%daman%' THEN 'Daman and Diu'
-      WHEN lower(SHIP_STATE) LIKE '%delhi%' THEN 'Delhi'
-      WHEN lower(SHIP_STATE) LIKE '%goa%' THEN 'Goa'
-      WHEN lower(SHIP_STATE) LIKE '%guj%' THEN 'Gujarat'
-      WHEN lower(SHIP_STATE) LIKE '%har%' THEN 'Haryana'
-      WHEN lower(SHIP_STATE) LIKE '%himachal%' THEN 'Himachal Pradesh'
-      WHEN lower(SHIP_STATE) LIKE '%jammu%' THEN 'Jammu & Kashmir'
-      WHEN lower(SHIP_STATE) LIKE '%jhark%' THEN 'Jharkhand'
-      WHEN lower(SHIP_STATE) LIKE '%karna%' THEN 'Karnataka'
-      WHEN lower(SHIP_STATE) LIKE '%kera%' THEN 'Kerala'
-      WHEN lower(SHIP_STATE) LIKE '%ladakh%' THEN 'Ladakh'
-      WHEN lower(SHIP_STATE) LIKE '%madhya%' THEN 'Madhya Pradesh'
-      WHEN lower(SHIP_STATE) LIKE '%mahara%' THEN 'Maharashtra'
-      WHEN lower(SHIP_STATE) LIKE '%manip%' THEN 'Manipur'
-      WHEN lower(SHIP_STATE) LIKE '%meghalaya%' THEN 'Meghalaya'
-      WHEN lower(SHIP_STATE) LIKE '%mizo%' THEN 'Mizoram'
-      WHEN lower(SHIP_STATE) LIKE '%naga%' THEN 'Nagaland'
-      WHEN lower(SHIP_STATE) LIKE '%odi%' THEN 'Odisha'
-      WHEN lower(SHIP_STATE) LIKE '%pondi%' OR lower(SHIP_STATE) LIKE '%pud%' THEN 'Puducherry'
-      WHEN lower(SHIP_STATE) LIKE '%punj%' THEN 'Punjab'
-      WHEN lower(SHIP_STATE) LIKE '%raj%' THEN 'Rajasthan'
-      WHEN lower(SHIP_STATE) LIKE '%sikkim%' THEN 'Sikkim'
-      WHEN lower(SHIP_STATE) LIKE '%tamil%' THEN 'Tamil Nadu'
-      WHEN lower(SHIP_STATE) LIKE '%telang%' THEN 'Telangana'
-      WHEN lower(SHIP_STATE) LIKE '%trip%' THEN 'Tripura'
-      WHEN lower(SHIP_STATE) LIKE '%uttar%prad%' THEN 'Uttar Pradesh'
-      WHEN lower(SHIP_STATE) LIKE '%uttarak%' THEN 'Uttarakhand'
-      WHEN lower(SHIP_STATE) LIKE '%bengal%' THEN 'West Bengal'
-      ELSE 'Others'
-    END) AS state,
+  case when ship_state in ('Uttarakhand','UTTRAKHAND') then 'Uttarakhand'
+  when ship_state in ('Tamilnadu','Tamil Nadu') then 'Tamil Nadu'
+  when ship_state in ('Bihar state','Bihar') then 'Bihar'
+  else ship_state
+  end as state,
+   
     CASE WHEN custom_main_category = 'Hair Care' THEN 'Hair Care'
       WHEN custom_main_category IN ('Lip Care', 'Face Care', 'Body Care') THEN 'Skin Care'
       WHEN custom_main_category = 'Makeup' THEN 'Makeup'
@@ -54,17 +20,62 @@ WITH Customer_State_Sales AS
   group by All
 ),
 
+state_grouping as
+(  select 
+  customer_id,
+  state,
+  sum(total_qty) as max_qty
+  from Customer_State_Sales
+  group by all
+
+),
+
+one_state_mapping as
+(
+  select 
+  *,
+  row_number() over(partition by customer_id order by max_qty desc) as ranking
+  from state_grouping
+),
+
+customer_state_mapping as (
+  select 
+  distinct
+  customer_id,
+  state 
+  from one_state_mapping
+  where ranking = 1
+),
+
+
+base as (
+  select 
+    A.customer_id,
+    B.state,
+    custom_main_category,
+    total_qty
+  from Customer_State_Sales as A
+  left join customer_state_mapping as B
+  using(customer_id)
+
+
+),
+
+
 StateRevenuePercentiles AS (
     SELECT
+        distinct
         customer_id,
         state,
-       custom_main_category,
-       total_qty,
+        custom_main_category,
+        total_qty,
         NTILE(10) OVER (PARTITION BY state,custom_main_category ORDER BY total_qty DESC) AS top_10_percentile
         FROM
-        Customer_State_Sales
-)
-SELECT
+        base
+),
+
+final_tagging as 
+(SELECT
     distinct
     customer_id,
     state,
@@ -73,6 +84,16 @@ SELECT
     CASE WHEN top_10_percentile <= 1  AND custom_main_category = 'Makeup' THEN 'Yes' ELSE 'No' END AS Makeup_top_10,
 
 FROM
-    StateRevenuePercentiles;
+    StateRevenuePercentiles)
 
 
+select 
+customer_id,
+state,
+max(Skin_Care_top_10) as Skin_Care_top_10,
+max(Hair_Care_top_10) as Hair_Care_top_10,
+max(Makeup_top_10) as Makeup_top_10,
+
+from final_tagging
+where state != 'N/A'
+group by All
