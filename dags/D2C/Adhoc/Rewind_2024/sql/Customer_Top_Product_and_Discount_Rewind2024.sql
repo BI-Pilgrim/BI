@@ -23,7 +23,8 @@ category_level as (
     avg(custom_mrp) as MRP,
       FROM `pilgrim-dw.halo_115.global_reports_project_level_report_order_items` 
   where customer_id not in ('','0') and order_status not in ('cancelled','refunded')
-  and order_date>='2024-01-01' and channel = 'Shopify'
+  and order_date>='2024-01-01'
+   and channel = 'Shopify'
   group by ALL
 ),
 
@@ -32,8 +33,10 @@ select
 customer_id,
 category,
 custom_products,
-row_number() over(partition by customer_id,category order by total_quantity,MRP desc) as ranking,
-row_number() over(partition by customer_id order by total_quantity,MRP desc) as overall_ranking
+total_quantity,
+MRP,
+row_number() over(partition by customer_id,category order by total_quantity desc,MRP desc) as ranking,
+row_number() over(partition by customer_id order by total_quantity desc,MRP desc) as overall_ranking
 
  from category_level
  where category in ('Hair Care','Skin Care','Makeup')
@@ -79,9 +82,10 @@ Overall_base as  (
   where overall_ranking = 1 
 )
 
+
 select
 distinct
-  O.customer_id,
+  CB.customer_id,
   Overall_Top_Product,
   Hair_Care_Product,
   Skin_care_Product,
@@ -89,13 +93,13 @@ distinct
   total_qty,
   GMV_value,  
   Purchased_vales,
-  (GMV_value-Purchased_vales) Amount_Saved,
-from Overall_base as O
+  (GMV_value-Purchased_vales) as Amount_Saved,
+from customer_base as CB
 left join Hair_Care_base as HC
 using(customer_id)
 left join Skin_Care_base as SC
 using(customer_id)
 left join Makeup_base as MC
 using(customer_id)
-left join customer_base as CB
+left join Overall_base as O
 using(customer_id)
