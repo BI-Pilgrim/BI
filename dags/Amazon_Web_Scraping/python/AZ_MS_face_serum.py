@@ -52,10 +52,6 @@ def Search_page(nopage,key):
     df = pd.DataFrame({'Parent_ASIN':Asin_m,'Child_ASIN':Asin_m,'Product_URL':Prod_url_m})
     return df
 
-
-# In[13]:
-
-
 def Scrape_Page(driver,inp_url):
 
     driver.get(inp_url)
@@ -66,9 +62,8 @@ def Scrape_Page(driver,inp_url):
     Asin = []
 
     for card in cards:
-
-        # Extract Product Link and ASIN Number        
-        prod_link = Extract_card(card,'.//div[@data-cy="title-recipe"]//a[@class="a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal"]')
+        # Extract Product Link and ASIN Number      a-link-normal s-line-clamp-3 s-link-style a-text-normal  
+        prod_link = Extract_card(card,'.//div[@data-cy="title-recipe"]//a')
         if prod_link:
             link = prod_link.get_attribute('href')
             Prod_url.append(link.split('=')[0])
@@ -84,6 +79,7 @@ def Scrape_Page(driver,inp_url):
 
         else:
             Prod_url.append(0)
+            Asin.append(0)
 
     return Prod_url,Asin
 
@@ -137,7 +133,7 @@ def Scrape_child_asin(df):
         
         amazon_url = row['Product_URL']
         driver.get(amazon_url)
-        time.sleep(2)
+        time.sleep(1)
         try:
             child_elements = driver.find_elements('xpath', './/div[@id="variation_size_name"]//ul//li')
             for li in child_elements:
@@ -277,10 +273,10 @@ def child_details(df):
         else:
             best_seller_beauty.append(bsib)
         
-        bsic = Extract_table(driver,'//div[@id="detailBulletsWrapper_feature_div"]/ul[1]/li//ul')
+        bsic = Extract_table(driver,'//div[@id="detailBulletsWrapper_feature_div"]/ul[1]/li//ul/li[1]')
         if bsic:
             best_seller_category.append(bsic.split(" ")[0])
-            inbuilt_category.append(bsic.split(" ")[-1])
+            inbuilt_category.append(' '.join(bsic.split(" ")[2:]))
         else:
             best_seller_category.append(bsic)
             inbuilt_category.append(bsic)
@@ -387,7 +383,6 @@ def child_details(df):
 
 def Brand_Scrape(df):
     time_interval = 1
-
     driver = webdriver.Firefox()
     brands = []
     urls = []
@@ -524,7 +519,6 @@ def Brand_Scrape(df):
         'SPF_factor':spf_factor,
         'Hair_type':hair_type,
         'Material_type_free':material_type_free,
-        'Special_feature':special_feature,
         'Recomended_for':recomended_for,
         'Reviews_Summary':reviews_summary
     })
@@ -638,7 +632,7 @@ def write_to_gbq(df):
     print("Done appending in the table")
     
     
-keyword = 'Face moisturizer'
+keyword = 'Face Wash'
 
 No_of_pages = 10
 
@@ -648,6 +642,7 @@ pdf = Search_page(No_of_pages,keyword)
 time.sleep(1)
 print('Child Asin Scraping Started....',datetime.datetime.now())
 cdf = Scrape_child_asin(pdf)
+
 
 merged_df = pd.concat([pdf, cdf], axis=0, ignore_index=True)
 
@@ -664,7 +659,7 @@ final_op = mtrcsdf
 
 
 final_op['Category'] = keyword
-final_op['Date_MS'] = date(2024,11,1)
+final_op['Date_MS'] = date(2024,12,1)
 # date.today()
 # date.today().replace(day=1) - relativedelta(months=1)
 
@@ -685,6 +680,7 @@ column_dtype_mapping = {
     'Best_Seller_in_Beauty': 'str',
     'Best_Seller_in_Category': 'str',
     'Scent_type': 'str',
+    'Scent_type_type':'str',
     'Skin_type': 'str',
     'Benefits': 'str',
     'Item_form': 'str',
@@ -696,7 +692,9 @@ column_dtype_mapping = {
     'Special_feature': 'float',    
     'Pack_size': 'str',
     'SPF_factor': 'str',
-    'Hair_type': 'str',          
+    'Hair_type': 'str',    
+    'Hair_type_type':'str',
+    'Recomended_for_type':'str',
     'Material_type_free': 'str',
     'Recomended_for': 'str',
     'Reviews_Summary': 'str',
@@ -716,12 +714,12 @@ column_dtype_mapping = {
     'Date_MS': 'datetime64[ns]',
     'Inbuilt_category':'str',
 }
-
+  
 bfdf = cleaning(final_op,'Benefits')
 aidf = cleaning(bfdf,'Active_ingredient')
 mtdf = cleaning(aidf,'Material_type_free')
 stdf = cleaning(mtdf,'Scent_type')
-ifdf = cleaning(stdf,'Scent_type')
+ifdf = cleaning(stdf,'Item_form')
 htdf = cleaning(ifdf,'Hair_type')
 rfdf = cleaning(htdf,'Recomended_for')
 
@@ -746,7 +744,6 @@ final_column = [
 'Parent_ASIN',
 'ASIN',
 'Product_URL',
-'No_Of_Ratings',
 'MRP_Price',
 'Per_100ml_price',
 'Selling_Price',
@@ -776,8 +773,6 @@ final_column = [
 'Max_Unit_Sold',
 'Revenue',
 'Max_Revenue',
-'Contribution',
-'Rolling_sum',
 'Category',
 'Benefits_type',
 'Active_ingredient_type',
@@ -792,7 +787,7 @@ final_column = [
 rfdf = rfdf[final_column]
 rfdf = rfdf[rfdf['Parent_ASIN'] != '0']
 rfdf = datatype_normalizing(rfdf,column_dtype_mapping)
-
-write_to_gbq(rfdf)
-rfdf.to_csv(f'{keyword}_MS_with_brand.csv',index=False)
+df_unique = rfdf.drop_duplicates(subset=['ASIN', 'Inbuilt_category'])
+write_to_gbq(df_unique)
+df_unique.to_csv(f'{keyword}_MS_with_brand.csv',index=False)
 print("Done writing the table")
