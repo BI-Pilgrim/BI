@@ -1,4 +1,3 @@
-
 # Import Functions
 from datetime import timedelta
 from airflow import DAG
@@ -41,7 +40,7 @@ with DAG(
 # Abandoned Checkout Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/sql/shopify_to_bq/Abandoned_chekout/Abandoned_checkout_create.sql', 'r') as file:
+    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Abandoned_chekout/Abandoned_checkout_create.sql', 'r') as file:
         sql_query_1 = file.read()
 
     append_abandoned_checkout = BigQueryInsertJobOperator(
@@ -55,11 +54,4 @@ with DAG(
         }
     )
 
- 
-
-
-
-    
-
 append_abandoned_checkout
-
