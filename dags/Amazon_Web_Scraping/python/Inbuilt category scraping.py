@@ -46,6 +46,6 @@ def child_details(df):
 a = pd.read_csv('Asin_empty_cat1.csv')
 opdf = child_details(a)
 opdf.to_csv('Inbuilt_Category_scraping_output.csv',index = False)
+opdf['Inbuilt_category'] = opdf['Inbuilt_category'].astype('string')
 write_to_gbq(opdf)
-print(opdf)
 print('Done')
