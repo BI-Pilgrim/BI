@@ -1,0 +1,107 @@
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_listing_group_criterion` AS TARGET
+USING
+(
+SELECT
+_airbyte_extracted_at,
+_airbyte_generation_id,
+_airbyte_meta,
+_airbyte_raw_id,
+ad_group_criterion_criterion_id,
+ad_group_criterion_listing_group_case_value_product_category_level,
+ad_group_criterion_listing_group_case_value_product_channel_channel,
+ad_group_criterion_listing_group_case_value_product_channel_exclusivity_channel_exclusivity,
+ad_group_criterion_listing_group_case_value_product_condition_condition,
+ad_group_criterion_listing_group_case_value_product_custom_attribute_index,
+ad_group_criterion_listing_group_case_value_product_custom_attribute_value,
+ad_group_criterion_listing_group_case_value_product_item_id_value,
+ad_group_criterion_listing_group_case_value_product_type_level,
+ad_group_criterion_listing_group_case_value_product_type_value,
+ad_group_criterion_listing_group_parent_ad_group_criterion,
+ad_group_criterion_listing_group_type,
+ad_group_criterion_resource_name,
+ad_group_id,
+change_status_last_change_date_time,
+deleted_at,
+FROM
+  (
+    SELECT
+      *,
+      ROW_NUMBER() OVER(PARTITION BY ad_group_id ORDER BY ad_group_id DESC) AS ROW_NUM
+    FROM
+      shopify-pubsub-project.pilgrim_bi_google_ads.ad_listing_group_criterion
+  )
+  WHERE
+    ROW_NUM = 1
+) AS SOURCE
+ON TARGET.ad_group_id = SOURCE.ad_group_id
+WHEN
+  MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at
+THEN
+  UPDATE SET
+  TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
+  TARGET._airbyte_generation_id = SOURCE._airbyte_generation_id,
+  TARGET._airbyte_meta = SOURCE._airbyte_meta,
+  TARGET._airbyte_raw_id = SOURCE._airbyte_raw_id,
+  TARGET.ad_group_criterion_criterion_id = SOURCE.ad_group_criterion_criterion_id,
+  TARGET.ad_group_criterion_listing_group_case_value_product_category_level = SOURCE.ad_group_criterion_listing_group_case_value_product_category_level,
+  TARGET.ad_group_criterion_listing_group_case_value_product_channel_channel = SOURCE.ad_group_criterion_listing_group_case_value_product_channel_channel,
+  TARGET.ad_group_criterion_listing_group_case_value_product_channel_exclusivity_channel_exclusivity = SOURCE.  ad_group_criterion_listing_group_case_value_product_channel_exclusivity_channel_exclusivity,
+  TARGET.ad_group_criterion_listing_group_case_value_product_condition_condition = SOURCE.ad_group_criterion_listing_group_case_value_product_condition_condition,
+  TARGET.ad_group_criterion_listing_group_case_value_product_custom_attribute_index = SOURCE.ad_group_criterion_listing_group_case_value_product_custom_attribute_index,
+  TARGET.ad_group_criterion_listing_group_case_value_product_custom_attribute_value = SOURCE.ad_group_criterion_listing_group_case_value_product_custom_attribute_value,
+  TARGET.ad_group_criterion_listing_group_case_value_product_item_id_value = SOURCE.ad_group_criterion_listing_group_case_value_product_item_id_value,
+  TARGET.ad_group_criterion_listing_group_case_value_product_type_level = SOURCE.ad_group_criterion_listing_group_case_value_product_type_level,
+  TARGET.ad_group_criterion_listing_group_case_value_product_type_value = SOURCE.ad_group_criterion_listing_group_case_value_product_type_value,
+  TARGET.ad_group_criterion_listing_group_parent_ad_group_criterion = SOURCE.ad_group_criterion_listing_group_parent_ad_group_criterion,
+  TARGET.ad_group_criterion_listing_group_type = SOURCE.ad_group_criterion_listing_group_type,
+  TARGET.ad_group_criterion_resource_name = SOURCE.ad_group_criterion_resource_name,
+  TARGET.ad_group_id = SOURCE.ad_group_id,
+  TARGET.change_status_last_change_date_time = SOURCE.change_status_last_change_date_time,
+  TARGET.deleted_at = SOURCE.deleted_at
+WHEN NOT MATCHED
+THEN INSERT
+(
+  _airbyte_extracted_at,
+  _airbyte_generation_id,
+  _airbyte_meta,
+  _airbyte_raw_id,
+  ad_group_criterion_criterion_id,
+  ad_group_criterion_listing_group_case_value_product_category_level,
+  ad_group_criterion_listing_group_case_value_product_channel_channel,
+  ad_group_criterion_listing_group_case_value_product_channel_exclusivity_channel_exclusivity,
+  ad_group_criterion_listing_group_case_value_product_condition_condition,
+  ad_group_criterion_listing_group_case_value_product_custom_attribute_index,
+  ad_group_criterion_listing_group_case_value_product_custom_attribute_value,
+  ad_group_criterion_listing_group_case_value_product_item_id_value,
+  ad_group_criterion_listing_group_case_value_product_type_level,
+  ad_group_criterion_listing_group_case_value_product_type_value,
+  ad_group_criterion_listing_group_parent_ad_group_criterion,
+  ad_group_criterion_listing_group_type,
+  ad_group_criterion_resource_name,
+  ad_group_id,
+  change_status_last_change_date_time,
+  deleted_at
+)
+VALUES
+(
+SOURCE._airbyte_extracted_at,
+SOURCE._airbyte_generation_id,
+SOURCE._airbyte_meta,
+SOURCE._airbyte_raw_id,
+SOURCE.ad_group_criterion_criterion_id,
+SOURCE.ad_group_criterion_listing_group_case_value_product_category_level,
+SOURCE.ad_group_criterion_listing_group_case_value_product_channel_channel,
+SOURCE.ad_group_criterion_listing_group_case_value_product_channel_exclusivity_channel_exclusivity,
+SOURCE.ad_group_criterion_listing_group_case_value_product_condition_condition,
+SOURCE.ad_group_criterion_listing_group_case_value_product_custom_attribute_index,
+SOURCE.ad_group_criterion_listing_group_case_value_product_custom_attribute_value,
+SOURCE.ad_group_criterion_listing_group_case_value_product_item_id_value,
+SOURCE.ad_group_criterion_listing_group_case_value_product_type_level,
+SOURCE.ad_group_criterion_listing_group_case_value_product_type_value,
+SOURCE.ad_group_criterion_listing_group_parent_ad_group_criterion,
+SOURCE.ad_group_criterion_listing_group_type,
+SOURCE.ad_group_criterion_resource_name,
+SOURCE.ad_group_id,
+SOURCE.change_status_last_change_date_time,
+SOURCE.deleted_at
+)

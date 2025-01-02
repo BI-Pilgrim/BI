@@ -1,135 +1,129 @@
-WITH RankedSource AS (
-  SELECT
-    *,
-    ROW_NUMBER() OVER (PARTITION BY ad_group_id ORDER BY _airbyte_extracted_at DESC) AS rn
-  FROM (
-    SELECT
-      _airbyte_extracted_at,
-      ad_group_optimized_targeting_enabled,
-      ad_group_cpc_bid_micros / 1000000 AS ad_group_cpc_bid_rupees,
-      ad_group_cpm_bid_micros / 1000000 AS ad_group_cpm_bid_rupees,
-      ad_group_cpv_bid_micros / 1000000 AS ad_group_cpv_bid_rupees,
-      ad_group_effective_target_cpa_micros * 1000000 AS ad_group_effective_target_cpa_rupees,
-      ad_group_id,
-      ad_group_percent_cpc_bid_micros,
-      ad_group_target_cpa_micros / 1000000 AS ad_group_target_cpa_rupees,
-      ad_group_target_cpm_micros / 1000000 AS ad_group_target_cpm_rupees,
-      campaign_id,
-      metrics_cost_micros / 1000000 AS metrics_cost_rupees,
-      ad_group_effective_target_roas,
-      ad_group_target_roas,
-      ad_group_ad_rotation_mode,
-      JSON_EXTRACT_SCALAR(ad_group_targeting_setting_target_restrictions, '$.target_restriction') AS target_restriction,
-      JSON_EXTRACT_SCALAR(ad_group_targeting_setting_target_restrictions, '$.targeting_dimension') AS targeting_dimension,
-      JSON_EXTRACT_SCALAR(ad_group_targeting_setting_target_restrictions, '$.targeting_value') AS targeting_value
-    FROM
-      shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
-    WHERE
-      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-  )
-)
-SELECT *
-FROM RankedSource
-WHERE rn = 1;
-
-MERGE INTO `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group` AS TARGET
-USING (
-  WITH RankedSource AS (
-    SELECT
+merge into `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group` as target
+using
+(
+  select
+    _airbyte_extracted_at,
+    ad_group_optimized_targeting_enabled,
+    ad_group_cpc_bid_micros,
+    ad_group_cpm_bid_micros,
+    ad_group_cpv_bid_micros,
+    ad_group_effective_target_cpa_micros,
+    ad_group_id,
+    ad_group_percent_cpc_bid_micros,
+    ad_group_target_cpa_micros,
+    ad_group_target_cpm_micros,
+    campaign_id,
+    metrics_cost_micros,
+    ad_group_targeting_setting_target_restrictions,
+    ad_group_effective_target_roas,
+    ad_group_target_roas,
+    ad_group_ad_rotation_mode,
+    ad_group_base_ad_group,
+    ad_group_campaign,
+    ad_group_display_custom_bid_dimension,
+    ad_group_effective_target_cpa_source,
+    ad_group_effective_target_roas_source,
+    ad_group_final_url_suffix,
+    ad_group_name,
+    ad_group_resource_name,
+    ad_group_status,
+    ad_group_type
+  from
+  (
+    select
       *,
       ROW_NUMBER() OVER (PARTITION BY ad_group_id ORDER BY _airbyte_extracted_at DESC) AS rn
-    FROM (
-      SELECT
-      -- All your source columns and transformations
-      _airbyte_extracted_at,
-      ad_group_optimized_targeting_enabled,
-      ad_group_cpc_bid_micros / 1000000 AS ad_group_cpc_bid_rupees,
-      ad_group_cpm_bid_micros / 1000000 AS ad_group_cpm_bid_rupees,
-      ad_group_cpv_bid_micros / 1000000 AS ad_group_cpv_bid_rupees,
-      ad_group_effective_target_cpa_micros * 1000000 AS ad_group_effective_target_cpa_rupees,
-      ad_group_id,
-      ad_group_percent_cpc_bid_micros,
-      ad_group_target_cpa_micros / 1000000 AS ad_group_target_cpa_rupees,
-      ad_group_target_cpm_micros / 1000000 AS ad_group_target_cpm_rupees,
-      campaign_id,
-      metrics_cost_micros / 1000000 AS metrics_cost_rupees,
-      ad_group_effective_target_roas,
-      ad_group_target_roas,
-      ad_group_ad_rotation_mode,
-      JSON_EXTRACT_SCALAR(ad_group_targeting_setting_target_restrictions, '$.target_restriction') AS target_restriction,
-      JSON_EXTRACT_SCALAR(ad_group_targeting_setting_target_restrictions, '$.targeting_dimension') AS targeting_dimension,
-      JSON_EXTRACT_SCALAR(ad_group_targeting_setting_target_restrictions, '$.targeting_value') AS targeting_value
-      FROM
-        shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
-      WHERE
-        DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-    )
+    from
+      shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
   )
-  SELECT *
-  FROM RankedSource
-  WHERE rn = 1
-) AS SOURCE
-ON TARGET.ad_group_id = SOURCE.ad_group_id
--- Rest of your merge statement...
-WHEN MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at 
-THEN UPDATE SET
-  TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
-  TARGET.ad_group_optimized_targeting_enabled = SOURCE.ad_group_optimized_targeting_enabled,
-  TARGET.ad_group_cpc_bid_rupees = SOURCE.ad_group_cpc_bid_rupees,
-  TARGET.ad_group_cpm_bid_rupees = SOURCE.ad_group_cpm_bid_rupees,
-  TARGET.ad_group_cpv_bid_rupees = SOURCE.ad_group_cpv_bid_rupees,
-  TARGET.ad_group_effective_target_cpa_rupees = SOURCE.ad_group_effective_target_cpa_rupees,
-  TARGET.ad_group_id = SOURCE.ad_group_id,
-  TARGET.ad_group_percent_cpc_bid_micros = SOURCE.ad_group_percent_cpc_bid_micros,
-  TARGET.ad_group_target_cpa_rupees = SOURCE.ad_group_target_cpa_rupees,
-  TARGET.ad_group_target_cpm_rupees = SOURCE.ad_group_target_cpm_rupees,
-  TARGET.campaign_id = SOURCE.campaign_id,
-  TARGET.metrics_cost_rupees = SOURCE.metrics_cost_rupees,
-  TARGET.ad_group_effective_target_roas = SOURCE.ad_group_effective_target_roas,
-  TARGET.ad_group_target_roas = SOURCE.ad_group_target_roas,
-  TARGET.ad_group_ad_rotation_mode = SOURCE.ad_group_ad_rotation_mode,
-  TARGET.target_restriction = SOURCE.target_restriction,
-  TARGET.targeting_dimension = SOURCE.targeting_dimension,
-  TARGET.targeting_value = SOURCE.targeting_value
-WHEN NOT MATCHED THEN INSERT
+  where
+    rn = 1
+) as source
+on target.ad_group_id = source.ad_group_id
+when matched and target._airbyte_extracted_at > source._airbyte_extracted_at
+then update set
+  target._airbyte_extracted_at = source._airbyte_extracted_at,
+  target.ad_group_optimized_targeting_enabled = source.ad_group_optimized_targeting_enabled,
+  target.ad_group_cpc_bid_micros = source.ad_group_cpc_bid_micros,
+  target.ad_group_cpm_bid_micros = source.ad_group_cpm_bid_micros,
+  target.ad_group_cpv_bid_micros = source.ad_group_cpv_bid_micros,
+  target.ad_group_effective_target_cpa_micros = source.ad_group_effective_target_cpa_micros,
+  target.ad_group_id = source.ad_group_id,
+  target.ad_group_percent_cpc_bid_micros = source.ad_group_percent_cpc_bid_micros,
+  target.ad_group_target_cpa_micros = source.ad_group_target_cpa_micros,
+  target.ad_group_target_cpm_micros = source.ad_group_target_cpm_micros,
+  target.campaign_id = source.campaign_id,
+  target.metrics_cost_micros = source.metrics_cost_micros,
+  target.ad_group_targeting_setting_target_restrictions = source.ad_group_targeting_setting_target_restrictions,
+  target.ad_group_effective_target_roas = source.ad_group_effective_target_roas,
+  target.ad_group_target_roas = source.ad_group_target_roas,
+  target.ad_group_ad_rotation_mode = source.ad_group_ad_rotation_mode,
+  target.ad_group_base_ad_group = source.ad_group_base_ad_group,
+  target.ad_group_campaign = source.ad_group_campaign,
+  target.ad_group_display_custom_bid_dimension = source.ad_group_display_custom_bid_dimension,
+  target.ad_group_effective_target_cpa_source = source.ad_group_effective_target_cpa_source,
+  target.ad_group_effective_target_roas_source = source.ad_group_effective_target_roas_source,
+  target.ad_group_final_url_suffix = source.ad_group_final_url_suffix,
+  target.ad_group_name = source.ad_group_name,
+  target.ad_group_resource_name = source.ad_group_resource_name,
+  target.ad_group_status = source.ad_group_status,
+  target.ad_group_type = source.ad_group_type
+when not matched
+then insert
 (
-  _airbyte_extracted_at,
-  ad_group_optimized_targeting_enabled,
-  ad_group_cpc_bid_rupees,
-  ad_group_cpm_bid_rupees,
-  ad_group_cpv_bid_rupees,
-  ad_group_effective_target_cpa_rupees,
-  ad_group_id,
-  ad_group_percent_cpc_bid_micros,
-  ad_group_target_cpa_rupees,
-  ad_group_target_cpm_rupees,
-  campaign_id,
-  metrics_cost_rupees,
-  ad_group_effective_target_roas,
-  ad_group_target_roas,
-  ad_group_ad_rotation_mode,
-  target_restriction,
-  targeting_dimension,
-  targeting_value
+_airbyte_extracted_at,
+ad_group_optimized_targeting_enabled,
+ad_group_cpc_bid_micros,
+ad_group_cpm_bid_micros,
+ad_group_cpv_bid_micros,
+ad_group_effective_target_cpa_micros,
+ad_group_id,
+ad_group_percent_cpc_bid_micros,
+ad_group_target_cpa_micros,
+ad_group_target_cpm_micros,
+campaign_id,
+metrics_cost_micros,
+ad_group_targeting_setting_target_restrictions,
+ad_group_effective_target_roas,
+ad_group_target_roas,
+ad_group_ad_rotation_mode,
+ad_group_base_ad_group,
+ad_group_campaign,
+ad_group_display_custom_bid_dimension,
+ad_group_effective_target_cpa_source,
+ad_group_effective_target_roas_source,
+ad_group_final_url_suffix,
+ad_group_name,
+ad_group_resource_name,
+ad_group_status,
+ad_group_type
 )
-VALUES
+values
 (
-  SOURCE._airbyte_extracted_at,
-  SOURCE.ad_group_optimized_targeting_enabled,
-  SOURCE.ad_group_cpc_bid_rupees,
-  SOURCE.ad_group_cpm_bid_rupees,
-  SOURCE.ad_group_cpv_bid_rupees,
-  SOURCE.ad_group_effective_target_cpa_rupees,
-  SOURCE.ad_group_id,
-  SOURCE.ad_group_percent_cpc_bid_micros,
-  SOURCE.ad_group_target_cpa_rupees,
-  SOURCE.ad_group_target_cpm_rupees,
-  SOURCE.campaign_id,
-  SOURCE.metrics_cost_rupees,
-  SOURCE.ad_group_effective_target_roas,
-  SOURCE.ad_group_target_roas,
-  SOURCE.ad_group_ad_rotation_mode,
-  SOURCE.target_restriction,
-  SOURCE.targeting_dimension,
-  SOURCE.targeting_value
+_airbyte_extracted_at,
+ad_group_optimized_targeting_enabled,
+ad_group_cpc_bid_micros,
+ad_group_cpm_bid_micros,
+ad_group_cpv_bid_micros,
+ad_group_effective_target_cpa_micros,
+ad_group_id,
+ad_group_percent_cpc_bid_micros,
+ad_group_target_cpa_micros,
+ad_group_target_cpm_micros,
+campaign_id,
+metrics_cost_micros,
+ad_group_targeting_setting_target_restrictions,
+ad_group_effective_target_roas,
+ad_group_target_roas,
+ad_group_ad_rotation_mode,
+ad_group_base_ad_group,
+ad_group_campaign,
+ad_group_display_custom_bid_dimension,
+ad_group_effective_target_cpa_source,
+ad_group_effective_target_roas_source,
+ad_group_final_url_suffix,
+ad_group_name,
+ad_group_resource_name,
+ad_group_status,
+ad_group_type
 )
