@@ -1,0 +1,68 @@
+<------------------  Project: Amazon Web Scraping and Market Sizing Analysis ------------------>
+This document outlines the steps involved in a project that scrapes Amazon product data, analyzes market sizing metrics, and identifies rising competitor brands.
+
+Step 1: Keyword Selection
+
+Identify a list of relevant keywords for your market research.
+This list will be used by the Python code to search for products on Amazon.
+['Face Wash','Facial Cleanser','Face Serum','Shampoo','Hair Conditioner','Hair Growth Serum','Hair Growth Oil',
+'Sunscreen','Body Lotion','Hair Mask','Body Mist','Face Cream','Anti-Aging Cream','Fairness Cream','Face Moisturizers']
+
+Step 2: Web Scraping with Python
+
+  2.1 Functionality:
+  
+    The Python code located at dags/Amazon_Web_Scraping/python/AZ_MS_face_serum.py performs the following tasks:
+    
+    Keyword Input: It takes a keyword as input.
+    Amazon Search: It opens a web browser and searches for the product on Amazon.
+    Product Scraping: It scrapes product information from the search results for up to 10 pages. This includes:
+    Parent ASINs (product identifiers) of best-selling products.
+    Child SKU Check: For each parent ASIN, it checks for child ASINs (variant product identifiers) to ensure all variants are captured.
+    Product Details Extraction: It scrapes details for all identified ASINs, including:
+    Quantity sold estimates
+    Benefits
+    Brand
+    Category
+    MRP 
+    Discounts
+    And more
+
+  2.2 Revenue Calculation:
+  Based on the scraped quantity sold data, the code calculates:
+  Minimum and maximum revenue estimates with the same day selling price.
+
+  2.3 Price-Based Metrics:
+  Using the scraped selling price information, the code calculates:
+  Minimum and maximum revenue per unit (e.g., per ml or per gm).
+
+  2.4 Data Cleaning and Output:  
+  The code removes duplicate entries and converts data types to appropriate formats.
+  The final, cleaned data is written to a BigQuery table named "AMZ_Market_Sizing".
+
+  2.5 Parallel Execution:
+  The code can be cloned and run for up to 3-4 keywords simultaneously to optimize processing speed.
+
+Step 3: SQL Script Execution
+
+  3.1 Data Backup and Refresh:
+    Once scraping is complete for all keywords, an SQL script located at dags/Amazon_Web_Scraping/SQL/AMZ_MS_Data_backup.sql is executed.
+    This script performs the following actions:
+    Drops Existing Table: It drops the current month's "AMZ_Market_Sizing" table to ensure fresh data is loaded.
+  
+  3.2 Duplicate Removal:  
+    A new table named "AMZ_Current_month_MS" is created from the latest data in "AMZ_Market_Sizing". This step removes duplicate entries at the ASIN level.
+    Important Note: Duplicate removal at the ASIN level in this step addresses scenarios where the same ASIN might be associated with multiple keywords (e.g., face wash and face serum). This ensures accurate market sizing data.
+    
+  3.3 Data Integration and Aggregation:
+    Data from "AMZ_Current_month_MS" is appended to the historical table "AMZ_SKU_level_Historical_MS".
+    The data is also inserted into the table "shopify-pubsub-project.Amazon_Market_Sizing.AMZ_Aggregated_MS" after aggregation at the brand and ASIN level.
+  
+  3.4 Cleanup:
+    The script deletes the temporary table "AMZ_Market_Sizing" to prepare for the next month's data scraping and analysis.
+
+Step 4: Competitor Brand Analysis
+  An additional SQL script located at dags/Amazon_Web_Scraping/SQL/Top_10_brand_analysis.sql is executed to create a new table. This table identifies emerging competitor brands within each product category based on the scraped data.
+
+Overall, this project automates the process of collecting Amazon product data, calculating market sizing metrics, and identifying potential competitors, providing valuable insights for informed business decisions.
+in the looker dashboard "https://lookerstudio.google.com/u/0/reporting/bb1378c6-9049-45d0-89d8-febd17e9a669/"
