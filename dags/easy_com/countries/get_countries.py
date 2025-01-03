@@ -68,14 +68,14 @@ class easyEComCountriesAPI(EasyComApiConnector):
 
     def sync_data(self):
         """Sync data from the API to BigQuery."""
-        locations = self.get_data()
+        extracted_at = datetime.now()
+        locations = self.get_data(extracted_at)
         if not locations:
             print("No countries data found for Easy eCom")
             return
 
         print('Transforming countries data for Easy eCom')
         transformed_data = self.transform_data(data=locations)
-        extracted_at = datetime.now()
 
         # Truncate the table by deleting all rows
         self.truncate_table()
@@ -100,7 +100,7 @@ class easyEComCountriesAPI(EasyComApiConnector):
         job = self.client.load_table_from_dataframe(df, self.table_id, job_config=job_config)
         job.result()
 
-    def get_data(self):
+    def get_data(self, extracted_at):
         """Fetch Locations data from the API."""
         print("Getting Countries data for Easy eCom")
         all_countries = []
@@ -111,7 +111,7 @@ class easyEComCountriesAPI(EasyComApiConnector):
         self.states_api.truncate_table() # we will delete the states table at the very first step and not in sync because we are calling sync multiple times
         for country in countries_data:
             # print(country)
-            self.states_api.sync_data(country_id=country["id"])
+            self.states_api.sync_data(country_id=country["id"], extracted_at=extracted_at)
 
         all_countries = countries_data
 
