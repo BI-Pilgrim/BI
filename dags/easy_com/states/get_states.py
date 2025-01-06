@@ -68,14 +68,14 @@ class easyEComStatesAPI(EasyComApiConnector):
 
         return transformed_data
 
-    def sync_data(self, country_id):
+    def sync_data(self, country_id, extracted_at):
         """Sync data from the API to BigQuery."""
         states = self.get_data(country_id)
         if not states:
             print("No states data found for Easy eCom")
             return
 
-        extracted_at = datetime.now()
+        # extracted_at = datetime.now()
         print('Transforming states data for Easy eCom')
         transformed_data = self.transform_data(data=states)
 
@@ -88,10 +88,11 @@ class easyEComStatesAPI(EasyComApiConnector):
         truncate_query = f"DELETE FROM `{table_ref}` WHERE true"
         self.client.query(truncate_query).result()  # Executes the DELETE query
 
-    def load_data_to_bigquery(self, data):
+    def load_data_to_bigquery(self, data, extracted_at):
         """Load the data into BigQuery."""
         print("Loading States data to BigQuery")
         df = pd.DataFrame(data)
+        df["ee_extracted_at"] = extracted_at
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND
         )
