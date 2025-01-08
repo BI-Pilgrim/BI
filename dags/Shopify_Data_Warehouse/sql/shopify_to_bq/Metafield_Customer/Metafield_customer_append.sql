@@ -16,9 +16,9 @@ COALESCE(MAX(case when key='concerns' then value end),'NIL') as Concerns_field,
 admin_graphql_api_id as admin_graphql_api_id
 
  FROM  `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_customers`
-group by ALL
-  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
- 
+ WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+ group by ALL
+  
  ) AS source
 ON target.customer_id = source.customer_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
