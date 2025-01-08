@@ -1,6 +1,7 @@
 from airflow.decorators import task, dag
 from datetime import datetime, timedelta
 from easy_com.reports.get_reports import easyEComReportsAPI
+from easy_com.reports import constants as report_constants
 
     
 @dag("sync_reports_data", schedule='0 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
@@ -37,13 +38,22 @@ def sync_mini_sales_report():
         MiniSalesReportParserAPI().sync_data()
     resp = sync()
 
-@dag("sync_tax_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
+@dag("sync_tax_report_return", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
 def sync_tax_report():
     from easy_com.reports.parsers.tax_report import TaxReportParserAPI
     
     @task.python
     def sync():
-        TaxReportParserAPI().sync_data()
+        TaxReportParserAPI(report_type = report_constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
+    resp = sync()
+
+@dag("sync_tax_report_sales", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
+def sync_tax_report():
+    from easy_com.reports.parsers.tax_report import TaxReportParserAPI
+    
+    @task.python
+    def sync():
+        TaxReportParserAPI(report_type = report_constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
     resp = sync()
 
 @dag("sync_returns_report", schedule='0 5 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
