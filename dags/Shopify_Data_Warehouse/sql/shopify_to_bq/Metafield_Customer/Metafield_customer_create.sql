@@ -1,20 +1,13 @@
-
 CREATE OR REPLACE TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_customers`
 PARTITION BY DATE_TRUNC(customer_created_at,day)
--- CLUSTER BY 
+CLUSTER BY customer_id
 OPTIONS(
  description = "Metafield Customer table is partitioned on customer created at day level",
  require_partition_filter = FALSE
  )
  AS 
 SELECT 
--- CAST(id AS STRING) as metafield_id,
--- key as metafield_key,
--- type as metafield_type,
--- value as metafield_value,
--- namespace as metafield_namespace,
-
-
+distinct
 CAST(owner_id AS STRING) as customer_id,
 shop_url as metafield_shop_url,
 owner_resource as metafield_owner_resource,
