@@ -111,6 +111,7 @@ where ranking = 1 and date(order_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"),
 
  ) AS source
 ON target.invoice_id = source.invoice_id
+and target.order_id = source.order_id
 
 WHEN MATCHED THEN UPDATE SET 
 target.invoice_id = source.invoice_id,
@@ -407,4 +408,6 @@ Source.customer_code,
 Source.fulfillable_status,
 Source.ee_extracted_at,
 Source.ranking
+
 )
+
