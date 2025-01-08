@@ -1,5 +1,4 @@
 
-
 MERGE INTO  `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Fulfillment_Orders` AS target
 
 USING (
@@ -62,7 +61,7 @@ UNNEST(JSON_EXTRACT_ARRAY(line_items)) AS item
 WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
-ON target.fulfillment_order_id = source.fulfillment_order_id
+ON target.fulfillment_id = source.fulfillment_id
 
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at 
 THEN UPDATE SET
