@@ -84,5 +84,5 @@ VALUES
   SOURCE.unique_actions_28d_click,
   SOURCE.unique_actions_28d_click,
   SOURCE.unique_actions_action_type,
-  SOURCE.unique_actions_values
+  SOURCE.unique_actions_value
 )
