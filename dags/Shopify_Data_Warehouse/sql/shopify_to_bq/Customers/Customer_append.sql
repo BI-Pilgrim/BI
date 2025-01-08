@@ -1,8 +1,9 @@
 
-MERGE INTO `shopify-pubsub-project.Shopify_staging.Customers` AS target
+
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Customers` AS target
 
 USING (
-  SELECT
+SELECT
   distinct
   _airbyte_extracted_at,
   accepts_marketing as Customer_accepts_marketing,
@@ -19,6 +20,7 @@ USING (
   updated_at as Customer_updated_at,
   created_at as Customer_created_at,
   CAST(JSON_EXTRACT_SCALAR(accepts_marketing_updated_at) AS TIMESTAMP) as Customer_accepts_marketing_updated_at,
+  admin_graphql_api_id as admin_graphql_api_id,
 
   JSON_EXTRACT_SCALAR(default_address, '$.address1') AS Customer_address1,
   JSON_EXTRACT_SCALAR(default_address, '$.address2') AS Customer_address2,
@@ -39,12 +41,18 @@ USING (
   JSON_EXTRACT_SCALAR(email_marketing_consent, '$.opt_in_level') AS email_consent_opt_in_level,
   JSON_EXTRACT_SCALAR(email_marketing_consent, '$.state') AS email_consent_state,
 
-  FROM `shopify-pubsub-project.airbyte711.customers`
-    WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte.customers`
+
+
+  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
  
  ) AS source
 ON target.Customer_id = source.Customer_id
-WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
+
+WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at 
+THEN UPDATE SET
+
+target._airbyte_extracted_at = source._airbyte_extracted_at,
 target.Customer_accepts_marketing = source.Customer_accepts_marketing,
 target.Customer_tax_exempt = source.Customer_tax_exempt,
 target.Customer_verified_email = source.Customer_verified_email,
@@ -59,6 +67,7 @@ target.Customer_tags = source.Customer_tags,
 target.Customer_updated_at = source.Customer_updated_at,
 target.Customer_created_at = source.Customer_created_at,
 target.Customer_accepts_marketing_updated_at = source.Customer_accepts_marketing_updated_at,
+target.admin_graphql_api_id = source.admin_graphql_api_id,
 target.Customer_address1 = source.Customer_address1,
 target.Customer_address2 = source.Customer_address2,
 target.Customer_city = source.Customer_city,
@@ -76,7 +85,9 @@ target.email_consent_updated_at = source.email_consent_updated_at,
 target.email_consent_opt_in_level = source.email_consent_opt_in_level,
 target.email_consent_state = source.email_consent_state
 
+
 WHEN NOT MATCHED THEN INSERT (
+_airbyte_extracted_at,
 Customer_accepts_marketing,
 Customer_tax_exempt,
 Customer_verified_email,
@@ -91,6 +102,7 @@ Customer_tags,
 Customer_updated_at,
 Customer_created_at,
 Customer_accepts_marketing_updated_at,
+admin_graphql_api_id,
 Customer_address1,
 Customer_address2,
 Customer_city,
@@ -106,10 +118,11 @@ sms_consent_opt_in_level,
 sms_consent_state,
 email_consent_updated_at,
 email_consent_opt_in_level,
-email_consent_state  
-  )
-  VALUES (
+email_consent_state
+ )
 
+  VALUES (
+source._airbyte_extracted_at,
 source.Customer_accepts_marketing,
 source.Customer_tax_exempt,
 source.Customer_verified_email,
@@ -124,6 +137,7 @@ source.Customer_tags,
 source.Customer_updated_at,
 source.Customer_created_at,
 source.Customer_accepts_marketing_updated_at,
+source.admin_graphql_api_id,
 source.Customer_address1,
 source.Customer_address2,
 source.Customer_city,
@@ -140,8 +154,5 @@ source.sms_consent_state,
 source.email_consent_updated_at,
 source.email_consent_opt_in_level,
 source.email_consent_state
+
   )
-
-
-
-
