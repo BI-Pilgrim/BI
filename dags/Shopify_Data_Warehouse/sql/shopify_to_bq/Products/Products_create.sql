@@ -36,7 +36,7 @@ total_inventory,
 description_html,
 online_store_url,
 tracks_inventory,
-legacy_resource_id,_
+legacy_resource_id,
 admin_graphql_api_id,
 has_only_default_variant,
 online_store_preview_url,
