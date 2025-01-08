@@ -26,6 +26,18 @@ def backfill_reports(year, month):
     
     easyEComReportsAPI().sync_data(start_date=start_date, end_date=end_date)
 
+def backfill_reports_v2(year, month):
+
+    start_date = datetime(year, month, 1)
+
+    # Get the last day of the month 
+    last_day = calendar.monthrange(year, month)[1] 
+    # Create the end_date 
+    end_date = datetime.now() - timedelta(days=1)
+
+    
+    easyEComReportsAPI().sync_data(start_date=start_date, end_date=end_date)
+
 def ranges(start_date:datetime, end_date:datetime, nhours:int):
     ret_ranges = []
     delta = timedelta(hours=nhours-1)
@@ -102,40 +114,55 @@ def backfill_purchase_orders(start_date, end_date):
 #     easyEComInventoryDetailsAPI().sync_data()
 
 # if __name__ == "__main__":
-#     # backfill_reports(2024, 11)
-#     backfill_reports(2024, 10)
+# #     backfill_reports(2024, 11)
+# #     backfill_reports(2024, 10)
+# #     backfill_reports(2024, 9)
+#     # backfill_reports(2024, 8)
+#     # backfill_reports(2024, 7)
+#     backfill_reports_v2(2024, 12)
+#     from easy_com.reports.download_reports import easyEComDownloadReportsAPI
+#     easyEComDownloadReportsAPI().sync_data()
 
 # if __name__ == "__main__":
 #     from easy_com.reports.get_reports import easyEComReportsAPI
-#     easyEComReportsAPI().delete_record_id('104156123')
-#     easyEComReportsAPI().delete_record_id('104156127')
-#     easyEComReportsAPI().delete_record_id('104156130')    
+#     easyEComReportsAPI().delete_record_id('104191345')
+#     easyEComReportsAPI().delete_record_id('104191348')
+#     easyEComReportsAPI().delete_record_id('104191350')
+#     easyEComReportsAPI().delete_record_id('104191349')
+#     easyEComReportsAPI().delete_record_id('104191363')
+#     easyEComReportsAPI().delete_record_id('104191365')
+#     easyEComReportsAPI().delete_record_id('104191371')
+#     easyEComReportsAPI().delete_record_id('104191372')
+#     easyEComReportsAPI().delete_record_id('104191374')
+#     easyEComReportsAPI().delete_record_id('104191366')
+#     easyEComReportsAPI().delete_record_id('104191368')
+#     easyEComReportsAPI().delete_record_id('104191367')
 
 # if __name__ == "__main__":
 #     from easy_com.reports.download_reports import easyEComDownloadReportsAPI
 #     easyEComDownloadReportsAPI().sync_data()
 
-# if __name__ == "__main__":
-    # from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
-    # MiniSalesReportParserAPI().sync_data()
+if __name__ == "__main__":
+    from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
+    MiniSalesReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.tax_report import TaxReportParserAPI
-    # TaxReportParserAPI().sync_data()
+    from easy_com.reports.parsers.tax_report import TaxReportParserAPI
+    TaxReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
-    # ReturnsReportParserAPI().sync_data()
+    from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
+    ReturnsReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
-    # PendingReturnsReportParserAPI().sync_data()
+    from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
+    PendingReturnsReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
-    # GRNDetailsReportParserAPI().sync_data()
+    from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
+    GRNDetailsReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
-    # StatusWiseStockReportParserAPI().sync_data()
+    from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
+    StatusWiseStockReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
-    # InventoryAgingReportParserAPI().sync_data()
+    from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
+    InventoryAgingReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI
-    # InventoryViewByBinReportParserAPI().sync_data()
+    from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI
+    InventoryViewByBinReportParserAPI().sync_data()
