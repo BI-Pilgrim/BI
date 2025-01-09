@@ -1,5 +1,5 @@
 
-# Import Functions --- 
+# Import Functions 
 from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago, timezone
@@ -41,7 +41,7 @@ with DAG(
 # Abandoned Checkout Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Abandoned_chekout/Abandoned_checkout_create.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Abandoned_chekout/Abandoned_checkout_create.sql', 'r') as file:
         sql_query_1 = file.read()
 
     append_abandoned_checkout = BigQueryInsertJobOperator(
@@ -62,7 +62,7 @@ with DAG(
 # Metafield Customer Staging Table Refresh - Append
 
     # Load SQL query from file
-    # with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Customer/Metafield_customer_append.sql', 'r') as file:
+    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Customer/Metafield_customer_append.sql', 'r') as file:
     #     sql_query_2 = file.read()
 
     # append_metafield_customers = BigQueryInsertJobOperator(
@@ -81,7 +81,7 @@ with DAG(
 # Discount Code Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Discount_code/Discount_code_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Discount_code/Discount_code_append.sql', 'r') as file:
         sql_query_3 = file.read()
 
     append_discount_code = BigQueryInsertJobOperator(
@@ -100,7 +100,7 @@ with DAG(
 # Customer Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Customers/Customer_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Customers/Customer_append.sql', 'r') as file:
         sql_query_4 = file.read()
 
     append_customer = BigQueryInsertJobOperator(
@@ -121,7 +121,7 @@ with DAG(
 # Orders Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Orders/Orders_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Orders/Orders_append.sql', 'r') as file:
         sql_query_5 = file.read()
 
     append_order = BigQueryInsertJobOperator(
@@ -140,7 +140,7 @@ with DAG(
 # Transaction Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Transaction/Transaction_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Transaction/Transaction_append.sql', 'r') as file:
         sql_query_6 = file.read()
 
     append_transaction = BigQueryInsertJobOperator(
@@ -158,7 +158,7 @@ with DAG(
 # Draft Order Staging Table Refresh - Append
 
     # Load SQL query from file
-    # with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Draft_orders/Draft_order_append.sql', 'r') as file:
+    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Draft_orders/Draft_order_append.sql', 'r') as file:
     #     sql_query_7 = file.read()
 
     # append_draft_order = BigQueryInsertJobOperator(
@@ -177,7 +177,7 @@ with DAG(
 # Refund Order Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Refund_Orders/Refund_Orders_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Refund_Orders/Refund_Orders_append.sql', 'r') as file:
         sql_query_8 = file.read()
 
     append_refund_order_item = BigQueryInsertJobOperator(
@@ -195,7 +195,7 @@ with DAG(
 # Metafield Order Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_orders_create.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_orders_create.sql', 'r') as file:
         sql_query_9 = file.read()
 
     append_metafield_order = BigQueryInsertJobOperator(
@@ -212,7 +212,7 @@ with DAG(
 # Customer Address Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Customer_Address/Customer_Address_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Customer_Address/Customer_Address_append.sql', 'r') as file:
         sql_query_10 = file.read()
 
     append_customer_address = BigQueryInsertJobOperator(
@@ -230,7 +230,7 @@ with DAG(
 # Collections Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Collections/Collections_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Collections/Collections_append.sql', 'r') as file:
         sql_query_11 = file.read()
 
     append_collections = BigQueryInsertJobOperator(
@@ -248,7 +248,7 @@ with DAG(
 # Metafield Collections Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Collections/Metafield_collections_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Collections/Metafield_collections_append.sql', 'r') as file:
         sql_query_12 = file.read()
 
     append_metafield_collections = BigQueryInsertJobOperator(
@@ -266,7 +266,7 @@ with DAG(
 # Inventory Level Staging Table Refresh - Append
 
     # Load SQL query from file
-    # with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Inventory_level/Inventory_level_append.sql', 'r') as file:
+    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Inventory_level/Inventory_level_append.sql', 'r') as file:
     #     sql_query_13 = file.read()
 
     # append_inventory_level = BigQueryInsertJobOperator(
@@ -284,7 +284,7 @@ with DAG(
 # Pages Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Pages/Pages_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Pages/Pages_append.sql', 'r') as file:
         sql_query_14 = file.read()
 
     append_pages = BigQueryInsertJobOperator(
@@ -302,7 +302,7 @@ with DAG(
 # Metafield Pages Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_pages/Metafield_pages_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_pages/Metafield_pages_append.sql', 'r') as file:
         sql_query_15 = file.read()
 
     append_metafield_pages = BigQueryInsertJobOperator(
@@ -320,7 +320,7 @@ with DAG(
 # Locations Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Locations/Locations_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Locations/Locations_append.sql', 'r') as file:
         sql_query_16 = file.read()
 
     append_locations = BigQueryInsertJobOperator(
@@ -338,7 +338,7 @@ with DAG(
 # Articles Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Articles/Articles_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Articles/Articles_append.sql', 'r') as file:
         sql_query_17 = file.read()
 
     append_articles = BigQueryInsertJobOperator(
@@ -356,7 +356,7 @@ with DAG(
 # Product Variants Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Product_variants/Product_variants_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Product_variants/Product_variants_append.sql', 'r') as file:
         sql_query_18 = file.read()
 
     append_product_variants = BigQueryInsertJobOperator(
@@ -373,7 +373,7 @@ with DAG(
 # Metafield Articles Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Articles/Metafield_articles_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Articles/Metafield_articles_append.sql', 'r') as file:
         sql_query_19 = file.read()
 
     append_metafield_articles = BigQueryInsertJobOperator(
@@ -391,7 +391,7 @@ with DAG(
 # Inventory Items Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Inventory_items/Inventory_items_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Inventory_items/Inventory_items_append.sql', 'r') as file:
         sql_query_20 = file.read()
 
     append_inventory_items = BigQueryInsertJobOperator(
@@ -410,7 +410,7 @@ with DAG(
 # Products Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Products/Products_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Products/Products_append.sql', 'r') as file:
         sql_query_21 = file.read()
 
     append_products = BigQueryInsertJobOperator(
@@ -428,7 +428,7 @@ with DAG(
 # Customer Journey Summary Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Customer_journey_summary/Customer_journey_summary_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Customer_journey_summary/Customer_journey_summary_append.sql', 'r') as file:
         sql_query_22 = file.read()
 
     append_customer_journey_summary = BigQueryInsertJobOperator(
@@ -447,7 +447,7 @@ with DAG(
 # Metafield Product Variants Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Product_Variants/Metafield_product_variants_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Product_Variants/Metafield_product_variants_append.sql', 'r') as file:
         sql_query_23 = file.read()
 
     append_Metafield_Product_Variants = BigQueryInsertJobOperator(
@@ -466,7 +466,7 @@ with DAG(
 # Metafield Product Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_products/Metafield_products_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_products/Metafield_products_append.sql', 'r') as file:
         sql_query_24 = file.read()
 
     append_Metafield_products = BigQueryInsertJobOperator(
@@ -485,7 +485,7 @@ with DAG(
 # Order Risks Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Order_risks/Order_risks_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Order_risks/Order_risks_append.sql', 'r') as file:
         sql_query_25 = file.read()
 
     append_Order_risks = BigQueryInsertJobOperator(
@@ -505,7 +505,7 @@ with DAG(
 # Tender Transactions Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Tender_Transactions/tender_transactions_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Tender_Transactions/tender_transactions_append.sql', 'r') as file:
         sql_query_26 = file.read()
 
     append_tender_transactions = BigQueryInsertJobOperator(
@@ -525,7 +525,7 @@ with DAG(
 # Fulfillments Staging Table Refresh - Append
 
     # # Load SQL query from file
-    # with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Fulfillments/Fulfillments_append.sql', 'r') as file:
+    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Fulfillments/Fulfillments_append.sql', 'r') as file:
     #     sql_query_27 = file.read()
 
     # append_Fulfillments = BigQueryInsertJobOperator(
@@ -542,7 +542,7 @@ with DAG(
 # Fulfillment Orders Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Fulfillment_Orders/Fulfillment_Orders_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Fulfillment_Orders/Fulfillment_Orders_append.sql', 'r') as file:
         sql_query_28 = file.read()
 
     append_Fulfillment_Orders = BigQueryInsertJobOperator(
@@ -560,7 +560,7 @@ with DAG(
 # Smart Collections Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Smart_collections/Smart_collections_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Smart_collections/Smart_collections_append.sql', 'r') as file:
         sql_query_29 = file.read()
 
     append_Smart_collections = BigQueryInsertJobOperator(
