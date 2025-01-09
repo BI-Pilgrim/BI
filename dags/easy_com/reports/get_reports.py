@@ -144,11 +144,21 @@ class easyEComReportsAPI(EasyComApiConnector):
                     "endDate" : end_datetime.strftime("%Y-%m-%d"),
                 }
             }
-        elif report_type == constants.ReportTypes.TAX_REPORT.value:
+        elif report_type == constants.ReportTypes.TAX_REPORT_RETURN.value:
             return {
                 "reportType": report_type,
                 "params" : {
                     "taxReportType" : "RETURN",
+                    "warehouseIds" : ",".join(self.locations_api.get_all_location_keys()),
+                    "startDate" : start_datetime.strftime("%Y-%m-%d"),
+                    "endDate" : end_datetime.strftime("%Y-%m-%d"),
+                }
+            }
+        elif report_type == constants.ReportTypes.TAX_REPORT_SALES.value:
+            return {
+                "reportType": report_type,
+                "params" : {
+                    "taxReportType" : "SALES",
                     "warehouseIds" : ",".join(self.locations_api.get_all_location_keys()),
                     "startDate" : start_datetime.strftime("%Y-%m-%d"),
                     "endDate" : end_datetime.strftime("%Y-%m-%d"),

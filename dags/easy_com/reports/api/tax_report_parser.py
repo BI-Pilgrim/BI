@@ -17,14 +17,15 @@ import json
 from datetime import datetime
 from easy_com.reports import constants
 
+@DeprecationWarning
 class TaxReportParserAPI(EasyComApiConnector):
-    def __init__(self):
+    def __init__(self, report_type:str=constants.ReportTypes.TAX_REPORT_RETURN.value):
         super().__init__()
         self.project_id = "shopify-pubsub-project"
         self.dataset_id = "easycom"
         self.name = "Tax reports"
         self.table_name = "tax_reports"
-        self.report_type = constants.ReportTypes.TAX_REPORT.value
+        self.report_type = report_type
 
         self.records_api = easyEComReportsAPI()
 
@@ -56,7 +57,7 @@ class TaxReportParserAPI(EasyComApiConnector):
     def sync_data(self):
         """Sync data from the API to BigQuery."""
 
-        completed_reports = self.records_api.get_completed_reports(report_type=constants.ReportTypes.TAX_REPORT.value)
+        completed_reports = self.records_api.get_completed_reports(report_type=self.report_type)
         if not completed_reports[:1]:
             print(f"No comepleted reports found")
             return

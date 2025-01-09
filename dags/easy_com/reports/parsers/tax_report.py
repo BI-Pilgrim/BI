@@ -18,13 +18,13 @@ from datetime import datetime
 from easy_com.reports import constants
 
 class TaxReportParserAPI(EasyComApiConnector):
-    def __init__(self):
+    def __init__(self, report_type:str=constants.ReportTypes.TAX_REPORT_RETURN.value):
         super().__init__()
         self.project_id = "shopify-pubsub-project"
         self.dataset_id = "easycom"
         self.name = "Tax reports"
         self.table_name = "tax_reports"
-        self.report_type = constants.ReportTypes.TAX_REPORT.value
+        self.report_type = report_type
 
         self.records_api = easyEComReportsAPI()
 
