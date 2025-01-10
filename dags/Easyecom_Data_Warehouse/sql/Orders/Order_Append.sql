@@ -104,13 +104,14 @@ select
     customer_code,
     fulfillable_status,
     ee_extracted_at,
-    row_number() over(partition by invoice_id order by last_update_date desc) as ranking
+    row_number() over(partition by invoice_id order by last_update_date desc,ee_extracted_at desc) as ranking
     FROM `shopify-pubsub-project.easycom.orders`)
 
 where ranking = 1 and date(order_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 30 DAY)
 
  ) AS source
 ON target.invoice_id = source.invoice_id
+and target.order_id = source.order_id
 
 WHEN MATCHED THEN UPDATE SET 
 target.invoice_id = source.invoice_id,
@@ -407,4 +408,6 @@ Source.customer_code,
 Source.fulfillable_status,
 Source.ee_extracted_at,
 Source.ranking
+
 )
+
