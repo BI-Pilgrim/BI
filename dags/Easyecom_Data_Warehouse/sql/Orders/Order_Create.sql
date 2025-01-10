@@ -107,7 +107,7 @@ OPTIONS(
     customer_code,
     fulfillable_status,
     ee_extracted_at,
-    row_number() over(partition by invoice_id order by last_update_date desc) as ranking
+    row_number() over(partition by invoice_id order by last_update_date desc,ee_extracted_at desc) as ranking
     FROM `shopify-pubsub-project.easycom.orders`
 )
 where ranking = 1
