@@ -97,3 +97,40 @@ LEFT JOIN (
 ) AS psales
 ON prank.shipping_zip = psales.shipping_zip
 ORDER BY prank.Order_total_price DESC;
+
+
+
+-- Final table with pincode rankings as well
+
+CREATE OR REPLACE TABLE `adhoc_data_asia.shopify_pincode_sales_contribution_best_pincode` AS
+SELECT 
+    psales.*, 
+    c.product_pct_contribution AS pincode_contribution,
+    pincode_rank
+    --RANK() OVER (ORDER BY b.product_pct_contribution DESC) AS pincode_rank
+FROM 
+    `adhoc_data_asia.shopify_pincode_sales_contribution` psales
+LEFT JOIN (
+    select *,RANK() OVER (ORDER BY b.product_pct_contribution DESC) AS pincode_rank from
+    (SELECT 
+        trank.shipping_zip, 
+        round((trank.Order_total_price / tsales.total_sales) * 100,5) AS product_pct_contribution,
+        --RANK() OVER (ORDER BY b.product_pct_contribution DESC) AS pincode_rank
+    FROM (
+        SELECT 
+            shipping_zip, 
+            SUM(Order_total_price) AS Order_total_price
+        FROM 
+            `adhoc_data_asia.shopify_pincode_sales_contribution`
+        GROUP BY 
+            shipping_zip
+    ) trank
+    CROSS JOIN (
+        SELECT
+            SUM(Order_total_price) AS total_sales
+        FROM 
+            `adhoc_data_asia.shopify_pincode_sales_contribution`
+    ) tsales
+) b )c
+ON psales.shipping_zip = c.shipping_zip;
+
