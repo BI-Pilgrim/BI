@@ -1,5 +1,5 @@
 
-# Import Functions --- amazon seller
+# Import Functions
 from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago, timezone
@@ -43,7 +43,7 @@ with DAG(
 # ALL ORDERS DATA BY LAST UPDATE GENERAL Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL/ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL/ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL_append.sql', 'r') as file:
         sql_query_1 = file.read()
 
     append_all_orders_data_last_update_general = BigQueryInsertJobOperator(
@@ -63,7 +63,7 @@ with DAG(
 # ALL ORDERS DATA BY ORDER DATE GENERAL Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL/ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL/ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_append.sql', 'r') as file:
         sql_query_2 = file.read()
 
     append_all_orders_data_order_date_general = BigQueryInsertJobOperator(
@@ -81,7 +81,7 @@ with DAG(
 # MERCHANT CANCELLED LISTINGS DATA Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_CANCELLED_LISTINGS_DATA/MERCHANT_CANCELLED_LISTINGS_DATA_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_CANCELLED_LISTINGS_DATA/MERCHANT_CANCELLED_LISTINGS_DATA_append.sql', 'r') as file:
         sql_query_3 = file.read()
 
     append_merchant_cancelled_listings_data = BigQueryInsertJobOperator(
@@ -98,7 +98,7 @@ with DAG(
 # MERCHANT LISTINGS ALL DATA Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_ALL_DATA/MERCHANT_LISTINGS_ALL_DATA_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_ALL_DATA/MERCHANT_LISTINGS_ALL_DATA_append.sql', 'r') as file:
         sql_query_4 = file.read()
 
     append_merchant_listings_all_data = BigQueryInsertJobOperator(
@@ -116,7 +116,7 @@ with DAG(
 # MERCHANT LISTINGS DATA Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_DATA/MERCHANT_LISTINGS_DATA_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_DATA/MERCHANT_LISTINGS_DATA_append.sql', 'r') as file:
         sql_query_5 = file.read()
 
     append_merchant_listings_data = BigQueryInsertJobOperator(
@@ -134,7 +134,7 @@ with DAG(
 # MERCHANT LISTINGS DATA BACK COMPAT Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_DATA_BACK_COMPAT/MERCHANT_LISTINGS_DATA_BACK_COMPAT_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_DATA_BACK_COMPAT/MERCHANT_LISTINGS_DATA_BACK_COMPAT_append.sql', 'r') as file:
         sql_query_6 = file.read()
 
     append_merchant_listings_data_back_compat = BigQueryInsertJobOperator(
@@ -152,7 +152,7 @@ with DAG(
 # MERCHANT LISTINGS INACTIVE DATA Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_INACTIVE_DATA/MERCHANT_LISTINGS_INACTIVE_DATA_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/MERCHANT_LISTINGS_INACTIVE_DATA/MERCHANT_LISTINGS_INACTIVE_DATA_append.sql', 'r') as file:
         sql_query_7 = file.read()
 
     append_merchant_listings_inactive_data = BigQueryInsertJobOperator(
@@ -170,7 +170,7 @@ with DAG(
 # OPEN LISTINGS DATA Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/OPEN_LISTINGS_DATA/OPEN_LISTINGS_DATA_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/OPEN_LISTINGS_DATA/OPEN_LISTINGS_DATA_append.sql', 'r') as file:
         sql_query_8 = file.read()
 
     append_open_listings_data = BigQueryInsertJobOperator(
@@ -188,7 +188,7 @@ with DAG(
 # Order Items Staging Table Refresh - Append
 
     # Load SQL query from file
-   # with open('../dags/Amazon_Seller_Data_Warehouse/sql/Order Items/Order_items_append.sql', 'r') as file:
+   # with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/Order Items/Order_items_append.sql', 'r') as file:
     #    sql_query_9 = file.read()
 
     #append_order_items = BigQueryInsertJobOperator(
@@ -206,7 +206,7 @@ with DAG(
 # Orders Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/Orders/Orders_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/Orders/Orders_append.sql', 'r') as file:
         sql_query_10 = file.read()
 
     append_orders = BigQueryInsertJobOperator(
@@ -224,7 +224,7 @@ with DAG(
 # XML_BROWSE_TREE_DATA Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Amazon_Seller_Data_Warehouse/sql/XML_BROWSE_TREE_DATA/XML_BROWSE_TREE_DATA_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/XML_BROWSE_TREE_DATA/XML_BROWSE_TREE_DATA_append.sql', 'r') as file:
         sql_query_11 = file.read()
 
     append_XML_BROWSE_TREE_DATA = BigQueryInsertJobOperator(
