@@ -18,7 +18,7 @@ with DAG(
     dag_id='trigger_copy_easyecom_to_s3',
     default_args=default_args,
     description='A simple DAG to copy invoices from EasyEcom to S3 every day at 9 AM',
-    schedule_interval='30 3 * * *',  # 3:30 AM UTC is 9:00 AM IST
+    schedule_interval='30 2 * * *',  # 3:30 AM UTC is 9:00 AM IST
     start_date=datetime(2024, 10, 16),  # Update this with the desired start date
     catchup=False,
 ) as dag:
