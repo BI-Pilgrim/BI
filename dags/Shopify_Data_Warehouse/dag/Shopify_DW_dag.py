@@ -574,10 +574,10 @@ with DAG(
         }
     )    
 
-   finish_pipeline = DummyOperator(
-       task_id='finish_pipeline',
-       dag=dag
-   )
+   #     finish_pipeline = DummyOperator(
+   #     task_id='finish_pipeline',
+   #     dag=dag
+   # )
 
 
 start_pipeline >>
