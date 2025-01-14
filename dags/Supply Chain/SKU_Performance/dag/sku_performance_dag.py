@@ -5,6 +5,12 @@ import subprocess
 from airflow.utils.dates import days_ago, timezone
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 
+GOOGLE_CONN_ID = "google_cloud_default"
+PROJECT_ID = "shopify-pubsub-project"
+DATASET = "Data_Warehouse_Shopify_Staging"
+LOCATION = "asia-south1"  # Ensure this matches your dataset location
+
+
 # Define default arguments for the DAG
 default_args = {
     'owner': 'rwitapa.mitra@discoverpilgrim.com',
