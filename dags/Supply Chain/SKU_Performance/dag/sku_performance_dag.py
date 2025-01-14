@@ -25,6 +25,22 @@ with DAG(
     catchup=False,
 ) as dag:
 
+# Orders Staging Table Refresh - Append
+
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Supply Chain/SKU_Performance/sql/easy_ecom_primary_sales.sql', 'r') as file:
+        sql_query_1 = file.read()
+
+    EasyEcom_Orders = BigQueryInsertJobOperator(
+        task_id='EasyEcom_Orders',
+        configuration={
+            "query": {
+                "query": sql_query_1,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
     
     def run_main_script():
         script_path = 'gcs/dags/Supply Chain/SKU_Performance/python/Extract_Sales.py' 
@@ -51,3 +67,4 @@ with DAG(
     )
 
     run_main_task
+    EasyEcom_Orders
