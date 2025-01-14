@@ -43,7 +43,7 @@ with DAG(
 # Orders Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Easyecom_Data_Warehouse/sql/Orders/Order_Append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Orders/Order_Append.sql', 'r') as file:
         sql_query_1 = file.read()
 
     Orders_append = BigQueryInsertJobOperator(
@@ -60,7 +60,7 @@ with DAG(
 # Order item Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('../dags/Easyecom_Data_Warehouse/sql/Order_items/Order_item_Append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Order_items/Order_item_Append.sql', 'r') as file:
         sql_query_2 = file.read()
 
     Orderitem_append = BigQueryInsertJobOperator(
@@ -77,7 +77,7 @@ with DAG(
 
 # Sanity Check of all table
     # Load SQL query from file
-    with open('../dags/Easyecom_Data_Warehouse/sql/Easyecom_DW_sanity_check.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Easyecom_DW_sanity_check.sql', 'r') as file:
         sql_query_3 = file.read()
 
         DW_Sanity_check = BigQueryInsertJobOperator(
@@ -92,7 +92,7 @@ with DAG(
     )  
         
     def run_main_script():
-        script_path = '../dags/Easyecom_Data_Warehouse/dag/Easyecom_DW_dag.py'
+        script_path = '/home/airflow/gcs/dags/Easyecom_Data_Warehouse/dag/Easyecom_DW_dag.py'
         try:
             # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
