@@ -574,10 +574,10 @@ with DAG(
         }
     )    
 
-   finish_pipeline = DummyOperator(
-       task_id='finish_pipeline',
-       dag=dag
-   )
+   #     finish_pipeline = DummyOperator(
+   #     task_id='finish_pipeline',
+   #     dag=dag
+   # )
 
 
 start_pipeline >>
@@ -605,4 +605,4 @@ append_Metafield_products,
 append_Order_risks,
 append_tender_transactions,
 append_Fulfillment_Orders,
-append_Smart_collections >> finish_pipeline
+append_Smart_collections
