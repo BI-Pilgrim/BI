@@ -574,11 +574,5 @@ with DAG(
         }
     )    
 
-        finish_pipeline = DummyOperator(
-        task_id='finish_pipeline',
-        dag=dag
-    )
-
 
 start_pipeline >> [append_abandoned_checkout, append_discount_code, append_customer, append_order, append_transaction, append_refund_order, append_metafield_order, append_customer_address, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Smart_collections]
-[append_abandoned_checkout, append_discount_code, append_customer, append_order, append_transaction, append_refund_order, append_metafield_order, append_customer_address, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Smart_collections] >> finish_pipeline
