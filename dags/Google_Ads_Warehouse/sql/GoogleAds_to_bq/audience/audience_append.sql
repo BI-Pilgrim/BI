@@ -18,6 +18,8 @@ USING
       ROW_NUMBER() OVER(PARTITION BY audience_id ORDER BY audience_id DESC) AS ROW_NUM
     FROM
      `shopify-pubsub-project.pilgrim_bi_google_ads.audience`
+    WHERE
+      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
   )
   WHERE
     ROW_NUM = 1

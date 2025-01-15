@@ -27,7 +27,7 @@ USING (
   WHERE row_num = 1 -- Keep only the most recent row per object_id
 ) AS SOURCE
 ON TARGET.object_id = SOURCE.object_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at > SOURCE._airbyte_extracted_at
+WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
 THEN UPDATE SET
   TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
   TARGET.actor_id = SOURCE.actor_id,

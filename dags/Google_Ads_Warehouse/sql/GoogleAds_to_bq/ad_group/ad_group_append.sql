@@ -35,12 +35,14 @@ using
       ROW_NUMBER() OVER (PARTITION BY ad_group_id ORDER BY _airbyte_extracted_at DESC) AS rn
     from
       shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
+    where
+      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
   )
   where
     rn = 1
 ) as source
 on target.ad_group_id = source.ad_group_id
-when matched and target._airbyte_extracted_at > source._airbyte_extracted_at
+when matched and target._airbyte_extracted_at < source._airbyte_extracted_at
 then update set
   target._airbyte_extracted_at = source._airbyte_extracted_at,
   target.ad_group_optimized_targeting_enabled = source.ad_group_optimized_targeting_enabled,
