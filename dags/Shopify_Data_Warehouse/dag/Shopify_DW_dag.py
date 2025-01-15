@@ -180,7 +180,7 @@ with DAG(
     with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Refund_Orders/Refund_Orders_append.sql', 'r') as file:
         sql_query_8 = file.read()
 
-    append_refund_order_item = BigQueryInsertJobOperator(
+    append_refund_order = BigQueryInsertJobOperator(
         task_id='append_refund_order',
         configuration={
             "query": {
@@ -574,4 +574,4 @@ with DAG(
         }
     )    
 
-start_pipeline >> [append_abandoned_checkout, append_discount_code, append_customer, append_order, append_transaction, append_refund_order, append_metafield_order, append_customer_address, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Smart_collections]
+start_pipeline >> [append_abandoned_checkout, append_discount_code, append_customer, append_order, append_transaction, append_refund_order, append_customer_address, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Smart_collections]
