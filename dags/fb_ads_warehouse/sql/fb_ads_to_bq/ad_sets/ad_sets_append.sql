@@ -46,7 +46,7 @@ USING
 ) AS SOURCE
 ON
   TARGET.id = SOURCE.id
-WHEN MATCHED AND TARGET._airbyte_extracted_at > SOURCE._airbyte_extracted_at
+WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
 THEN UPDATE SET
     TARGET.bid_amount = SOURCE.bid_amount,
     TARGET.daily_budget = SOURCE.daily_budget,

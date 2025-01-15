@@ -29,7 +29,7 @@ USING
   WHERE row_num = 1
 ) AS SOURCE
 ON TARGET.ad_id = SOURCE.ad_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at > SOURCE._airbyte_extracted_at
+WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
 THEN UPDATE SET
   TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
   TARGET.ad_id = SOURCE.ad_id,
