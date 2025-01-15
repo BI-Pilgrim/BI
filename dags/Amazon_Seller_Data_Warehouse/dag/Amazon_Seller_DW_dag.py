@@ -237,3 +237,5 @@ with DAG(
             }
         }
     )
+
+start_pipeline >> [append_all_orders_data_last_update_general,append_all_orders_data_order_date_general,append_merchant_cancelled_listings_data,append_merchant_listings_all_data,append_merchant_listings_data,append_merchant_listings_data_back_compat,append_merchant_listings_inactive_data,append_open_listings_data,append_orders,append_XML_BROWSE_TREE_DATA]
