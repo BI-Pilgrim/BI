@@ -195,19 +195,19 @@ with DAG(
 # Metafield Order Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_orders_append.sql', 'r') as file:
-        sql_query_9 = file.read()
+    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_orders_append.sql', 'r') as file:
+    #     sql_query_9 = file.read()
 
-    append_metafield_order = BigQueryInsertJobOperator(
-        task_id='append_metafield_order',
-        configuration={
-            "query": {
-                "query": sql_query_9,
-                "useLegacySql": False,
-                "location": LOCATION,
-            }
-        }
-    )
+    # append_metafield_order = BigQueryInsertJobOperator(
+    #     task_id='append_metafield_order',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_9,
+    #             "useLegacySql": False,
+    #             "location": LOCATION,
+    #         }
+    #     }
+    # )
 
 # Customer Address Staging Table Refresh - Append
 
