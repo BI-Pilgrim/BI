@@ -78,7 +78,7 @@ class easyEComMasterProductAPI(EasyComApiConnector):
                 "model_no": record.get("model_no"),
                 "hsn_code": record.get("hsn_code"),
                 "tax_rate": record.get("tax_rate"),
-                "product_shelf_life": record.get("product shelf life"),
+                "product_shelf_life": str(record.get("product shelf life")) if record.get("product shelf life") else '',
                 "product_image_url": record.get("product_image_url"),
                 "cp_inventory": record.get("cp_inventory"),
                 "custom_fields": json.dumps(record.get("custom_fields")) if record.get("custom_fields") else None,
