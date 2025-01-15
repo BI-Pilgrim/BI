@@ -45,7 +45,7 @@ USING
   WHERE row_num = 1
 ) AS SOURCE
 ON TARGET.adset_id = SOURCE.adset_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at > SOURCE._airbyte_extracted_at
+WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
 
 
 THEN UPDATE SET

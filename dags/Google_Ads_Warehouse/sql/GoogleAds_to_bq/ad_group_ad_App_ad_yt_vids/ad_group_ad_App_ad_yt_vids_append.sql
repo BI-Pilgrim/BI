@@ -17,6 +17,8 @@ USING
     FROM
       `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`,
       unnest(json_extract_array(ad_group_ad_ad_app_ad_youtube_videos)) as xy
+    WHERE
+      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
   )
   WHERE
     ROW_NUM = 1
