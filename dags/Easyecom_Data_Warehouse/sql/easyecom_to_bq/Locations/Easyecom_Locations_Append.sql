@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 MERGE INTO `` AS TARGET
+=======
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Locations` AS TARGET
+>>>>>>> Stashed changes
 USING
 (
 SELECT
@@ -29,6 +33,7 @@ FROM
 (
 SELECT
 *,
+<<<<<<< Updated upstream
 ROW_NUMBER() OVER(PARTITON BY ORDER BY _airbyte_extracted_at) as row_num
 FROM `shopify-pubsub-project.easycom.inventory_snapshot`
 WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -36,6 +41,15 @@ WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTE
 WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
 ) AS SOURCE
 ON SOURCE. = TARGET.
+=======
+ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at) as row_num
+FROM `shopify-pubsub-project.easycom.locations`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
+) AS SOURCE
+ON SOURCE.location_key = TARGET.location_key
+>>>>>>> Stashed changes
 WHEN MATCHED AND TARGET.ee_extracted_at < SOURCE.ee_extracted_at
 THEN UPDATE SET
 TARGET.company_id = SOURCE.company_id,
@@ -60,7 +74,11 @@ TARGET.pickup_state = SOURCE.pickup_state,
 TARGET.pickup_zipcode = SOURCE.pickup_zipcode,
 TARGET.pickup_country = SOURCE.pickup_country,
 TARGET.stockHandle = SOURCE.stockHandle,
+<<<<<<< Updated upstream
 TARGET.ee_extracted_at = SOURCE.ee_extracted_at,
+=======
+TARGET.ee_extracted_at = SOURCE.ee_extracted_at
+>>>>>>> Stashed changes
 WHEN NOT MATCHED
 THEN INSERT
 (
@@ -86,7 +104,11 @@ THEN INSERT
   pickup_zipcode,
   pickup_country,
   stockHandle,
+<<<<<<< Updated upstream
   ee_extracted_at,
+=======
+  ee_extracted_at
+>>>>>>> Stashed changes
 )
 VALUES
 (
@@ -112,5 +134,9 @@ SOURCE.pickup_state,
 SOURCE.pickup_zipcode,
 SOURCE.pickup_country,
 SOURCE.stockHandle,
+<<<<<<< Updated upstream
 SOURCE.ee_extracted_at,
+=======
+SOURCE.ee_extracted_at
+>>>>>>> Stashed changes
 )

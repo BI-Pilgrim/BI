@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 MERGE INTO `` AS TARGET
+=======
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Customers` AS TARGET
+>>>>>>> Stashed changes
 USING
 (
 SELECT
@@ -27,6 +31,7 @@ FROM
 (
 SELECT
 *,
+<<<<<<< Updated upstream
 ROW_NUMBER() OVER(PARTITON BY ORDER BY _airbyte_extracted_at) as row_num
 FROM `shopify-pubsub-project.easycom.customers`
 WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -34,6 +39,15 @@ WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTE
 WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
 ) AS SOURCE
 ON SOURCE. = TARGET.
+=======
+ROW_NUMBER() OVER(PARTITiON BY ee_extracted_at ORDER BY ee_extracted_at) as row_num
+FROM `shopify-pubsub-project.easycom.customers`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
+) AS SOURCE
+ON SOURCE.c_id = TARGET.c_id
+>>>>>>> Stashed changes
 WHEN MATCHED AND TARGET.ee_extracted_at < SOURCE.ee_extracted_at
 THEN UPDATE SET
 TARGET.company_invoice_group_id = SOURCE.company_invoice_group_id,
@@ -56,7 +70,11 @@ TARGET.dispatch_city = SOURCE.dispatch_city,
 TARGET.dispatch_zipcode = SOURCE.dispatch_zipcode,
 TARGET.dispatch_state = SOURCE.dispatch_state,
 TARGET.dispatch_country = SOURCE.dispatch_country,
+<<<<<<< Updated upstream
 TARGET.ee_extracted_at = SOURCE.ee_extracted_at,
+=======
+TARGET.ee_extracted_at = SOURCE.ee_extracted_at
+>>>>>>> Stashed changes
 WHEN NOT MATCHED
 THEN INSERT
 (

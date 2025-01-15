@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 MERGE INTO `` AS TARGET
+=======
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Orders` AS TARGET
+>>>>>>> Stashed changes
 USING
 (
 SELECT
@@ -63,6 +67,7 @@ FROM
 (
 SELECT
 *,
+<<<<<<< Updated upstream
 ROW_NUMBER() OVER(PARTITON BY ORDER BY _airbyte_extracted_at) as row_num
 FROM `shopify-pubsub-project.easycom.all_return_orders`
 WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -71,6 +76,16 @@ WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_
 ) AS SOURCE
 ON SOURCE. = TARGET.
 WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
+=======
+ROW_NUMBER() OVER(PARTITION BY order_date ORDER BY order_date) as row_num
+FROM `shopify-pubsub-project.easycom.all_return_orders`
+WHERE DATE(order_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
+) AS SOURCE
+ON SOURCE.order_id = TARGET.order_id
+WHEN MATCHED AND TARGET.order_date < SOURCE.order_date
+>>>>>>> Stashed changes
 THEN UPDATE SET
 TARGET.invoice_id = SOURCE.invoice_id,
 TARGET.order_id = SOURCE.order_id,
@@ -127,13 +142,21 @@ TARGET.total_invoice_tax = SOURCE.total_invoice_tax,
 TARGET.invoice_collectable_amount = SOURCE.invoice_collectable_amount,
 TARGET.credit_note_id = SOURCE.credit_note_id,
 TARGET.credit_note_date = SOURCE.credit_note_date,
+<<<<<<< Updated upstream
 TARGET.credit_note_number = SOURCE.credit_note_number,
 TARGET.ee_extracted_a = SOURCE.ee_extracted_at,
+=======
+TARGET.credit_note_number = SOURCE.credit_note_number
+>>>>>>> Stashed changes
 WHEN NOT MATCHED
 THEN INSERT
 (
   invoice_id,
+<<<<<<< Updated upstream
   AS order_id,
+=======
+  order_id,
+>>>>>>> Stashed changes
   reference_code,
   company_name,
   ware_house_id,
@@ -187,8 +210,12 @@ THEN INSERT
   invoice_collectable_amount,
   credit_note_id,
   credit_note_date,
+<<<<<<< Updated upstream
   credit_note_number,
   ee_extracted_at
+=======
+  credit_note_number
+>>>>>>> Stashed changes
 )
 VALUES
 (
@@ -247,6 +274,10 @@ SOURCE.total_invoice_tax,
 SOURCE.invoice_collectable_amount,
 SOURCE.credit_note_id,
 SOURCE.credit_note_date,
+<<<<<<< Updated upstream
 SOURCE.credit_note_number,
 SOURCE.ee_extracted_at,
+=======
+SOURCE.credit_note_number
+>>>>>>> Stashed changes
 )

@@ -26,6 +26,7 @@ FROM
 (
 SELECT
 *,
+<<<<<<< Updated upstream
 ROW_NUMBER() OVER(PARTITTION BY  ORDER BY ) AS row_num
 FROM `shopify-pubsub-project.easycom.vendors`
 WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -34,6 +35,17 @@ WHERE row_num = 1
 ) AS SOURCE
 ON TARGET. = SOURCE.
 WHEN MATCHED AND TARGET. > SOURCE.
+=======
+  
+  ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at) AS row_num
+FROM `shopify-pubsub-project.easycom.vendors`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1
+) AS SOURCE
+ON TARGET.vendor_c_id = SOURCE.vendor_c_id
+WHEN MATCHED AND TARGET.ee_extracted_at < SOURCE.ee_extracted_at
+>>>>>>> Stashed changes
 THEN UPDATE SET
 TARGET.vendor_name = SOURCE.vendor_name,
 TARGET.vendor_c_id = SOURCE.vendor_c_id,

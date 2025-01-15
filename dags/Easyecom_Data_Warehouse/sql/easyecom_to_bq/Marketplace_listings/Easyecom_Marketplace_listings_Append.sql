@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 MERGE INTO `` AS TARGET
+=======
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Marketplace_listings` AS TARGET
+>>>>>>> Stashed changes
 USING
 (
 SELECT
@@ -16,6 +20,7 @@ FROM
 (
 SELECT
 *,
+<<<<<<< Updated upstream
 ROW_NUMBER() OVER(PARTITON BY ORDER BY _airbyte_extracted_at) as row_num
 FROM `shopify-pubsub-project.easycom.marketplace_listings`
 WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -23,6 +28,17 @@ WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTE
 WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
 ) AS SOURCE
 ON SOURCE. = TARGET.
+=======
+ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at) as row_num
+FROM `shopify-pubsub-project.easycom.marketplace_listings`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
+) AS SOURCE
+ON SOURCE.identifier = TARGET.identifier 
+AND SOURCE.title = TARGET.title 
+AND SOURCE.sku = TARGET.sku
+>>>>>>> Stashed changes
 WHEN MATCHED AND TARGET.ee_extracted_at < SOURCE.ee_extracted_at
 THEN UPDATE SET
 TARGET.name = SOURCE.name,
@@ -34,7 +50,11 @@ TARGET.listing_ref_number = SOURCE.listing_ref_number,
 TARGET.uid = SOURCE.uid,
 TARGET.identifier = SOURCE.identifier,
 TARGET.title = SOURCE.title,
+<<<<<<< Updated upstream
 TARGET.ee_extracted_at = SOURCE.ee_extracted_at,
+=======
+TARGET.ee_extracted_at = SOURCE.ee_extracted_at
+>>>>>>> Stashed changes
 WHEN NOT MATCHED
 THEN INSERT
 (

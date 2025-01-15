@@ -17,6 +17,7 @@ FROM
 (
 SELECT
 *,
+<<<<<<< Updated upstream
 ROW_NUMBER() OVER(PARTITTION BY  ORDER BY ) AS row_num
 FROM `shopify-pubsub-project.easycom.orders`
 WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -25,6 +26,16 @@ WHERE row_num = 1
 ) AS SOURCE
 ON TARGET. = SOURCE.
 WHEN MATCHED AND TARGET. > SOURCE.
+=======
+ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at) AS row_num
+FROM `shopify-pubsub-project.easycom.orders`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1
+) AS SOURCE
+ON TARGET.order_id = SOURCE.order_id
+WHEN MATCHED AND TARGET.order_date < SOURCE.order_date
+>>>>>>> Stashed changes
 THEN UPDATE SET
 TARGET.invoice_id = SOURCE.invoice_id,
 TARGET.order_id = SOURCE.order_id,
@@ -36,7 +47,11 @@ TARGET.order_status_id = SOURCE.order_status_id,
 TARGET.fulfillable_status = SOURCE.fulfillable_status,
 TARGET.queue_status = SOURCE.queue_status,
 TARGET.last_update_date = SOURCE.last_update_date,
+<<<<<<< Updated upstream
 TARGET.  ee_extracted_at = SOURCE.  ee_extracted_at,
+=======
+TARGET.ee_extracted_at = SOURCE.ee_extracted_at
+>>>>>>> Stashed changes
 WHEN NOT MATCHED
 THEN INSERT
 (
@@ -64,5 +79,9 @@ SOURCE.order_status_id,
 SOURCE.fulfillable_status,
 SOURCE.queue_status,
 SOURCE.last_update_date,
+<<<<<<< Updated upstream
 SOURCE.  ee_extracted_at
+=======
+SOURCE.ee_extracted_at
+>>>>>>> Stashed changes
 )

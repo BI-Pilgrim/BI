@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 MERGE INTO `` AS TARGET
+=======
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_details` AS TARGET
+>>>>>>> Stashed changes
 USING
 (
 SELECT
@@ -37,6 +41,7 @@ FROM
 (
 SELECT
 *,
+<<<<<<< Updated upstream
 ROW_NUMBER() OVER(PARTITON BY ORDER BY _airbyte_extracted_at) as row_num
 FROM `shopify-pubsub-project.easycom.inventory_details`
 WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -45,6 +50,16 @@ WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_
 ) AS SOURCE
 ON SOURCE. = TARGET.
 WHEN MATCHED AND TARGET.ee_extracted_at < SOURCE.ee_extracted_at
+=======
+ROW_NUMBER() OVER(PARTITiON BY ee_extracted_at ORDER BY ee_extracted_at) as row_num
+FROM `shopify-pubsub-project.easycom.inventory_details`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
+) AS SOURCE
+ON SOURCE.company_product_id = TARGET.company_product_id
+WHEN MATCHED AND TARGET.last_update_date < SOURCE.last_update_date
+>>>>>>> Stashed changes
 THEN UPDATE SET
 TARGET.company_name = SOURCE.company_name,
 TARGET.location_key = SOURCE.location_key,
@@ -75,8 +90,12 @@ TARGET.product_name = SOURCE.product_name,
 TARGET.model_no = SOURCE.model_no,
 TARGET.product_unique_code = SOURCE.product_unique_code,
 TARGET.description = SOURCE.description,
+<<<<<<< Updated upstream
 TARGET.is_combo = SOURCE.is_combo,
 TARGET.ee_extracted_at = SOURCE.ee_extracted_at
+=======
+TARGET.is_combo = SOURCE.is_combo
+>>>>>>> Stashed changes
 WHEN NOT MATCHED
 THEN INSERT
 (
@@ -98,7 +117,11 @@ THEN INSERT
   size,
   weight,
   height,
+<<<<<<< Updated upstream
   length,
+=======
+  `length`,
+>>>>>>> Stashed changes
   width,
   selling_price_threshold,
   inventory_threshold,
@@ -109,8 +132,12 @@ THEN INSERT
   model_no,
   product_unique_code,
   description,
+<<<<<<< Updated upstream
   is_combo,
   ee_extracted_at
+=======
+  is_combo
+>>>>>>> Stashed changes
 )
 VALUES
 (
@@ -143,6 +170,10 @@ SOURCE.product_name,
 SOURCE.model_no,
 SOURCE.product_unique_code,
 SOURCE.description,
+<<<<<<< Updated upstream
 SOURCE.is_combo,
 SOURCE.ee_extracted_at
+=======
+SOURCE.is_combo
+>>>>>>> Stashed changes
 )
