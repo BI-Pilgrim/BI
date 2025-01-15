@@ -12,6 +12,7 @@ from easy_com.reports import constants
 import os
 import base64
 import json
+import uuid
 
 from datetime import datetime, timedelta
 
@@ -27,7 +28,7 @@ class easyEComReportsAPI(EasyComApiConnector):
 
         self.locations_api = easyEComLocationsAPI()
         self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
-        self.temp_table_id = f'{self.project_id}.{self.dataset_id}.temp_{self.table.__tablename__}'
+        self.temp_table_id = f'{self.project_id}.{self.dataset_id}.temp_{self.table.__tablename__}_{uuid.uuid4().hex}'
 
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
