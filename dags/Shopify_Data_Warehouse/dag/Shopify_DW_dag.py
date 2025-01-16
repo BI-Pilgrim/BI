@@ -195,7 +195,7 @@ with DAG(
 #Metafield Order Staging Table Refresh - Append
 
    # Load SQL query from file
-    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_orders_append.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_order_append.sql', 'r') as file:
         sql_query_9 = file.read()
 
     append_metafield_order = BigQueryInsertJobOperator(
