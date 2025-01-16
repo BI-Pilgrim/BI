@@ -74,5 +74,5 @@ with DAG(
         python_callable=run_main_script,
     )
 
-    run_main_task
+    #run_main_task
     EasyEcom_Orders
