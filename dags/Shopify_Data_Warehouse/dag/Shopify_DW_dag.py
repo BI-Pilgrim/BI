@@ -43,7 +43,7 @@ with DAG(
 # Sanity check Table 
 
     # Load SQL query from file
-    with open('../dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Shopify_DW_Sanity_check.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Shopify_DW_Sanity_check.sql', 'r') as file:
         sql_query_32 = file.read()
 
     sanity_check = BigQueryInsertJobOperator(
@@ -60,7 +60,7 @@ with DAG(
 	
 
     def run_main_script():
-        script_path = '../dags/Shopify_Data_Warehouse/python/Shopify_DW_Sanity_check_mail.py'
+        script_path = '/home/airflow/gcs/dags/Shopify_Data_Warehouse/python/Shopify_DW_Sanity_check_mail.py'
         try:
             # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
