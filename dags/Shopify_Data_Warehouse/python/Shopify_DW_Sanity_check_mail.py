@@ -18,9 +18,9 @@ FROM
 df =  pgbq.read_gbq(query,"shopify-pubsub-project")
 df['Source_max_date'] = pd.to_datetime(df['Source_max_date'])
 df['Dest_max_date'] = pd.to_datetime(df['Dest_max_date'])
-df['Date1'] = pd.to_datetime(df['Date1'])
+df['Latest_date'] = pd.to_datetime(df['Latest_date'])
 filtered_df = df[(df['Source_max_date'] != df['Dest_max_date']) & 
-                 (df['Date1'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
+                 (df['Latest_date'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
                  (df['Source_pk_count'] != df['Dest_pk_count'])]
 
 def send_email(sender_email, sender_password, recipient_email, subject, body):
@@ -45,10 +45,10 @@ def send_email(sender_email, sender_password, recipient_email, subject, body):
 
 # Example usage (replace with your credentials and message)
 SENDER_EMAIL = "cloud@discoverpilgrim.com"
-RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
+RECIPIENT_EMAILS = "kajal.ray@discoverpilgrim.com"
 EMAIL_PASSWORD = 'mtaf yglq uiwp fblp'
-body = f"Hi Team,<br><br>Please find mismatch in the respective tables of Easyecom datawarehouse <br><br>{df.to_html(index=False)}<br><br>Warm Regards,"
-subject = f"Sh DW Discrepancy !!! "
+body = f"Hi Team,<br><br>Please find mismatch in the respective tables of Shopify datawarehouse <br><br>{df.to_html(index=False)}<br><br>Warm Regards,"
+subject = f"Shopify DW Discrepancy !!! "
 
 if (not(filtered_df.empty)):
     send_email(SENDER_EMAIL,EMAIL_PASSWORD,RECIPIENT_EMAILS,subject,body)
