@@ -1,4 +1,3 @@
-
 create or replace table `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Sanity_check` as
 with Sources as
   (
@@ -95,6 +94,57 @@ select
   count(distinct case when date(created_at) = (select max(date(Article_created_at)) from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Articles`) then id end ) as Source_pk_count
   from `shopify-pubsub-project.pilgrim_bi_airbyte.articles`
 
+
+union all
+
+select 
+  'Discount Code' as Source_table_name,
+  max(created_at) as Source_max_date,
+  count(distinct case when date(created_at) = (select max(date(Discount_code_created_at)) from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Discount_Code`) then id end ) as Source_pk_count
+  from `shopify-pubsub-project.pilgrim_bi_airbyte.discount_codes`
+
+union all
+
+select 
+  'Metafield Orders' as Source_table_name,
+  max(created_at) as Source_max_date,
+  count(distinct case when date(created_at) = (select max(date(Order_created_at)) from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_orders`) then id end ) as Source_pk_count
+  from `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_orders`
+
+
+union all
+
+select 
+  'Abandoned Checkout' as Source_table_name,
+  max(created_at) as Source_max_date,
+  count(distinct case when date(created_at) = (select max(date(aband_created_at)) from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Abandoned_checkout`) then id end ) as Source_pk_count
+  from `shopify-pubsub-project.pilgrim_bi_airbyte.abandoned_checkouts`
+  
+
+union all
+
+select 
+  'Product Variants' as Source_table_name,
+  max(created_at) as Source_max_date,
+  count(distinct case when date(created_at) = (select max(date(variant_created_at)) from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Product_variants`) then id end ) as Source_pk_count
+  from `shopify-pubsub-project.pilgrim_bi_airbyte.product_variants`
+
+union all
+
+select 
+  'Metafield Articles' as Source_table_name,
+  max(created_at) as Source_max_date,
+  count(distinct case when date(created_at) = (select max(date(Metafield_article_created_at)) from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_Articles`) then id end ) as Source_pk_count
+  from `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_articles`
+  
+
+ union all
+
+select 
+  'Customer Address' as Source_table_name,
+  max(updated_at) as Source_max_date,
+  count(distinct case when date(updated_at) = (select max(date(Cust_updated_at)) from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Customer_Address`) then id end ) as Source_pk_count
+  from `shopify-pubsub-project.pilgrim_bi_airbyte.customer_address` 
   ),
 -----------------------------------------------------------------------------------------------------
 Destination as 
@@ -194,6 +244,58 @@ union all
   from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Articles` 
 
 
+ union all
+
+  select 
+  'Discount Code' as Dest_table_name,
+  max(Discount_code_created_at) as Dest_max_date,
+ count(distinct case when date(Discount_code_created_at) = (select max(date(created_at)) from `shopify-pubsub-project.pilgrim_bi_airbyte.discount_codes`) then Discount_code_id end ) as Dest_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Discount_Code` 
+
+
+  union all
+
+  select 
+  'Metafield Orders' as Dest_table_name,
+  max(Order_created_at) as Dest_max_date,
+ count(distinct case when date(Order_created_at) = (select max(date(created_at)) from `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_orders`) then Metafield_order_id end ) as Dest_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_orders` 
+
+
+union all
+
+  select 
+  'Abandoned Checkout' as Dest_table_name,
+  max(aband_created_at) as Dest_max_date,
+ count(distinct case when date(aband_created_at) = (select max(date(created_at)) from `shopify-pubsub-project.pilgrim_bi_airbyte.abandoned_checkouts`) then abandoned_checkout_id end ) as Dest_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Abandoned_checkout` 
+
+union all
+
+  select 
+  'Product Variants' as Dest_table_name,
+  max(variant_created_at) as Dest_max_date,
+ count(distinct case when date(variant_created_at) = (select max(date(created_at)) from `shopify-pubsub-project.pilgrim_bi_airbyte.product_variants`) then variant_id end ) as Dest_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Product_variants` 
+  
+union all
+
+  select 
+  'Metafield Articles' as Dest_table_name,
+  max(Metafield_article_created_at) as Dest_max_date,
+ count(distinct case when date(Metafield_article_created_at) = (select max(date(created_at)) from `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_articles`) then Metafield_article_id end ) as Dest_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Metafield_Articles` 
+
+
+union all
+
+  select 
+  'Customer Address' as Dest_table_name,
+  max(Cust_updated_at) as Dest_max_date,
+ count(distinct case when date(Cust_updated_at) = (select max(date(updated_at)) from `shopify-pubsub-project.pilgrim_bi_airbyte.customer_address`) then customer_id end ) as Dest_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Customer_Address` 
+
+
 )
 
 
@@ -208,5 +310,4 @@ union all
   from Sources as S
   left join Destination as D
   on S.Source_table_name = D.Dest_table_name
-
 
