@@ -61,14 +61,17 @@ FROM
 (
   SELECT
   *,
-  ROW_NUMBER() OVER(PARTITION BY _airbyte_extracted_at ORDER BY _airbyte_extracted_at) AS row_nuM
+  ROW_NUMBER() OVER(PARTITION BY ad_id ORDER BY date_stop) AS row_nuM
   FROM
   `shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_product_id`
-  WHERE DATE(_airbyte_extracted_at) > DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+  WHERE DATE(date_stop) > DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
 WHERE row_nuM = 1 
 ) AS SOURCE
 ON SOURCE.ad_id = TARGET.ad_id
+AND SOURCE.adset_id = TARGET.adset_id
+AND SOURCE.campaign_id = TARGET.campaign_id
+AND SOURCE.account_id = TARGET.account_id
 WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
 THEN UPDATE SET
 TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
