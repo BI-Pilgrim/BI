@@ -12,6 +12,7 @@ distinct
 _airbyte_extracted_at,
 CAST(id AS STRING) as Order_id,
 CAST(order_number AS STRING) as Order_number,
+name as Order_name,
 updated_at as Order_updated_at,
 created_at as Order_created_at,
 CAST(processed_at as TIMESTAMP) as Order_processed_at,

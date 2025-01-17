@@ -172,7 +172,22 @@ with DAG(
         }
     )
 
+# Draft Order Items Staging Table Refresh - Append
 
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Draft_Order_items/Draft_order_item_append.sql', 'r') as file:
+        sql_query_31 = file.read()
+
+    append_draft_order_item = BigQueryInsertJobOperator(
+        task_id='append_draft_order_item',
+        configuration={
+            "query": {
+                "query": sql_query_31,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
 
 # Refund Order Staging Table Refresh - Append
 
