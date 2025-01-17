@@ -31,7 +31,7 @@ default_args = {
 
 with DAG(
     dag_id='Easyecom_DataWarehouse',
-    schedule_interval='30 23 * * *',  # Cron expression for 5 AM IST (11:30 PM UTC)
+    schedule_interval='30 00 * * *',  # Cron expression for 6 AM IST (12:30 AM UTC)
     default_args=default_args,
     catchup=False
 ) as dag:
