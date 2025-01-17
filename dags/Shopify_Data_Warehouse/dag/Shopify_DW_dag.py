@@ -178,8 +178,8 @@ with DAG(
     with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Draft_Order_items/Draft_order_item_append.sql', 'r') as file:
         sql_query_31 = file.read()
 
-    append_draft_order_item = BigQueryInsertJobOperator(
-        task_id='append_draft_order_item',
+    append_draft_order_items = BigQueryInsertJobOperator(
+        task_id='append_draft_order_items',
         configuration={
             "query": {
                 "query": sql_query_31,
