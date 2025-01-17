@@ -69,10 +69,10 @@ with DAG(
             raise
 
     # Define the PythonOperator to run the function
-    run_main_task = PythonOperator(
-        task_id='run_main_script',
-        python_callable=run_main_script,
-    )
+    #run_main_task = PythonOperator(
+    #    task_id='run_main_script',
+    #    python_callable=run_main_script,
+    #)
 
     #run_main_task
     EasyEcom_Orders
