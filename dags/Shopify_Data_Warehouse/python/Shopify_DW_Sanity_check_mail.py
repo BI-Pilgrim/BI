@@ -45,10 +45,10 @@ def send_email(sender_email, sender_password, recipient_email, subject, body):
 
 # Example usage (replace with your credentials and message)
 SENDER_EMAIL = "cloud@discoverpilgrim.com"
-RECIPIENT_EMAILS = "kajal.ray@discoverpilgrim.com"
+RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
 EMAIL_PASSWORD = 'mtaf yglq uiwp fblp'
-body = f"Hi Team,<br><br>Please find mismatch in the respective tables of Shopify datawarehouse <br><br>{df.to_html(index=False)}<br><br>Warm Regards,"
+body = f"Hi Team,<br><br>Please find mismatch in the respective tables of Shopify datawarehouse <br><br>{filtered_df.to_html(index=False)}<br><br>Warm Regards,"
 subject = f"Shopify DW Discrepancy !!! "
 
-if (filtered_df.empty):
+if (not(filtered_df.empty)):
     send_email(SENDER_EMAIL,EMAIL_PASSWORD,RECIPIENT_EMAILS,subject,body)
