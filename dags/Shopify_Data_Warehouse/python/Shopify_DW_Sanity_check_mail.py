@@ -50,5 +50,5 @@ EMAIL_PASSWORD = 'mtaf yglq uiwp fblp'
 body = f"Hi Team,<br><br>Please find mismatch in the respective tables of Shopify datawarehouse <br><br>{df.to_html(index=False)}<br><br>Warm Regards,"
 subject = f"Shopify DW Discrepancy !!! "
 
-if (not(filtered_df.empty)):
+if (filtered_df.empty):
     send_email(SENDER_EMAIL,EMAIL_PASSWORD,RECIPIENT_EMAILS,subject,body)
