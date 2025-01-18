@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-MERGE INTO `` AS TARGET
-=======
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Master_products` AS TARGET
->>>>>>> Stashed changes
 USING
 (
 SELECT
@@ -47,20 +43,6 @@ FROM
 (
 SELECT
 *,
-<<<<<<< Updated upstream
-ROW_NUMBER() OVER(PARTITON BY ORDER BY _airbyte_extracted_at) as row_num
-FROM `shopify-pubsub-project.easycom.master_products`
-WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-)
-WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
-) AS SOURCE
-ON SOURCE. = TARGET.
-WHEN MATCHED AND TARGET.ee_extracted_at < SOURCE.ee_extracted_at
-THEN UPDATE SET
-TARGET.cp_id = SOURCE.cp_id,
-TARGET.product_id = SOURCE.product_id,
-TARGET.SAFE_CAST(sku AS STRING) AS sku = SOURCE.SAFE_CAST(sku AS STRING) AS sku,
-=======
 ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at) as row_num
 FROM `shopify-pubsub-project.easycom.master_products`
 WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -73,7 +55,6 @@ THEN UPDATE SET
 TARGET.cp_id = SOURCE.cp_id,
 TARGET.product_id = SOURCE.product_id,
 TARGET.sku = SOURCE.sku,
->>>>>>> Stashed changes
 TARGET.product_name = SOURCE.product_name,
 TARGET.description = SOURCE.description,
 TARGET.active = SOURCE.active,
@@ -113,11 +94,7 @@ THEN INSERT
 (
   cp_id, 
   product_id, 
-<<<<<<< Updated upstream
-  SAFE_CAST(sku AS STRING) AS sku, 
-=======
   sku, 
->>>>>>> Stashed changes
   product_name, 
   description,
   active,
@@ -157,11 +134,7 @@ VALUES
 (
 SOURCE.cp_id,
 SOURCE.product_id,
-<<<<<<< Updated upstream
-SOURCE.SAFE_CAST(sku AS STRING) AS sku,
-=======
 sku,
->>>>>>> Stashed changes
 SOURCE.product_name,
 SOURCE.description,
 SOURCE.active,
