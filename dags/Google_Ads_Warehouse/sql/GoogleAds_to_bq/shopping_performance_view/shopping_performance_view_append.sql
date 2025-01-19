@@ -70,6 +70,8 @@ USING
       ROW_NUMBER() OVER(PARTITION BY segments_product_item_id ORDER BY segments_product_item_id DESC) AS ROW_NUM
     FROM
      `shopify-pubsub-project.pilgrim_bi_google_ads.shopping_performance_view`
+    WHERE
+      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
   )
   WHERE
     ROW_NUM = 1

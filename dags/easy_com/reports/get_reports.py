@@ -12,6 +12,7 @@ from easy_com.reports import constants
 import os
 import base64
 import json
+import uuid
 
 from datetime import datetime, timedelta
 
@@ -27,7 +28,7 @@ class easyEComReportsAPI(EasyComApiConnector):
 
         self.locations_api = easyEComLocationsAPI()
         self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
-        self.temp_table_id = f'{self.project_id}.{self.dataset_id}.temp_{self.table.__tablename__}'
+        self.temp_table_id = f'{self.project_id}.{self.dataset_id}.temp_{self.table.__tablename__}_{uuid.uuid4().hex}'
 
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
@@ -144,7 +145,7 @@ class easyEComReportsAPI(EasyComApiConnector):
                     "endDate" : end_datetime.strftime("%Y-%m-%d"),
                 }
             }
-        elif report_type == constants.ReportTypes.TAX_REPORT.value:
+        elif report_type == constants.ReportTypes.TAX_REPORT_RETURN.value:
             return {
                 "reportType": 'TAX_REPORT',
                 "params" : {
@@ -156,7 +157,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             }
         elif report_type == constants.ReportTypes.TAX_REPORT_SALES.value:
             return {
-                "reportType": 'TAX_REPORT',
+                "reportType": report_type,
                 "params" : {
                     "taxReportType" : "SALES",
                     "warehouseIds" : ",".join(self.locations_api.get_all_location_keys()),

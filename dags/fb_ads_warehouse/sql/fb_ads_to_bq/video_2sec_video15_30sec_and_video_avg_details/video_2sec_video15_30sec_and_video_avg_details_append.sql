@@ -41,7 +41,7 @@ using
   where row_num = 1
 ) as source
 on target.ad_id = source.ad_id
-when matched and target._airbyte_extracted_at > source._airbyte_extracted_at
+when matched and target._airbyte_extracted_at < source._airbyte_extracted_at
 then update set
   target._airbyte_extracted_at = source._airbyte_extracted_at,
   target.campaign_id = source.campaign_id,

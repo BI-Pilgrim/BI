@@ -10,11 +10,13 @@ from cryptography.fernet import Fernet
 import pandas_gbq as pgbq
 
 
+
 key = b"6xxliLxwuePV66P3kVVsxQunIPXrGpftn3wPHtQw-To="
 encrypted_password = b"gAAAAABnOsoKL5aIs8AVIQBRfqX-Ba3x5mFGzVS1l8DR7fJQudmNK4qqRy3JBnFZWf7JQVF5iulcA_a-sLTOpEIlRj7rWTzh4A=="
 
 cipher = Fernet(key)
 smtp_password = cipher.decrypt(encrypted_password).decode("utf-8")
+
 
 SENDER_EMAIL = "kajal.ray@discoverpilgrim.com"
 # RECIPIENT_EMAILS = ["kajal.ray@discoverpilgrim.com","rwitapa.mitra@discoverpilgrim.com","shafiq@discoverpilgrim.com"]
@@ -24,19 +26,20 @@ EMAIL_PASSWORD = smtp_password
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
+
 query = """
    SELECT 
-    latest.Category, latest.Brand_value, latest.Product_Title, latest.Parent_ASIN, latest.ASIN,latest.Product_URL, latest.Selling_Price,latest.MRP_Price,
+    latest.Category, latest.Brand_value, latest.Product_Title, latest.Parent_ASIN, latest.Child_ASIN,latest.Product_URL, latest.Selling_Price,latest.MRP_Price,
     latest.Unit_Sold, latest.Revenue,
 FROM 
     `Amazon_Market_Sizing.AMZ_Current_month_MS` latest
 LEFT JOIN 
     `Amazon_Market_Sizing.AMZ_SKU_level_Historical_MS`  past
 ON 
-    latest.ASIN = past.Child_ASIN
+    latest.Child_ASIN = past.Child_ASIN
     AND latest.Parent_ASIN = past.Parent_ASIN
 WHERE 
-    past.Date_MS < "2024-11-01" and 
+    past.Date_MS < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') and 
     past.Child_ASIN IS NULL 
     AND past.Parent_ASIN IS NULL 
     and latest.Category Not Like "%EDP%"
@@ -72,7 +75,10 @@ WHERE
    OR latest.Brand_value LIKE '%La Shield%')
     """
 
+
+
 df =  pgbq.read_gbq(query,"shopify-pubsub-project")
+
 date_query = """
 
 select max(Date_MS) from `shopify-pubsub-project.Amazon_Market_Sizing.AMZ_Current_month_MS`
@@ -143,5 +149,6 @@ def send_email_with_attachment(df,current):
         server.starttls()
         server.login(SENDER_EMAIL, EMAIL_PASSWORD)
         server.sendmail(SENDER_EMAIL, RECIPIENT_EMAILS, msg.as_string())
+
 
 send_email_with_attachment(df,current)

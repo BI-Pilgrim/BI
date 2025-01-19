@@ -1,0 +1,141 @@
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.GRN_Details_Reports` AS TARGET
+USING
+(
+SELECT
+  warehouseLocation,
+  poNo,
+  CAST(SAFE_CAST(poDate AS DATETIME) AS DATETIME) AS poDate,
+  SAFE_CAST(Mrp AS FLOAT64) AS Mrp,
+  poRef,
+  grnNo,
+  SAFE_CAST(grnDetailsDate AS DATETIME) AS grnDetailsDate,
+  vendorName,
+  vendorInvoiceNo,
+  SAFE_CAST(vendorInvoiceDate AS DATETIME) AS vendorInvoiceDate,
+  productName,
+  companyProductId,
+  sku,
+  ean,
+  SAFE_CAST(unitPrice AS FLOAT64) AS unitPrice,
+  SAFE_CAST(taxableAmount AS FLOAT64) AS taxableAmount,
+  poStatus,
+  SAFE_CAST(poQty AS FLOAT64) AS poQty,
+  SAFE_CAST(receivedQty AS FLOAT64) AS receivedQty,
+  SAFE_CAST(receivedValue AS FLOAT64) AS receivedValue,
+  userName,
+  batchCode,
+  SAFE_CAST(exipryDate AS DATETIME) AS exipryDate,
+  report_id,
+  report_type,
+  start_date,
+  end_date,
+  created_on,
+  inventory_type,
+  ee_extracted_at
+FROM
+(
+SELECT
+*,
+ROW_NUMBER() OVER(PARTITiON BY ee_extracted_at ORDER BY ee_extracted_at) as row_num
+FROM `shopify-pubsub-project.easycom.grn_details_report`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
+) AS SOURCE
+ON SOURCE.poNo = TARGET.poNo AND SOURCE.companyProductId = TARGET.companyProductId
+WHEN MATCHED AND TARGET.grnDetailsDate < SOURCE.grnDetailsDate
+THEN UPDATE SET
+TARGET.warehouseLocation = SOURCE.warehouseLocation,
+TARGET.poNo = SOURCE.poNo,
+TARGET.poDate = SOURCE. poDate,
+TARGET.Mrp = SOURCE.Mrp,
+TARGET.poRef = SOURCE.poRef,
+TARGET.grnNo = SOURCE.grnNo,
+TARGET.grnDetailsDate = SOURCE.grnDetailsDate,
+TARGET.vendorName = SOURCE.vendorName,
+TARGET.vendorInvoiceNo = SOURCE.vendorInvoiceNo,
+TARGET.vendorInvoiceDate = SOURCE.vendorInvoiceDate,
+TARGET.productName = SOURCE.productName,
+TARGET.companyProductId = SOURCE.companyProductId,
+TARGET.sku = SOURCE.sku,
+TARGET.ean = SOURCE.ean,
+TARGET.unitPrice = SOURCE.unitPrice,
+TARGET.taxableAmount = SOURCE.taxableAmount,
+TARGET.poStatus = SOURCE.poStatus,
+TARGET.poQty = SOURCE.poQty,
+TARGET.receivedQty = SOURCE.receivedQty,
+TARGET.receivedValue = SOURCE.receivedValue,
+TARGET.userName = SOURCE.userName,
+TARGET.batchCode = SOURCE.batchCode,
+TARGET.exipryDate = SOURCE.exipryDate,
+TARGET.report_id = SOURCE.report_id,
+TARGET.report_type = SOURCE.report_type,
+TARGET.start_date = SOURCE.start_date,
+TARGET.end_date = SOURCE.end_date,
+TARGET.created_on = SOURCE.created_on,
+TARGET.inventory_type = SOURCE.inventory_type
+WHEN NOT MATCHED
+THEN INSERT
+(
+  warehouseLocation,
+  poNo,
+  poDate,
+  Mrp,
+  poRef,
+  grnNo,
+  grnDetailsDate,
+  vendorName,
+  vendorInvoiceNo,
+  vendorInvoiceDate,
+  productName,
+  companyProductId,
+  sku,
+  ean,
+  unitPrice,
+  taxableAmount,
+  poStatus,
+  poQty,
+  receivedQty,
+  receivedValue,
+  userName,
+  batchCode,
+  exipryDate,
+  report_id,
+  report_type,
+  start_date,
+  end_date,
+  created_on,
+  inventory_type
+)
+VALUES
+(
+SOURCE.warehouseLocation,
+SOURCE.poNo,
+SOURCE.poDate,
+SOURCE.Mrp,
+SOURCE.poRef,
+SOURCE.grnNo,
+SOURCE.grnDetailsDate,
+SOURCE.vendorName,
+SOURCE.vendorInvoiceNo,
+SOURCE.vendorInvoiceDate,
+SOURCE.productName,
+SOURCE.companyProductId,
+SOURCE.sku,
+SOURCE.ean,
+SOURCE.unitPrice,
+SOURCE.taxableAmount,
+SOURCE.poStatus,
+SOURCE.poQty,
+SOURCE.receivedQty,
+SOURCE.receivedValue,
+SOURCE.userName,
+SOURCE.batchCode,
+SOURCE.exipryDate,
+SOURCE.report_id,
+SOURCE.report_type,
+SOURCE.start_date,
+SOURCE.end_date,
+SOURCE.created_on,
+SOURCE.inventory_type
+)

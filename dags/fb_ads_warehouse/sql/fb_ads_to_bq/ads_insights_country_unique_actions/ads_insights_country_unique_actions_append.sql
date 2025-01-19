@@ -36,7 +36,7 @@ USING
 
 
 ON TARGET.ad_id = SOURCE.ad_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at > SOURCE._airbyte_extracted_at
+WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
 THEN UPDATE SET
   TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
   TARGET.ad_id = SOURCE.ad_id,
@@ -84,5 +84,5 @@ VALUES
   SOURCE.unique_actions_28d_click,
   SOURCE.unique_actions_28d_click,
   SOURCE.unique_actions_action_type,
-  SOURCE.unique_actions_values
+  SOURCE.unique_actions_value
 )

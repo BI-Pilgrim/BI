@@ -38,4 +38,3 @@ SELECT
 
 
 FROM  `shopify-pubsub-project.pilgrim_bi_airbyte.abandoned_checkouts`
-group by All

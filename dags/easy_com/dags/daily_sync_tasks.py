@@ -11,7 +11,7 @@ def sync_orders():
         easyEComOrdersAPI().sync_data()
     resp = sync()
 
-@dag("sync_grn_details", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+@dag("sync_grn_details", schedule='15 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_grn_details():
     # grn details data sync
     @task.python
@@ -20,7 +20,7 @@ def sync_grn_details():
         easyEComGrnDetailsAPI().sync_data()
     resp = sync()
 
-@dag("sync_return_orders", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+@dag("sync_return_orders", schedule='18 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_return_orders():
     # Return Orders data sync
     @task.python
@@ -32,7 +32,7 @@ def sync_return_orders():
         easyEComPendingReturnOrdersAPI().sync_data()
     resp = sync()
 
-@dag("sync_inventory_details", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+@dag("sync_inventory_details", schedule='30 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_inventory_details():
     # inventory data sync
     @task.python
@@ -45,7 +45,7 @@ def sync_inventory_details():
     resp = sync()
 
 
-@dag("sync_purchase_orders", schedule='0 2 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
+@dag("sync_purchase_orders", schedule='40 1 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "daily"])
 def sync_purchase_orders():
     @task.python
     def sync():
