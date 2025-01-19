@@ -23,3 +23,8 @@ def get_gmail_client(auth_json):
     creds = Credentials.from_authorized_user_info(auth_json)
     creds.refresh(Request())
     return build("gmail", "v1", credentials=creds)
+
+def get_gsheets_client(auth_json):
+    creds = Credentials.from_authorized_user_info(auth_json)
+    creds.refresh(Request())
+    return build("sheets", "v4", credentials=creds)

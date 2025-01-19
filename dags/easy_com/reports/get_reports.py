@@ -42,13 +42,13 @@ class easyEComReportsAPI(EasyComApiConnector):
 
         self.create_table()
     
-    def transform_data(self, data):
+    def transform_data(self, data, report_type):
         """Transform the data into the required schema."""
         transformed_data = []
         for record in data:
             transformed_record = {
                 "report_id": record["report_id"],
-                "report_type": record["report_type"],
+                "report_type": report_type,
                 "start_date": record["start_date"],
                 "end_date": record["end_date"],
                 "created_on": record["created_on"],
@@ -80,7 +80,7 @@ class easyEComReportsAPI(EasyComApiConnector):
                 continue
 
             # transform data
-            report_data = self.transform_data(report_data)
+            report_data = self.transform_data(report_data, report_type)
 
             # insert data into BigQuery
             print(f'Inserting {self.name} data for report type {report_type} into BigQuery')
@@ -146,9 +146,19 @@ class easyEComReportsAPI(EasyComApiConnector):
             }
         elif report_type == constants.ReportTypes.TAX_REPORT.value:
             return {
-                "reportType": report_type,
+                "reportType": 'TAX_REPORT',
                 "params" : {
                     "taxReportType" : "RETURN",
+                    "warehouseIds" : ",".join(self.locations_api.get_all_location_keys()),
+                    "startDate" : start_datetime.strftime("%Y-%m-%d"),
+                    "endDate" : end_datetime.strftime("%Y-%m-%d"),
+                }
+            }
+        elif report_type == constants.ReportTypes.TAX_REPORT_SALES.value:
+            return {
+                "reportType": 'TAX_REPORT',
+                "params" : {
+                    "taxReportType" : "SALES",
                     "warehouseIds" : ",".join(self.locations_api.get_all_location_keys()),
                     "startDate" : start_datetime.strftime("%Y-%m-%d"),
                     "endDate" : end_datetime.strftime("%Y-%m-%d"),

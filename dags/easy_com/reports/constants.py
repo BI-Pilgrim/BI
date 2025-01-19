@@ -5,7 +5,8 @@ REPORTS_PRODUCT_TABLE_NAME = 'reports'
 @enum.unique
 class ReportTypes(enum.Enum):
     MINI_SALES_REPORT = 'MINI_SALES_REPORT'
-    TAX_REPORT = 'TAX_REPORT'
+    TAX_REPORT_RETURN = 'TAX_REPORT_RETURNS' # TAX_REPORT_RETURNS
+    TAX_REPORT_SALES = 'TAX_REPORT_SALES'
     STATUS_WISE_STOCK_REPORT = 'STATUS_WISE_STOCK_REPORT'
     INVENTORY_AGING_REPORT = 'INVENTORY_AGING_REPORT'
     INVENTORY_VIEW_BY_BIN_REPORT = 'INVENTORY_VIEW_BY_BIN_REPORT'
@@ -15,6 +16,7 @@ class ReportTypes(enum.Enum):
 
     @classmethod
     def get_all_types(cls):
+        return [cls.TAX_REPORT_SALES.value]
         return [report_type.value for report_type in cls]
     
 @enum.unique
