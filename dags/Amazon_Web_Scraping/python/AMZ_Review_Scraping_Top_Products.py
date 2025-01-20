@@ -313,8 +313,8 @@ def check_keywords(review):
 
 
 home_page = "https://www.amazon.in/"
-username = "005.kshafiq@gmail.com"
-password = "(He11o)"
+username = add_your_email
+password = add_your_password
 project_id = 'shopify-pubsub-project'
 table_review = 'Amazon_Market_Sizing.AMZ_Rating_Reviews_Top_products'
 table_top_25 = 'Amazon_Market_Sizing.Top_products_for_review_scraping'
