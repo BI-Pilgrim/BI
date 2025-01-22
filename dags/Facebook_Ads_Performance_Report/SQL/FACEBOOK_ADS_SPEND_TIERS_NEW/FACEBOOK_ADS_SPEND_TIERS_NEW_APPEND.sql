@@ -93,3 +93,7 @@ VALUES (
   SOURCE.lt_spends,
   SOURCE.lt_ROAS
 );
+
+DELETE FROM `shopify-pubsub-project.adhoc_data_asia.FACEBOOK_ADS_SPEND_TIERS_NEW`
+WHERE start_date < DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 365 DAY);
+

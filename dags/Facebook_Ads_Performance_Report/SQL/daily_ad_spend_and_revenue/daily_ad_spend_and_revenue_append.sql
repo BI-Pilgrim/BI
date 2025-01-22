@@ -27,6 +27,7 @@ FROM
   `shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights`,
   UNNEST(JSON_EXTRACT_ARRAY(action_values)) AS ACT_VALUES
   WHERE JSON_EXTRACT_SCALAR(ACT_VALUES, '$.action_type') = 'purchase'
+  AND REGEXP_CONTAINS(ad_name, r'\| (000|3|9)')
 )
 WHERE row_num = 1 and date(date_start) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 0 DAY)
 ) AS SOURCE
