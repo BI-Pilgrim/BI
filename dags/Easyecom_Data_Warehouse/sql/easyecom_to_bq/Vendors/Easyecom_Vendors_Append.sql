@@ -27,7 +27,7 @@ FROM
 SELECT
 *,
   
-  ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at) AS row_num
+  ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at DESC) AS row_num
 FROM `shopify-pubsub-project.easycom.vendors`
 WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )

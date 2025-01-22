@@ -29,7 +29,7 @@ FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at) as row_num
+ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at DESC) as row_num
 FROM `shopify-pubsub-project.easycom.inventory_aging_report`
 WHERE DATE(end_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
