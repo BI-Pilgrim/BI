@@ -21,6 +21,7 @@ default_args = {
 # Define constants
 LOCATION = "US"  # Replace with your BigQuery dataset location (e.g., "US", "EU")
 SQL_DIR = "/home/airflow/gcs/dags/Facebook_Ads_Performance_Report/SQL"  # Adjust this path if necessary
+# SQL_DIR = "../dags/Facebook_Ads_Performance_Report/SQL"
 
 # Define the DAG
 with DAG(
@@ -69,6 +70,40 @@ with DAG(
         }
     )
 
+################################################################################################################################################################
+
+    # daily_ads_count Table Refresh - Append
+    daily_ads_count_sql_path = os.path.join(SQL_DIR, "daily_ads_count/daily_ads_count_append.sql")
+    with open(daily_ads_count_sql_path, 'r') as file:
+        sql_query_3 = file.read()
+
+    Append_daily_ads_count = BigQueryInsertJobOperator(
+        task_id='Append_daily_ads_count',
+        configuration={
+            "query": {
+                "query": sql_query_2,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # facebook_ads_daily_log Table Refresh - Append
+    facebook_ads_daily_log_sql_path = os.path.join(SQL_DIR, "facebook_ads_daily_log/facebook_ads_daily_log_append.sql")
+    with open(facebook_ads_daily_log_sql_path, 'r') as file:
+        sql_query_4 = file.read()
+
+    Append_facebook_ads_daily_log = BigQueryInsertJobOperator(
+        task_id='Append_facebook_ads_daily_log',
+        configuration={
+            "query": {
+                "query": sql_query_2,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
     # End of the pipeline
     finish_pipeline = DummyOperator(
         task_id='finish_pipeline'
@@ -78,4 +113,5 @@ with DAG(
     # Task Orchestration
     start_pipeline >> Append_daily_ad_spend_and_revenue
     Append_daily_ad_spend_and_revenue >> Append_FACEBOOK_ADS_SPEND_TIERS_NEW
-    Append_FACEBOOK_ADS_SPEND_TIERS_NEW >> finish_pipeline
+    Append_FACEBOOK_ADS_SPEND_TIERS_NEW >> [ Append_daily_ads_count, Append_facebook_ads_daily_log]
+    [ Append_daily_ads_count, Append_facebook_ads_daily_log] >> finish_pipeline
