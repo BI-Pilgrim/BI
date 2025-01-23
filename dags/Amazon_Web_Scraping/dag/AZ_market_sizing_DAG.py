@@ -23,7 +23,7 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    # Define a function to execute the AZ_MS_face_serum.py script
+    # Define a function to execute the AZ_MS_face_serum.py script 
     def run_main_script():
         script_path = 'gcs/dags/Amazon_Web_Scraping/python/AZ_MS_face_serum.py'
         try:
