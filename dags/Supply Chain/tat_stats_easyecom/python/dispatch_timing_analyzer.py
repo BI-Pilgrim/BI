@@ -17,7 +17,12 @@ class DispatchTimingAnalyzer:
             self.CUTOFF_TIME = time(14, 00)  # 2:00 PM
             self.analysis_id = datetime.now().strftime('%Y%m%d_%H%M%S')
             
-            self.ALLOWED_WAREHOUSE_IDS = [107747, 166441, 97814, 62111]
+            self.ALLOWED_LOCATION_KEYS = [
+                'en9567578596',
+                'ne27702606481',
+                'en3857776321',
+                'en11609416009'
+            ]
             
             # Initialize BigQuery connection similar to get_orders.py
             self.project_id = "shopify-pubsub-project"
@@ -44,16 +49,16 @@ class DispatchTimingAnalyzer:
         return os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
 
     def load_data_to_bigquery(self, data, table_name):
-        """Load data to BigQuery using similar pattern as get_orders"""
+        """Load data to BigQuery using truncate and load pattern"""
         try:
             table_id = f"{self.project_id}.{self.dataset_id}.{table_name}"
             
             # Convert data to DataFrame
             df = pd.DataFrame(data)
             
-            # Configure job
+            # Configure job to truncate existing data before loading
             job_config = bigquery.LoadJobConfig(
-                write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+                write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,  # This ensures table is emptied before loading
             )
 
             # Load data
@@ -62,7 +67,7 @@ class DispatchTimingAnalyzer:
             )
             job.result()  # Wait for job to complete
 
-            logging.info(f"Loaded {len(data)} rows into {table_id}")
+            logging.info(f"Truncated existing data and loaded {len(data)} new rows into {table_id}")
             
         except Exception as e:
             logging.error(f"Error loading data to BigQuery: {str(e)}")
@@ -90,6 +95,7 @@ class DispatchTimingAnalyzer:
         try:
             logging.info(f"Fetching order dispatch data from {self.start_date} to {self.end_date}")
             start_date_obj = datetime.strptime(self.start_date, '%Y-%m-%d')
+            # Get data from one day before to account for 2 PM cutoff
             previous_day = (start_date_obj - timedelta(days=1)).strftime('%Y-%m-%d')
             
             query = f"""
@@ -102,21 +108,23 @@ class DispatchTimingAnalyzer:
                     order_status,
                     shipping_status,
                     last_update_date,
-                    warehouse_id,
-                    import_warehouse_id,
-                    import_warehouse_name
+                    location_key,
+                    import_warehouse_name,
+                    -- Create a new column for the business day (2 PM to 2 PM next day)
+                    CASE
+                        WHEN TIME(order_date) >= '14:00:00'
+                        THEN DATE(order_date)
+                        ELSE DATE_SUB(DATE(order_date), INTERVAL 1 DAY)
+                    END as business_date
                 FROM `shopify-pubsub-project.easycom.orders`
                 WHERE DATE(order_date) BETWEEN '{previous_day}' AND '{self.end_date}'
                 AND order_status != 'Cancelled'
-                AND warehouse_id IN UNNEST({self.ALLOWED_WAREHOUSE_IDS})
+                AND location_key IN UNNEST({self.ALLOWED_LOCATION_KEYS})
                 AND order_date IS NOT NULL
             )
             SELECT *
             FROM filtered_orders
-            WHERE 
-                DATE(order_date) >= '{self.start_date}'
-                OR 
-                (DATE(order_date) = '{previous_day}' AND TIME(order_date) > '{self.CUTOFF_TIME}')
+            WHERE business_date >= '{self.start_date}'
             ORDER BY order_date
             """
             
@@ -132,8 +140,7 @@ class DispatchTimingAnalyzer:
                 # Pre-calculate commonly used datetime conversions
                 df['order_date'] = pd.to_datetime(df['order_date'])
                 df['manifest_date'] = pd.to_datetime(df['manifest_date'])
-                df['order_date_only'] = df['order_date'].dt.date
-                df['manifest_date_only'] = df['manifest_date'].dt.date
+                df['business_date'] = pd.to_datetime(df['business_date'])
             
             return df
         except Exception as e:
@@ -237,65 +244,37 @@ class DispatchTimingAnalyzer:
     def _generate_analysis_report(self, df):
         """Generate detailed analysis report with optimized calculations"""
         daily_metrics = []
-        start_date = datetime.strptime(self.start_date, '%Y-%m-%d').date()
         
         # Pre-filter display_df once
-        display_df = df[df['order_date_only'] >= start_date].copy()
+        display_df = df[df['business_date'].dt.date >= datetime.strptime(self.start_date, '%Y-%m-%d').date()].copy()
         
-        # Pre-calculate cutoff times for all dates
-        unique_dates = display_df['order_date_only'].unique()
-        cutoff_times = {
-            date: datetime.combine(date, self.CUTOFF_TIME)
-            for date in unique_dates
-        }
-        
-        # Vectorized operations for before/after cutoff
-        display_df['cutoff_datetime'] = display_df['order_date_only'].map(cutoff_times)
-        display_df['is_before_cutoff'] = display_df['order_date'] <= display_df['cutoff_datetime']
+        # Group by business_date instead of order_date_only
+        grouped = display_df.groupby('business_date')
         
         # Calculate warehouse metrics first
         warehouse_metrics = self._analyze_warehouse_performance(display_df)
         
-        # Group operations
-        grouped = display_df.groupby('order_date_only')
-        
-        for date, group in grouped:
-            cutoff_datetime = datetime.combine(date, self.CUTOFF_TIME)
+        for business_date, group in grouped:
+            business_date = business_date.date()
             
-            # Get orders from current day
-            before_cutoff = group[group['order_date'].apply(lambda x: x.to_pydatetime() <= cutoff_datetime)]
-            after_cutoff = group[group['order_date'].apply(lambda x: x.to_pydatetime() > cutoff_datetime)]
+            # Get all orders for this business day (already filtered from 2 PM to 2 PM)
+            total_orders = len(group)
             
-            # Get previous day's after-cutoff orders (from unfiltered df) only for due_dispatch calculation
-            previous_day = date - timedelta(days=1)
-            previous_day_orders = df[df['order_date'].dt.date == previous_day]
-            previous_day_after_cutoff = previous_day_orders[
-                previous_day_orders['order_date'].apply(
-                    lambda x: x.to_pydatetime() > datetime.combine(previous_day, self.CUTOFF_TIME)
-                )
-            ]
+            # Calculate delayed orders
+            delayed_orders = group[group['is_delayed'] & group['manifest_date'].notna()]
             
-            # Use only current day orders for status breakdowns
+            # Status breakdowns for the business day
             status_breakdown = group['order_status'].value_counts().to_dict()
             status_breakdown = {str(k): int(v) for k, v in status_breakdown.items()}
 
             shipping_status_breakdown = group['shipping_status'].value_counts().to_dict()
             shipping_status_breakdown = {str(k): int(v) for k, v in shipping_status_breakdown.items()}
             
-            # Combine orders due for dispatch today
-            due_dispatch_orders = pd.concat([before_cutoff, previous_day_after_cutoff])
-            total_due_dispatches = len(due_dispatch_orders)
-            
-            # Only consider orders from the current day for delay calculation
-            delayed_orders = before_cutoff[before_cutoff['is_delayed'] & before_cutoff['manifest_date'].notna()]
-            
             metrics = {
-                'date': date.strftime('%Y-%m-%d'),
-                'total_orders': int(len(group)),  # Only current day orders
-                'orders_before_cutoff': int(len(before_cutoff)),
-                'orders_after_cutoff': int(len(after_cutoff)),
-                'total_due_dispatches': int(total_due_dispatches),  # Includes previous day after-cutoff
-                'delayed_dispatch_count': int(len(delayed_orders)),  # Only current day delays
+                'date': business_date.strftime('%Y-%m-%d'),
+                'total_orders': int(total_orders),
+                'total_due_dispatches': int(total_orders),  # All orders in the period are due
+                'delayed_dispatch_count': int(len(delayed_orders)),
                 'delayed_dispatch_details': self._get_delay_breakdown(delayed_orders),
                 'order_status_breakdown': status_breakdown,
                 'shipping_status_breakdown': shipping_status_breakdown
@@ -326,7 +305,6 @@ class DispatchTimingAnalyzer:
         """Calculate overall summary statistics"""
         # Convert numpy values to native Python types
         total_orders = int(sum(day['total_orders'] for day in daily_metrics))
-        total_before_cutoff = int(sum(day['orders_before_cutoff'] for day in daily_metrics))
         total_delayed = int(sum(day['delayed_dispatch_count'] for day in daily_metrics))
         
         # Handle delayed orders calculations
@@ -344,9 +322,8 @@ class DispatchTimingAnalyzer:
 
         return {
             'total_orders': total_orders,
-            'total_orders_before_cutoff': total_before_cutoff,
             'total_delayed_dispatches': total_delayed,
-            'compliance_rate': float(round((1 - total_delayed / total_before_cutoff) * 100, 2)) if total_before_cutoff > 0 else 0.0,
+            'compliance_rate': float(round((1 - total_delayed / total_orders) * 100, 2)) if total_orders > 0 else 0.0,
             'delay_statistics': delay_stats,
             'analysis_period': {
                 'start_date': self.start_date,
@@ -359,9 +336,9 @@ class DispatchTimingAnalyzer:
         metrics = []
         
         # Vectorized calculations
-        grouped = df.groupby(['warehouse_id', 'import_warehouse_name'])
+        grouped = df.groupby(['location_key', 'import_warehouse_name'])
         
-        for (warehouse_id, warehouse_name), group in grouped:
+        for (location_key, warehouse_name), group in grouped:
             delayed_mask = group['is_delayed']
             delayed_orders = group[delayed_mask]
             
@@ -382,7 +359,7 @@ class DispatchTimingAnalyzer:
                 delay_stats = {'q25': 0.0, 'q75': 0.0, 'min': 0.0, 'max': 0.0}
             
             metrics.append({
-                'warehouse_id': str(warehouse_id),
+                'location_key': str(location_key),
                 'warehouse_name': str(warehouse_name),
                 'total_orders': total_orders,
                 'delayed_orders': total_delayed,
