@@ -147,7 +147,7 @@ class easyEComOrdersAPI(EasyComApiConnector):
         """Sync data from the API to BigQuery."""
         if not (start_date and end_date):
             end_date = (datetime.now() - timedelta(days=1))
-            start_date = end_date - timedelta(days=1)
+            start_date = end_date - timedelta(days=90) # Add a 90 day look back period
 
         start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
         end_date = end_date.strftime("%Y-%m-%d %H:%M:%S")
