@@ -57,7 +57,7 @@ def scrape_page(url, page):
     print(f"Found {review_blocks.count()} review blocks")
         #review_elements = review_blocks.element_handles()
     for block in review_blocks.element_handles():
-            print('i am inside loop')
+            #print('i am inside loop')
             rating_element = block.query_selector('.a-icon-alt')
             rating_html = rating_element.inner_html()
             rating= float(rating_html.split()[0].replace(',', '.')) 
@@ -215,7 +215,7 @@ project_id = 'shopify-pubsub-project'
 table_review = 'Amazon_Market_Sizing.AMZ_Rating_Reviews_Top_Products_PlayWright_Testing' 
 table_review_write = 'Amazon_Market_Sizing.AMZ_Rating_Reviews_Top_Products_PlayWright_Testing_write_check'
 table_top_25 = 'Amazon_Market_Sizing.Top_products_for_review_scraping'
-df = pd.read_csv("Top_products_for_review_scraping.csv")
+df =read_from_gbq(project_id,table_top_25)
 batch_size = 5 
 
 Review_col_dt = {
@@ -254,7 +254,7 @@ for i in range(0, len(df), batch_size):
 df_combined = pd.concat(result_dfs, ignore_index=True)
 
 # Write the results to a CSV file
-df_combined.to_csv('review_output.csv', index=False) 
+#df_combined.to_csv('review_output.csv', index=False) 
 df_combined.head()
 final_df = datatype_normalizing(df_combined,Review_col_dt) 
 final_df['Date1'] = pd.to_datetime(final_df['Date1'], format='%d %B %Y') 
