@@ -75,7 +75,14 @@ def process_and_store_data():
         
         # Update daily metrics preparation
         daily_rows = []
+        order_status_rows = []
+        shipping_status_rows = []
+        
         for metric in results['daily_metrics']:
+            date = metric['date']
+            current_time = datetime.now()
+            
+            # Prepare daily metrics row (excluding status breakdowns)
             total_orders = metric['total_orders']
             delayed_orders = metric['delayed_dispatch_count']
             compliance_rate = ((total_orders - delayed_orders) / total_orders * 100) if total_orders > 0 else 0
@@ -87,13 +94,62 @@ def process_and_store_data():
                 'compliance_rate': compliance_rate,
                 'avg_delay_hours': calculate_avg_delay(metric['delayed_dispatch_details']),
                 'median_delay_hours': calculate_median_delay(metric['delayed_dispatch_details']),
-                'order_status_breakdown': str(metric['order_status_breakdown']),
-                'shipping_status_breakdown': str(metric['shipping_status_breakdown']),
                 'analysis_date': datetime.now()
             })
+            
+            # Process order status breakdown
+            for status, count in metric.get('order_status_breakdown', {}).items():
+                order_status_rows.append({
+                    'date': date,
+                    'status': status,
+                    'count': count,
+                    'analysis_date': current_time
+                })
+            
+            # Process shipping status breakdown
+            for status, count in metric.get('shipping_status_breakdown', {}).items():
+                shipping_status_rows.append({
+                    'date': date,
+                    'status': status,
+                    'count': count,
+                    'analysis_date': current_time
+                })
         
-        # Get raw data for warehouse metrics calculation
+        # Get raw data and prepare warehouse metrics
         raw_data = analyzer.fetch_order_dispatch_data()
+        
+        # Calculate expected dispatch dates and delay status
+        raw_data['order_date'] = pd.to_datetime(raw_data['order_date'])
+        raw_data['manifest_date'] = pd.to_datetime(raw_data['manifest_date'])
+        raw_data['expected_dispatch_date'] = raw_data.apply(
+            lambda x: (x['order_date'] + timedelta(days=1)).date() 
+            if x['order_date'].time() > analyzer.CUTOFF_TIME 
+            else x['order_date'].date(), 
+            axis=1
+        )
+        raw_data['actual_dispatch_date'] = raw_data['manifest_date'].dt.date
+        
+        # Calculate delay status
+        raw_data['is_delayed'] = raw_data.apply(
+            lambda x: (pd.isna(x['actual_dispatch_date']) or 
+                      (pd.notna(x['actual_dispatch_date']) and 
+                       x['actual_dispatch_date'] > x['expected_dispatch_date'])),
+            axis=1
+        )
+        
+        # Calculate delay hours
+        def calculate_delay_hours(row):
+            if pd.isna(row['manifest_date']):
+                if pd.notna(row['expected_dispatch_date']):
+                    cutoff_datetime = datetime.combine(row['expected_dispatch_date'], analyzer.CUTOFF_TIME)
+                    return (datetime.now() - cutoff_datetime).total_seconds() / 3600
+                return 0
+            elif row['is_delayed']:
+                cutoff_datetime = datetime.combine(row['expected_dispatch_date'], analyzer.CUTOFF_TIME)
+                return (row['manifest_date'] - cutoff_datetime).total_seconds() / 3600
+            return 0
+
+        raw_data['delay_hours'] = raw_data.apply(calculate_delay_hours, axis=1)
         
         # Prepare warehouse metrics by date and location
         warehouse_rows = []
@@ -133,6 +189,8 @@ def process_and_store_data():
         # Load all data
         analyzer.load_data_to_bigquery(daily_rows, 'daily_metrics')
         analyzer.load_data_to_bigquery(warehouse_rows, 'warehouse_metrics')
+        analyzer.load_data_to_bigquery(order_status_rows, 'order_status_metrics')
+        analyzer.load_data_to_bigquery(shipping_status_rows, 'shipping_status_metrics')
         
         logging.info("Successfully completed data processing")
     except Exception as e:

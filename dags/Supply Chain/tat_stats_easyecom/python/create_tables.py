@@ -36,8 +36,6 @@ def create_bigquery_tables():
             bigquery.SchemaField("compliance_rate", "FLOAT"),
             bigquery.SchemaField("avg_delay_hours", "FLOAT"),
             bigquery.SchemaField("median_delay_hours", "FLOAT"),
-            bigquery.SchemaField("order_status_breakdown", "STRING"),
-            bigquery.SchemaField("shipping_status_breakdown", "STRING"),
             bigquery.SchemaField("analysis_date", "TIMESTAMP")
         ]
         
@@ -53,9 +51,26 @@ def create_bigquery_tables():
             bigquery.SchemaField("analysis_date", "TIMESTAMP"),
         ]
         
+        # New schemas for status breakdowns
+        order_status_schema = [
+            bigquery.SchemaField("date", "DATE"),
+            bigquery.SchemaField("status", "STRING"),
+            bigquery.SchemaField("count", "INTEGER"),
+            bigquery.SchemaField("analysis_date", "TIMESTAMP")
+        ]
+        
+        shipping_status_schema = [
+            bigquery.SchemaField("date", "DATE"),
+            bigquery.SchemaField("status", "STRING"),
+            bigquery.SchemaField("count", "INTEGER"),
+            bigquery.SchemaField("analysis_date", "TIMESTAMP")
+        ]
+        
         tables = {
             'daily_metrics': daily_metrics_schema,
             'warehouse_metrics': warehouse_metrics_schema,
+            'order_status_metrics': order_status_schema,
+            'shipping_status_metrics': shipping_status_schema,
         }
         
         for table_name, schema in tables.items():
