@@ -1,64 +1,62 @@
-import base64
 from datetime import datetime
-from io import BytesIO
 import logging
 from airflow.decorators import task, dag
 from airflow.models import Variable
 import pandas as pd
-from utils.google_cloud import get_bq_client, get_gmail_client
-from openpyxl import load_workbook
+from utils.google_cloud import get_bq_client,  get_gsheets_client
 import json
-
-DF_COLS = ["date", "brand_name", "category_name", "ean_code", "sku", "nmv", "mrp", "qty", 
-           "orders", "price_off_per", "abs_price_off", "off_invoice"]
 
 TABLE_NAME = "pilgrim_bi_purple.claims_report"
 
-@dag("purple_email_claims", schedule='0 22 * * *', start_date=datetime(year=2024,month=12,day=5), tags=["purple"])
-def purple_email_claims():
+
+COLUMN_MAP = {'date': "date",
+ 'category_name': "category_name",
+ 'ean': "ean",
+ 'sku': "sku",
+ 'orders': "orders",
+ 'nmv': "nmv",
+ 'mrp': "mrp",
+ 'quantity': "quantity",
+ 'price off %': "price_off_percentage",
+ 'absolute price off': "absolute_price_off",
+ 'off invoice': "off_invoice",
+}
+
+@dag("purple_email_claims", schedule='0 22 * * *', start_date=datetime(year=2025,month=1,day=20), tags=["purple"])
+def purple_email_claims_sheet():
 
     @task.python
-    def fetch_and_load_mails():
+    def fetch_and_load_sheet():
         logging.info(f"Started Task")
         credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
-        GMAIL_FB_APP_TESTING_TOKEN = json.loads(Variable.get("GMAIL_FB_APP_TESTING_TOKEN", "{}"))
-        gmail_client = get_gmail_client(GMAIL_FB_APP_TESTING_TOKEN)
+        GMAIL_FB_APP_TESTING_TOKEN = json.loads(Variable.get("GSHEETS_TOKEN", "{}"))
+        gsheets_client = get_gsheets_client(GMAIL_FB_APP_TESTING_TOKEN)
         bq_client = get_bq_client(credentials_info)
-        messages_client = gmail_client.users().messages()
-        attachments_client = messages_client.attachments()
+        sheet = gsheets_client.spreadsheets()
 
-        mails = []
-        get_mails_req = messages_client.list(userId="me", q="subject:pilgrim claims AND has:attachment AND is:unread", maxResults=10)
-        get_mails_resp = get_mails_req.execute()
+        result = (
+        sheet.values()
+        .get(spreadsheetId="1NbFMYeaJGxAivNm3enljbPvnefj4YJ4uI0fbsLzX4n8", range="Sheet1")
+        .execute()
+        )
+        values = result.get("values", [])
+        df = pd.DataFrame(values[1:], columns=[COLUMN_MAP[x.lower().strip()] for x in values[0]])
 
-        while( isinstance(get_mails_resp, (dict,)) and get_mails_resp.get("nextPageToken") is not None):
-            mails.extend(get_mails_resp['messages'])
-            get_mails_resp = messages_client.list_next(get_mails_req, get_mails_resp).execute()
-
-        mails.extend(get_mails_resp.get('messages', []))
-
-        for mail in mails:
-            email_data = messages_client.get(userId="me", id=mail["id"]).execute()
-            mail_attachment = list(filter(lambda x:x['filename'].lower().find("xlsx")>=0, email_data['payload']['parts']))[0]
-            logging.info(f"processing {mail_attachment['filename']}")
-            attachment_data = attachments_client.get(userId="me", messageId=mail["id"], id=mail_attachment['body']['attachmentId']).execute()
-            attachment_bytes = BytesIO(base64.urlsafe_b64decode(attachment_data['data'] + '=' * (4 - len(attachment_data['data']) % 4)))
-            
-            wb = load_workbook(attachment_bytes, read_only=True)
-            sheet = wb[wb.sheetnames[0]]
-
-            i = 0
-            for x in sheet.iter_rows():
-                if x[0].value is not None: break
-                i += 1
-
-            df = pd.read_excel(attachment_bytes, header=i, usecols='A:L', names=DF_COLS)
-            df["runid"] = int(datetime.now().strftime("%Y%m%d%H%M%S"))
-            df['date'] = df['date'].dt.date
-            table = bq_client.get_table(TABLE_NAME)
-            bq_client.insert_rows_from_dataframe(TABLE_NAME, df, selected_fields=table.schema)
-            messages_client.modify(userId="me", id=mail["id"], body=dict(removeLabelIds=["UNREAD"])).execute()
+        df["runid"] = int(datetime.now().strftime("%Y%m%d%H%M%S"))
+        df['date'] = pd.to_datetime(df['date'], dayfirst=True).dt.date
+        df['price_off_percentage'] = pd.to_numeric(df['price_off_percentage'].str.replace("%", "").str.replace(",", ""))
+        df['mrp'] = pd.to_numeric(df['mrp'].str.replace(",", ""))
+        df['nmv'] = pd.to_numeric(df['nmv'].str.replace(",", ""))
+        df['quantity'] = pd.to_numeric(df['quantity'].str.replace(",", ""))
+        df['orders'] = pd.to_numeric(df['orders'].str.replace(",", ""))
+        df['absolute_price_off'] = pd.to_numeric(df['absolute_price_off'].str.replace(",", ""))
+        df['off_invoice'] = pd.to_numeric(df['off_invoice'].str.replace(",", ""))
+        
+        
+        table = bq_client.get_table(TABLE_NAME)
+        bq_client.query(f"TRUNCATE table {TABLE_NAME}").result()
+        bq_client.insert_rows_from_dataframe(TABLE_NAME, df, selected_fields=table.schema)
     
-    resp = fetch_and_load_mails()
+    resp = fetch_and_load_sheet()
 
-purple_email_claims_dag = purple_email_claims()
+purple_email_claims_dag = purple_email_claims_sheet()
