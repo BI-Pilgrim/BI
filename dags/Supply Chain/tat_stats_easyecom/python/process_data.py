@@ -9,6 +9,52 @@ logging.basicConfig(
     format='%(asctime)s:%(levelname)s:%(message)s'
 )
 
+def calculate_avg_delay(delayed_dispatch_details):
+    """Calculate average delay in hours from delayed dispatch details"""
+    if not delayed_dispatch_details:
+        return 0.0
+    
+    delays = []
+    for order in delayed_dispatch_details:
+        if isinstance(order, dict):
+            if 'actual_dispatch' in order and 'expected_dispatch' in order:
+                try:
+                    actual = datetime.strptime(order['actual_dispatch'], '%Y-%m-%d')
+                    expected = datetime.strptime(order['expected_dispatch'], '%Y-%m-%d')
+                    delay_hours = (actual - expected).total_seconds() / 3600
+                    delays.append(delay_hours)
+                except (ValueError, TypeError):
+                    continue
+    
+    return float(round(sum(delays) / len(delays), 1)) if delays else 0.0
+
+def calculate_median_delay(delayed_dispatch_details):
+    """Calculate median delay in hours from delayed dispatch details"""
+    if not delayed_dispatch_details:
+        return 0.0
+    
+    delays = []
+    for order in delayed_dispatch_details:
+        if isinstance(order, dict):
+            if 'actual_dispatch' in order and 'expected_dispatch' in order:
+                try:
+                    actual = datetime.strptime(order['actual_dispatch'], '%Y-%m-%d')
+                    expected = datetime.strptime(order['expected_dispatch'], '%Y-%m-%d')
+                    delay_hours = (actual - expected).total_seconds() / 3600
+                    delays.append(delay_hours)
+                except (ValueError, TypeError):
+                    continue
+    
+    if not delays:
+        return 0.0
+    
+    sorted_delays = sorted(delays)
+    mid = len(sorted_delays) // 2
+    
+    if len(sorted_delays) % 2 == 0:
+        return float(round((sorted_delays[mid - 1] + sorted_delays[mid]) / 2, 1))
+    return float(round(sorted_delays[mid], 1))
+
 def process_and_store_data():
     """Process TAT data and store in BigQuery"""
     try:
@@ -27,47 +73,72 @@ def process_and_store_data():
         logging.info(f"Analyzing data from {start_date} to {end_date}")
         results = analyzer.analyze_dispatch_compliance()
         
-        # Prepare daily metrics data
+        # Update daily metrics preparation
         daily_rows = []
         for metric in results['daily_metrics']:
+            total_orders = metric['total_orders']
+            delayed_orders = metric['delayed_dispatch_count']
+            compliance_rate = ((total_orders - delayed_orders) / total_orders * 100) if total_orders > 0 else 0
+            
             daily_rows.append({
                 'date': metric['date'],
                 'total_orders': metric['total_orders'],
-                'orders_before_cutoff': metric['orders_before_cutoff'],
-                'orders_after_cutoff': metric['orders_after_cutoff'],
-                'total_due_dispatches': metric['total_due_dispatches'],
                 'delayed_dispatch_count': metric['delayed_dispatch_count'],
+                'compliance_rate': compliance_rate,
+                'avg_delay_hours': calculate_avg_delay(metric['delayed_dispatch_details']),
+                'median_delay_hours': calculate_median_delay(metric['delayed_dispatch_details']),
                 'order_status_breakdown': str(metric['order_status_breakdown']),
                 'shipping_status_breakdown': str(metric['shipping_status_breakdown']),
                 'analysis_date': datetime.now()
             })
         
-        # Load daily metrics
-        analyzer.load_data_to_bigquery(daily_rows, 'daily_metrics')
+        # Get raw data for warehouse metrics calculation
+        raw_data = analyzer.fetch_order_dispatch_data()
         
-        # Prepare and load warehouse metrics
+        # Prepare warehouse metrics by date and location
         warehouse_rows = []
-        for metric in results['warehouse_metrics']:
-            for date in pd.date_range(start_date, end_date):
+        for date in pd.date_range(start_date, end_date):
+            date_str = date.strftime('%Y-%m-%d')
+            # Filter data for current date
+            date_data = raw_data[raw_data['business_date'].dt.date == date.date()]
+            
+            # Group by location for the specific date
+            location_groups = date_data.groupby(['location_key', 'import_warehouse_name'])
+            
+            for (location_key, warehouse_name), group in location_groups:
+                total_orders = len(group)
+                if total_orders == 0:
+                    continue
+                    
+                delayed_orders = len(group[group['is_delayed']])
+                compliance_rate = ((total_orders - delayed_orders) / total_orders * 100) if total_orders > 0 else 0
+                
+                # Calculate delays only for delayed orders
+                delayed_group = group[group['is_delayed']]
+                avg_delay = delayed_group['delay_hours'].mean() if len(delayed_group) > 0 else 0
+                median_delay = delayed_group['delay_hours'].median() if len(delayed_group) > 0 else 0
+                
                 warehouse_rows.append({
-                    'warehouse_id': metric['warehouse_id'],
-                    'warehouse_name': metric['warehouse_name'],
-                    'total_orders': metric['total_orders'],
-                    'delayed_orders': metric['delayed_orders'],
-                    'compliance_rate': metric['compliance_rate'],
-                    'avg_delay_hours': metric['avg_delay_hours'],
-                    'median_delay_hours': metric['median_delay_hours'],
-                    'delay_distribution': str(metric['delay_distribution']),
+                    'location_key': location_key,
+                    'date': date.date(),
+                    'warehouse_name': warehouse_name,
+                    'total_orders': total_orders,
+                    'delayed_orders': delayed_orders,
+                    'compliance_rate': round(compliance_rate, 2),
+                    'avg_delay_hours': round(float(avg_delay), 1),
+                    'median_delay_hours': round(float(median_delay), 1),
                     'analysis_date': datetime.now(),
-                    'date': date.date()
                 })
         
+        # Load all data
+        analyzer.load_data_to_bigquery(daily_rows, 'daily_metrics')
         analyzer.load_data_to_bigquery(warehouse_rows, 'warehouse_metrics')
         
         logging.info("Successfully completed data processing")
     except Exception as e:
         logging.error(f"Error processing data: {str(e)}")
         raise
+
 
 if __name__ == "__main__":
     process_and_store_data() 

@@ -27,7 +27,7 @@ with DAG(
 ) as dag:
 
     def run_create_tables():
-        script_path = 'gcs/dags/Supply Chain/tat_stats_easyecom/python/create_tables.py'
+        script_path = '/dags/Supply Chain/tat_stats_easyecom/python/create_tables.py'
         try:
             result = subprocess.run(
                 ['python', script_path],
@@ -44,7 +44,7 @@ with DAG(
             raise
 
     def run_process_data():
-        script_path = 'gcs/dags/Supply Chain/tat_stats_easyecom/python/process_data.py'
+        script_path = '/dags/Supply Chain/tat_stats_easyecom/python/process_data.py'
         try:
             result = subprocess.run(
                 ['python', script_path],
