@@ -11,15 +11,28 @@ FROM
 (
 SELECT
   *,
-  CASE
-    WHEN DAY_NO = 14 AND cumulative_spend >= 150000 AND ROAS >= 1 THEN "PLATINUM"
-    WHEN DAY_NO = 14 AND cumulative_spend >= 150000 AND ROAS >= 0.75 THEN "GOLD"
-    WHEN DAY_NO = 14 AND cumulative_spend >= 50000 AND ROAS >= 0.50 THEN "SILVER"
-    WHEN DAY_NO = 3 AND cumulative_spend >= 50000 AND ROAS >= 1 THEN "POTENTIAL PLATINUM"
+  CASE 
+    WHEN ROAS >= 1 AND cumulative_spend >= 150000 AND DAY_NO >= 7 THEN 'PLATINUM'
+    WHEN ROAS >= 1 AND cumulative_spend >= 150000 AND (DAY_NO BETWEEN 3 AND 7) THEN 'PLATINUM'
+    WHEN ROAS >= 1 AND (cumulative_spend BETWEEN 50000 AND 150000) AND DAY_NO >= 7 THEN 'GOLD'
+    WHEN ROAS >= 1 AND (cumulative_spend BETWEEN 50000 AND 150000) AND (DAY_NO BETWEEN 3 AND 7) THEN 'TBD'
+    WHEN ROAS >= 0.75 AND cumulative_spend >= 150000 AND DAY_NO >= 7 THEN 'GOLD'
+    WHEN ROAS >= 0.75 AND cumulative_spend >= 150000 AND (DAY_NO BETWEEN 3 AND 7) THEN 'GOLD'
+    WHEN ROAS >= 0.75 AND (cumulative_spend BETWEEN 50000 AND 150000) AND DAY_NO >= 7 THEN 'SILVER'
+    WHEN ROAS >= 0.75 AND (cumulative_spend BETWEEN 50000 AND 150000) AND (DAY_NO BETWEEN 3 AND 7) THEN 'TBD'
+    WHEN ROAS >= 0.5 AND cumulative_spend >= 150000 AND DAY_NO >= 7 THEN NULL
+    WHEN ROAS >= 0.5 AND cumulative_spend >= 150000 AND (DAY_NO BETWEEN 3 AND 7) THEN NULL
+    WHEN ROAS >= 0.5 AND (cumulative_spend BETWEEN 50000 AND 150000) AND DAY_NO >= 7 THEN NULL
+    WHEN ROAS >= 0.5 AND (cumulative_spend BETWEEN 50000 AND 150000) AND (DAY_NO BETWEEN 3 AND 7) THEN NULL
+    WHEN ROAS < 0.5 AND cumulative_spend >= 150000 AND DAY_NO >= 7 THEN NULL
+    WHEN ROAS < 0.5 AND cumulative_spend >= 150000 AND (DAY_NO BETWEEN 3 AND 7) THEN NULL
+    WHEN ROAS < 0.5 AND (cumulative_spend BETWEEN 50000 AND 150000) AND DAY_NO >= 7 THEN NULL
+    WHEN ROAS < 0.5 AND (cumulative_spend BETWEEN 50000 AND 150000) AND (DAY_NO BETWEEN 3 AND 7) THEN NULL
     ELSE NULL
   END AS TIER
+
 FROM shopify-pubsub-project.adhoc_data_asia.daily_ad_spend_and_revenue
-WHERE DAY_NO = 3 OR DAY_NO = 14
+WHERE DAY_NO >= 3 
 )
 WHERE TIER IS NOT NULL
 ),
@@ -45,13 +58,35 @@ SELECT
   T.TIER,
   A.start_date,
   A.lt_duration,
-  ROUND(T.cumulative_revenue,3) as revenue_14d,
-  ROUND(T.cumulative_spend,3) as spend_14d,
-  ROUND(T.ROAS,3) as ROAS_14d,
-  ROUND(A.lt_revenue,3) AS lt_revenue,
-  ROUND(A.lt_spends,3) AS lt_spends,
+  T.cumulative_revenue as revenue_14d,
+  T.cumulative_spend as spend_14d,
+  T.ROAS as ROAS_14d,
+  A.lt_revenue,
+  A.lt_spends,
   ROUND(A.lt_ROAS,3) AS lt_ROAS
 FROM TIERED_DATA T 
 JOIN aggregated A
 ON T.ad_id = a.ad_id
 WHERE LATEST = 1;
+
+
+
+-- SELECT 
+--   *,
+-- FROM (
+--   SELECT
+--     *,
+--     CASE
+--       WHEN DAY_NO = 14 AND cumulative_spend >= 150000 AND ROAS >= 1 THEN "PLATINUM"
+--       -- THE ACTUAL CONDITION THAT MAKES SENSE FOR PLATINUM SHOULD BE 
+--       -- WHEN DAY_NO = 14 AND cumulative_spend <= 150000 AND ROAS >= 1 THEN "PLATINUM" 
+--       WHEN DAY_NO = 14 AND cumulative_spend >= 150000 AND ROAS >= 0.75 THEN "GOLD"
+--       WHEN DAY_NO = 14 AND cumulative_spend >= 50000 AND ROAS >= 0.50 THEN "SILVER"
+--       WHEN DAY_NO = 3 AND cumulative_spend >= 50000 AND ROAS >= 1 THEN "POTENTIAL PLATINUM"
+--       ELSE NULL
+--     END AS TIER
+--   FROM shopify-pubsub-project.adhoc_data_asia.daily_ad_spend_and_revenue
+-- )
+-- QUALIFY TIER IS NOT NULL AND ROW_NUMBER() OVER(PARTITION BY ad_id ORDER BY DAY_NO DESC) = 1
+-- -- IF AN ADD RAN ONLY FOR 3 DAYS THEN THERE WILL ONLY BE ONE ROW FOR DAY_NO=3 AND THERE WILL BE NO RECORD OF DAY_NO 14
+-- ORDER BY start_date DESC;
