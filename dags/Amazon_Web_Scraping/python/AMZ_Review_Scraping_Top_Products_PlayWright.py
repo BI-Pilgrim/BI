@@ -242,7 +242,7 @@ for i in range(0, len(df), batch_size):
     batch_df = df.iloc[start_index:end_index] 
     
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True) # Or use 'chromium' instead of 'firefox' for Chrome
+        browser = p.firefox.launch() # Or use 'chromium' instead of 'firefox' for Chrome
         page = browser.new_page() 
         processed_df = Login_AMZ(home_page, page, username, password, batch_df)
         page.close()
