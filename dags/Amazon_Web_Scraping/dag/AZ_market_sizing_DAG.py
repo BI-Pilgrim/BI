@@ -14,18 +14,18 @@ default_args = {
 }
 
 # Define the DAG
-with DAG(
+"""with DAG(
     dag_id='amazon_scraping',
     default_args=default_args,
     description='A simple DAG to run scraping of Amaozon',
     schedule_interval='30 1 * * *',  # 3:30 AM UTC is 9:00 AM IST
     start_date=datetime(2024, 10, 16),  # Update this with the desired start date
     catchup=False,
-) as dag:
+) as dag:"""
 
 # Define a function to execute the AZ_MS_face_serum.py script 
-@dag("run_main_script", schedule='0 7 * * *', start_date=datetime(year=2025,month=1,day=24))
-def run_main_script()
+@dag("Amazon_scraping", schedule='30 1 * * *', start_date=datetime(year=2025,month=1,day=24))
+def Amazon_scraping():
     script_path = 'gcs/dags/Amazon_Web_Scraping/python/AMZ_Review_Scraping_Top_Products_PlayWright.py'
 
     @task.bash
@@ -50,9 +50,9 @@ def run_main_script()
     
     # Define the PythonOperator to run the function
     run_scrape_task = PythonOperator(
-        task_id='run_main_script',
-        python_callable=run_main_script,
+        task_id='Amazon_scraping',
+        python_callable=Amazon_scraping,
     )
 
     install_playwright_firefox() >> run_scrape_task
-dag = run_main_script()
+dag = Amazon_scraping()
