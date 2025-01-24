@@ -23,29 +23,36 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    # Define a function to execute the AZ_MS_face_serum.py script
-    def run_main_script():
-        script_path = 'gcs/dags/Amazon_Web_Scraping/python/AMZ_Review_Scraping_Top_Products_PlayWright.py'
-        try:
-            # Use subprocess to run the Python script with the specified path   
-            result = subprocess.run(
-                ['python', script_path],
-                check=True,
-                capture_output=True,
-                text=True
-            )
-            print("Script output:", result.stdout)
-            print("Script errors:", result.stderr)
-        except subprocess.CalledProcessError as e:
-            print(f"Error occurred while running the script: {e}")
-            print(f"Command output: {e.stdout}")
-            print(f"Command errors: {e.stderr}")
-            raise
+# Define a function to execute the AZ_MS_face_serum.py script 
+@dag("run_main_script", schedule='0 7 * * *', start_date=datetime(year=2025,month=1,day=24))
+def run_main_script()
+    script_path = 'gcs/dags/Amazon_Web_Scraping/python/AMZ_Review_Scraping_Top_Products_PlayWright.py'
 
+    @task.bash
+    def install_playwright_firefox():
+        return "playwright install-deps && playwright install firefox"
+    
+    try:
+        # Use subprocess to run the Python script with the specified path   
+        result = subprocess.run(
+            ['python', script_path],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print("Script output:", result.stdout)
+        print("Script errors:", result.stderr)
+    except subprocess.CalledProcessError as e:
+        print(f"Error occurred while running the script: {e}")
+        print(f"Command output: {e.stdout}")
+        print(f"Command errors: {e.stderr}")
+        raise
+    
     # Define the PythonOperator to run the function
     run_scrape_task = PythonOperator(
         task_id='run_main_script',
         python_callable=run_main_script,
     )
 
-    run_scrape_task
+    install_playwright_firefox() >> run_scrape_task
+dag = run_main_script()
