@@ -159,23 +159,23 @@ def process_and_store_data():
             date_data = raw_data[raw_data['business_date'].dt.date == date.date()]
             
             # Group by location for the specific date
-            location_groups = date_data.groupby(['location_key', 'import_warehouse_name'])
+            location_groups = date_data.groupby(['location_key'])
             
-            for (location_key, warehouse_name), group in location_groups:
+            for location_key, group in location_groups:
                 total_orders = len(group)
                 if total_orders == 0:
                     continue
                     
                 delayed_orders = len(group[group['is_delayed']])
                 compliance_rate = ((total_orders - delayed_orders) / total_orders * 100) if total_orders > 0 else 0
-                
+                warehouse_name = group['import_warehouse_name'].iloc[0]
                 # Calculate delays only for delayed orders
                 delayed_group = group[group['is_delayed']]
                 avg_delay = delayed_group['delay_hours'].mean() if len(delayed_group) > 0 else 0
                 median_delay = delayed_group['delay_hours'].median() if len(delayed_group) > 0 else 0
                 
                 warehouse_rows.append({
-                    'location_key': location_key,
+                    'location_key': str(location_key),
                     'date': date.date(),
                     'warehouse_name': warehouse_name,
                     'total_orders': total_orders,
