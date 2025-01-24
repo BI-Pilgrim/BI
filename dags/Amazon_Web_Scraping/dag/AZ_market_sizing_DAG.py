@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta 
+from airflow.decorators import task, dag
 import subprocess
 
 # Define default arguments for the DAG
