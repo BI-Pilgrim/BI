@@ -27,7 +27,7 @@ with DAG(
 ) as dag:
 
     def run_create_tables():
-        script_path = '/home/airflow/gcs/dags/Supply Chain/tat_stats_easyecom/python/create_tables.py'
+        script_path = 'gcs/dags/Supply Chain/tat_stats_easyecom/python/create_tables.py'
         try:
             result = subprocess.run(
                 ['python', script_path],
