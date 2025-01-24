@@ -21,11 +21,12 @@ def create_bigquery_tables():
     """Create BigQuery tables if they don't exist"""
     try:
         logging.info("Starting BigQuery table creation")
-        credentials_info = get_google_credentials_info()
-        credentials_info = base64.b64decode(credentials_info).decode("utf-8")
-        credentials_info = json.loads(credentials_info)
-        credentials = service_account.Credentials.from_service_account_info(credentials_info)
-        client = bigquery.Client(credentials=credentials, project=project_id)
+        # credentials_info = get_google_credentials_info()
+        # credentials_info = base64.b64decode(credentials_info).decode("utf-8")
+        # credentials_info = json.loads(credentials_info)
+        # credentials = service_account.Credentials.from_service_account_info(credentials_info)
+        # client = bigquery.Client(credentials=credentials, project=project_id)
+        client = bigquery.Client()
         dataset_ref = client.dataset(dataset_id)
         
         # Define table schemas
