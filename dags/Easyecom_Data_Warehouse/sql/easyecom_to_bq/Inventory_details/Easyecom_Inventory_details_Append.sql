@@ -37,13 +37,14 @@ FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITiON BY ee_extracted_at ORDER BY ee_extracted_at DESC) as row_num
+ROW_NUMBER() OVER(PARTITiON BY product_id, company_product_id ORDER BY ee_extracted_at DESC) as row_num
 FROM `shopify-pubsub-project.easycom.inventory_details`
 WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
 WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
 ) AS SOURCE
-ON SOURCE.company_product_id = TARGET.company_product_id
+ON SOURCE.product_id = TARGET.product_id 
+AND SOURCE.company_product_id = TARGET.company_product_id
 WHEN MATCHED AND TARGET.last_update_date < SOURCE.last_update_date
 THEN UPDATE SET
 TARGET.company_name = SOURCE.company_name,

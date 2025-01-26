@@ -1,10 +1,10 @@
 CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Mini_Sales_report`
--- PARTITION BY DATE_TRUNC(SAFE_CAST(Order_Date AS DATE) ,day)
+PARTITION BY start_date
 -- CLUSTER BY 
-OPTIONS(
- description = "Mini Sales Report table is partitioned on order date at day level"
+-- OPTIONS(
+--  description = "Mini Sales Report table is partitioned on order date at day level"
 --  require_partition_filter = False
- )
+--  )
  AS
 
 
@@ -115,7 +115,14 @@ select
   report_id,
   report_type,
   inventory_type,
-  -- ee_extracted_at
-
+  ee_extracted_at
+from
+(
+select distinct
+  *,
+  row_number() over(partition by Order_Number, Suborder_No, report_id order by ee_extracted_at DESC) as rn
   FROM `shopify-pubsub-project.easycom.mini_sales_report`
+)
+where rn = 1
+
 

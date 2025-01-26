@@ -1,7 +1,7 @@
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report` AS TARGET
 USING
 (
-select
+select distinct
   SAFE_CAST(Report_Generated_Date AS DATETIME) AS Report_Generated_Date,
   Company_Token,
   Location,
@@ -51,14 +51,15 @@ FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITTION BY  ORDER BY ) AS row_num
+ROW_NUMBER() OVER(PARTITION BY SKU, Company_Token ORDER BY end_date desc) AS row_num
 FROM `shopify-pubsub-project.easycom.status_wise_stock_report`
-WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+WHERE DATE(end_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
 WHERE row_num = 1
 ) AS SOURCE
-ON TARGET. = SOURCE.
-WHEN MATCHED AND TARGET. > SOURCE.
+ON TARGET.SKU = SOURCE.SKU
+AND TARGET.Company_Token = SOURCE.Company_Token
+WHEN MATCHED AND TARGET.end_date < SOURCE.end_date
 THEN UPDATE SET
 TARGET.Report_Generated_Date = SOURCE.Report_Generated_Date,
 TARGET.Company_Token = SOURCE.Company_Token,
@@ -94,9 +95,9 @@ TARGET.Total_Lost = SOURCE.Total_Lost,
 TARGET.Questionable = SOURCE.Questionable,
 TARGET.Website_Inventory = SOURCE.Website_Inventory,
 TARGET.E_Com_Inventory = SOURCE.E_Com_Inventory,
-TARGET.AS Retail_Inventory = SOURCE.AS Retail_Inventory,
+TARGET.Retail_Inventory = SOURCE.Retail_Inventory,
 TARGET.IIA_Inventory = SOURCE.IIA_Inventory,
-TARGET.AS Amazon_Reserved = SOURCE.AS Amazon_Reserved,
+TARGET.Amazon_Reserved = SOURCE.Amazon_Reserved,
 TARGET.Lost_In_Cycle_Count = SOURCE.Lost_In_Cycle_Count,
 TARGET.report_id = SOURCE.report_id,
 TARGET.report_type = SOURCE.report_type,
@@ -142,9 +143,9 @@ THEN INSERT
   Questionable,
   Website_Inventory,
   E_Com_Inventory,
-  AS Retail_Inventory,
+  Retail_Inventory,
   IIA_Inventory,
-  AS Amazon_Reserved,
+  Amazon_Reserved,
   Lost_In_Cycle_Count,
   report_id,
   report_type,
@@ -152,7 +153,7 @@ THEN INSERT
   end_date,
   created_on,
   inventory_type,
-  ee_extracted_at,
+  ee_extracted_at
 )
 VALUES
 (
@@ -190,9 +191,9 @@ SOURCE.Total_Lost,
 SOURCE.Questionable,
 SOURCE.Website_Inventory,
 SOURCE.E_Com_Inventory,
-SOURCE.AS Retail_Inventory,
+SOURCE.Retail_Inventory,
 SOURCE.IIA_Inventory,
-SOURCE.AS Amazon_Reserved,
+SOURCE.Amazon_Reserved,
 SOURCE.Lost_In_Cycle_Count,
 SOURCE.report_id,
 SOURCE.report_type,

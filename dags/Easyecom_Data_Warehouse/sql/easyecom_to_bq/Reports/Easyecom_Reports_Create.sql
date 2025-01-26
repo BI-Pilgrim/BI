@@ -18,5 +18,11 @@ select
   csv_url,
   inventory_type,
   ee_extracted_at,
-
-  FROM `shopify-pubsub-project.easycom.reports`
+from
+(
+select distinct
+*,
+row_number() over(partition by report_id order by created_on desc) as rn
+from `shopify-pubsub-project.easycom.reports`
+)
+where rn = 1

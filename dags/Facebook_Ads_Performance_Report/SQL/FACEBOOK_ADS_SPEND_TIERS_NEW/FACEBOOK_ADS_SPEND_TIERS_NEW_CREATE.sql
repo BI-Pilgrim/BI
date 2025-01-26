@@ -68,25 +68,3 @@ FROM TIERED_DATA T
 JOIN aggregated A
 ON T.ad_id = a.ad_id
 WHERE LATEST = 1;
-
-
-
--- SELECT 
---   *,
--- FROM (
---   SELECT
---     *,
---     CASE
---       WHEN DAY_NO = 14 AND cumulative_spend >= 150000 AND ROAS >= 1 THEN "PLATINUM"
---       -- THE ACTUAL CONDITION THAT MAKES SENSE FOR PLATINUM SHOULD BE 
---       -- WHEN DAY_NO = 14 AND cumulative_spend <= 150000 AND ROAS >= 1 THEN "PLATINUM" 
---       WHEN DAY_NO = 14 AND cumulative_spend >= 150000 AND ROAS >= 0.75 THEN "GOLD"
---       WHEN DAY_NO = 14 AND cumulative_spend >= 50000 AND ROAS >= 0.50 THEN "SILVER"
---       WHEN DAY_NO = 3 AND cumulative_spend >= 50000 AND ROAS >= 1 THEN "POTENTIAL PLATINUM"
---       ELSE NULL
---     END AS TIER
---   FROM shopify-pubsub-project.adhoc_data_asia.daily_ad_spend_and_revenue
--- )
--- QUALIFY TIER IS NOT NULL AND ROW_NUMBER() OVER(PARTITION BY ad_id ORDER BY DAY_NO DESC) = 1
--- -- IF AN ADD RAN ONLY FOR 3 DAYS THEN THERE WILL ONLY BE ONE ROW FOR DAY_NO=3 AND THERE WILL BE NO RECORD OF DAY_NO 14
--- ORDER BY start_date DESC;

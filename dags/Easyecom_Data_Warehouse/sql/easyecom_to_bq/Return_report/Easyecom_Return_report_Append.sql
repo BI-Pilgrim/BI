@@ -63,19 +63,21 @@ select
   end_date,
   created_on,
   inventory_type,
-  -- ee_extracted_at
+  ee_extracted_at
 FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITTION BY  ORDER BY ) AS row_num
+ROW_NUMBER() OVER(PARTITION BY Order_Number, Order_Item_ID, Child_Sku ORDER BY created_on) AS row_num
 FROM `shopify-pubsub-project.easycom.returns_report`
-WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+WHERE DATE(created_on) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
 WHERE row_num = 1
 ) AS SOURCE
-ON TARGET. = SOURCE.
-WHEN MATCHED AND TARGET. > SOURCE.
+ON TARGET.Order_Number = SOURCE.Order_Number
+and TARGET.Order_Item_ID = SOURCE.Order_Item_ID
+and TARGET.Child_Sku = SOURCE.Child_Sku
+WHEN MATCHED AND TARGET.created_on < SOURCE.created_on
 THEN UPDATE SET
 TARGET.Client_Name = SOURCE.Client_Name,
 TARGET.Client_Location = SOURCE.Client_Location,
@@ -141,7 +143,6 @@ TARGET.ee_extracted_at = SOURCE.ee_extracted_at
 WHEN NOT MATCHED
 THEN INSERT
 (
-  distinct
   Client_Name,
   Client_Location,
   Marketplace,

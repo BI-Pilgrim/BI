@@ -47,7 +47,7 @@ USING (
       *,
       ROW_NUMBER() OVER (
         PARTITION BY Order_Number, Order_Item_ID 
-        ORDER BY ee_extracted_at DESC
+        ORDER BY end_date DESC
       ) AS row_num
     FROM `shopify-pubsub-project.easycom.pending_returns_report`
     WHERE DATE(end_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)

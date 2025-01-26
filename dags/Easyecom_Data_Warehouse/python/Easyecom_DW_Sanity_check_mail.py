@@ -5,6 +5,7 @@ from email.mime.base import MIMEBase
 import pandas_gbq as pgbq
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import config
 
 query = """
    SELECT 
@@ -42,9 +43,9 @@ def send_email(sender_email, sender_password, recipient_email, subject, body):
         return False
 
 # Example usage (replace with your credentials and message)
-SENDER_EMAIL = "cloud@discoverpilgrim.com"
-RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
-EMAIL_PASSWORD = 'mtaf yglq uiwp fblp'
+SENDER_EMAIL = config.SENDER_EMAIL
+RECIPIENT_EMAILS = config.RECIPIENT_EMAILS
+EMAIL_PASSWORD = config.EMAIL_PASSWORD
 body = f"Hi Team,<br><br>Please find mismatch in the respective tables of Easyecom datawarehouse <br><br>{df.to_html(index=False)}<br><br>Warm Regards,"
 subject = f"Easyecom DW Discrepancy !!! "
 

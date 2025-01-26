@@ -13,7 +13,7 @@ FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITiON BY ee_extracted_at ORDER BY ee_extracted_at DESC) as row_num
+ROW_NUMBER() OVER(PARTITiON BY id ORDER BY ee_extracted_at DESC) as row_num
 FROM `shopify-pubsub-project.easycom.inventory_snapshot`
 WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )

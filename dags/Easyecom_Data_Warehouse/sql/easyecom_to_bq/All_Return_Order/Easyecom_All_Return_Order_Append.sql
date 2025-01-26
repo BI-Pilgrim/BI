@@ -64,7 +64,7 @@ FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITION BY order_date ORDER BY order_date DESC) as row_num
+ROW_NUMBER() OVER(PARTITION BY order_id ORDER BY order_date DESC) as row_num
 FROM `shopify-pubsub-project.easycom.all_return_orders`
 WHERE DATE(order_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )

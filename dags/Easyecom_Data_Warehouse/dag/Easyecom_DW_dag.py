@@ -3,7 +3,9 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import timezone
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+import subprocess
 import os
 
 
@@ -21,6 +23,7 @@ default_args = {
 # Define constants
 LOCATION = "US"  # Replace with your BigQuery dataset location (e.g., "US", "EU")
 SQL_DIR = "/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/easyecom_to_bq"  # Adjust this path if necessary
+# SQL_DIR = "../dags/Easyecom_Data_Warehouse/sql/easyecom_to_bq/"  # Adjust this path if necessary
 
 # Define the DAG
 with DAG(
@@ -78,7 +81,7 @@ with DAG(
         task_id='Append_Customers',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_3,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -94,23 +97,23 @@ with DAG(
         task_id='Append_Easyecom_Order_Status_History',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_4,
                 "useLegacySql": False,
             },
             "location": LOCATION,
         }
     )
 
-    # GRN_detaill_Reports_sql_path Staging Table Refresh - Append
-    GRN_detaill_Reports_sql_path = os.path.join(SQL_DIR, "GRN_detaill_Reports/Easyecom_GRN_detaill_Reports_Append.sql")
-    with open(GRN_detaill_Reports_sql_path, 'r') as file:
+    # grn_details_report_sql_path Staging Table Refresh - Append
+    grn_details_report_sql_path = os.path.join(SQL_DIR, "grn_details_report/grn_details_report_Append.sql")
+    with open(grn_details_report_sql_path, 'r') as file:
         sql_query_5 = file.read()
 
-    Append_GRN_detaill_Reports_sql_path = BigQueryInsertJobOperator(
-        task_id='Append_GRN_detaill_Reports_sql_path',
+    Append_grn_details_report_sql_path = BigQueryInsertJobOperator(
+        task_id='Append_grn_details_report_sql_path',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_5,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -126,7 +129,7 @@ with DAG(
         task_id='Append_Inventory_Aging_report',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_6,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -142,7 +145,7 @@ with DAG(
         task_id='Append_Inventory_details',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_7,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -158,7 +161,7 @@ with DAG(
         task_id='Append_Inventory_Snapshot',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_8,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -174,7 +177,7 @@ with DAG(
         task_id='Append_Locations',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_9,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -190,7 +193,7 @@ with DAG(
         task_id='Append_Marketplace',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_10,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -206,7 +209,7 @@ with DAG(
         task_id='Append_Marketplace_listings',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_11,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -222,28 +225,28 @@ with DAG(
         task_id='Append_Master_Product',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_12,
                 "useLegacySql": False,
             },
             "location": LOCATION,
         }
     )
 
-    # # Mini_Sales_Report Staging Table Refresh - Append
-    # Customers_sql_path = os.path.join(SQL_DIR, "Customers/Easyecom_Customers_Append.sql")
-    # with open(Customers_sql_path, 'r') as file:
-    #     sql_query_13 = file.read()
+    # Mini_Sales_Report Staging Table Refresh - Append
+    Mini_Sales_Report_sql_path = os.path.join(SQL_DIR, "Mini_Sales_Report/Easyecom_Mini_Sales_Report_Append.sql")
+    with open(Mini_Sales_Report_sql_path, 'r') as file:
+        sql_query_13 = file.read()
 
-    # Append_Customers = BigQueryInsertJobOperator(
-    #     task_id='Append_Customers',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_2,
-    #             "useLegacySql": False,
-    #         },
-    #         "location": LOCATION,
-    #     }
-    # )
+    Append_Mini_Sales_Report = BigQueryInsertJobOperator(
+        task_id='Append_Mini_Sales_Report',
+        configuration={
+            "query": {
+                "query": sql_query_13,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
 
     # Order_items Staging Table Refresh - Append
     Order_items_sql_path = os.path.join(SQL_DIR, "Order_items/Easyecom_Order_items_Append.sql")
@@ -254,7 +257,7 @@ with DAG(
         task_id='Append_Order_items',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_14,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -270,7 +273,7 @@ with DAG(
         task_id='Append_Order_Status_History',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_15,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -286,7 +289,7 @@ with DAG(
         task_id='Append_Orders',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_16,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -302,7 +305,7 @@ with DAG(
         task_id='Append_Pending_Returns_report',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_17,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -318,7 +321,7 @@ with DAG(
         task_id='Append_Purchase_Orders',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_18,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -334,7 +337,7 @@ with DAG(
         task_id='Append_Reports',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_19,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -350,7 +353,7 @@ with DAG(
         task_id='Append_Return_report',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_20,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -366,39 +369,23 @@ with DAG(
         task_id='Append_States',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_21,
                 "useLegacySql": False,
             },
             "location": LOCATION,
         }
     )
 
-    # # Tax_Report Staging Table Refresh - Append
-    # Customers_sql_path = os.path.join(SQL_DIR, "Customers/Easyecom_Customers_Append.sql")
-    # with open(Customers_sql_path, 'r') as file:
-    #     sql_query_22 = file.read()
-
-    # Append_Customers = BigQueryInsertJobOperator(
-    #     task_id='Append_Customers',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_2,
-    #             "useLegacySql": False,
-    #         },
-    #         "location": LOCATION,
-    #     }
-    # )
-
     # Vendors Staging Table Refresh - Append
     Vendors_sql_path = os.path.join(SQL_DIR, "Vendors/Easyecom_Vendors_Append.sql")
     with open(Vendors_sql_path, 'r') as file:
-        sql_query_23 = file.read()
+        sql_query_22 = file.read()
 
     Append_Vendors = BigQueryInsertJobOperator(
         task_id='Append_Vendors',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_22,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -408,19 +395,220 @@ with DAG(
     # Status_Wise_Stock_report Staging Table Refresh - Append
     Status_Wise_Stock_report_sql_path = os.path.join(SQL_DIR, "Wise_Stock_report/Easyecom_Status_Wise_Stock_report_Append.sql")
     with open(Status_Wise_Stock_report_sql_path, 'r') as file:
-        sql_query_24 = file.read()
+        sql_query_23 = file.read()
 
     Append_Status_Wise_Stock_report = BigQueryInsertJobOperator(
         task_id='Append_Status_Wise_Stock_report',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_23,
                 "useLegacySql": False,
             },
             "location": LOCATION,
         }
     )
 
+
+    # All_Return_Order_items Staging Table Refresh - Append
+    All_Return_Order_items_sql_path = os.path.join(SQL_DIR, "All_Return_Order_items/All_Return_Order_items_Append.sql")
+    with open(All_Return_Order_items_sql_path, 'r') as file:
+        sql_query_24 = file.read()
+
+    Append_All_Return_Order_items = BigQueryInsertJobOperator(
+        task_id='Append_All_Return_Order_items',
+        configuration={
+            "query": {
+                "query": sql_query_24,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # daily_metrics Staging Table Refresh - Append
+    daily_metrics_sql_path = os.path.join(SQL_DIR, "daily_metrics/daily_metrics_Append.sql")
+    with open(daily_metrics_sql_path, 'r') as file:
+        sql_query_25 = file.read()
+
+    Append_daily_metrics = BigQueryInsertJobOperator(
+        task_id='Append_daily_metrics',
+        configuration={
+            "query": {
+                "query": sql_query_25,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # grn_details Staging Table Refresh - Append
+    grn_details_sql_path = os.path.join(SQL_DIR, "grn_details/grn_details_Append.sql")
+    with open(grn_details_sql_path, 'r') as file:
+        sql_query_26 = file.read()
+
+    Append_grn_details = BigQueryInsertJobOperator(
+        task_id='Append_grn_details',
+        configuration={
+            "query": {
+                "query": sql_query_26,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # inventory_view_by_bin_report Staging Table Refresh - Append
+    inventory_view_by_bin_report_sql_path = os.path.join(SQL_DIR, "inventory_view_by_bin_report/inventory_view_by_bin_report_Append.sql")
+    with open(inventory_view_by_bin_report_sql_path, 'r') as file:
+        sql_query_27 = file.read()
+
+    Append_inventory_view_by_bin_report = BigQueryInsertJobOperator(
+        task_id='Append_inventory_view_by_bin_report',
+        configuration={
+            "query": {
+                "query": sql_query_27,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # Kits Staging Table Refresh - Append
+    Kits_sql_path = os.path.join(SQL_DIR, "Kits/Kits_Append.sql")
+    with open(Kits_sql_path, 'r') as file:
+        sql_query_28 = file.read()
+
+    Append_Kits = BigQueryInsertJobOperator(
+        task_id='Append_Kits',
+        configuration={
+            "query": {
+                "query": sql_query_28,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # order_status_metrics Staging Table Refresh - Append
+    order_status_metrics_sql_path = os.path.join(SQL_DIR, "order_status_metrics/order_status_metrics_Append.sql")
+    with open(order_status_metrics_sql_path, 'r') as file:
+        sql_query_29 = file.read()
+
+    Append_order_status_metrics = BigQueryInsertJobOperator(
+        task_id='Append_order_status_metrics',
+        configuration={
+            "query": {
+                "query": sql_query_29,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # pending_return_orders Staging Table Refresh - Append
+    pending_return_orders_sql_path = os.path.join(SQL_DIR, "pending_return_orders/pending_return_orders_Append.sql")
+    with open(pending_return_orders_sql_path, 'r') as file:
+        sql_query_30 = file.read()
+
+    Append_pending_return_orders = BigQueryInsertJobOperator(
+        task_id='Append_pending_return_orders',
+        configuration={
+            "query": {
+                "query": sql_query_30,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # shipping_status_metrics Staging Table Refresh - Append
+    shipping_status_metrics_sql_path = os.path.join(SQL_DIR, "shipping_status_metrics/shipping_status_metrics_Append.sql")
+    with open(shipping_status_metrics_sql_path, 'r') as file:
+        sql_query_31 = file.read()
+
+    Append_shipping_status_metrics = BigQueryInsertJobOperator(
+        task_id='Append_shipping_status_metrics',
+        configuration={
+            "query": {
+                "query": sql_query_31,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # warehouse_metrics Staging Table Refresh - Append
+    warehouse_metrics_sql_path = os.path.join(SQL_DIR, "warehouse_metrics/warehouse_metrics_Append.sql")
+    with open(warehouse_metrics_sql_path, 'r') as file:
+        sql_query_32 = file.read()
+
+    Append_warehouse_metrics = BigQueryInsertJobOperator(
+        task_id='Append_warehouse_metrics',
+        configuration={
+            "query": {
+                "query": sql_query_32,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+
+    # # Tax_report_new Staging Table Refresh - Append
+    # Tax_report_new_sql_path = os.path.join(SQL_DIR, "Tax_report_new/Tax_report_new_Append.sql")
+    # with open(Tax_report_new_sql_path, 'r') as file:
+    #     sql_query_24 = file.read()
+
+    # Append_Tax_report_new = BigQueryInsertJobOperator(
+    #     task_id='Append_Tax_report_new',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_2,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
+
+    # Sanity Check of all table
+    # Load SQL query from file
+    with open("/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Easyecom_DW_sanity_check.sql", 'r') as file:
+        sql_query_33 = file.read()
+
+        DW_Sanity_check = BigQueryInsertJobOperator(
+        task_id='DW_Sanity_check',
+        configuration={
+            "query": {
+                "query": sql_query_33,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
+        
+    def run_main_script():
+        # script_path = '../dags/Easyecom_Data_Warehouse/dag/Easyecom_DW_dag.py'
+        script_path = '/home/airflow/gcs/dags/Easyecom_Data_Warehouse/dag/Easyecom_DW_dag.py'
+        try:
+         # Use subprocess to run the Python script with the specified path
+            result = subprocess.run(
+                ['python', script_path],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+         # print("Script output:", result.stdout)
+         # print("Script errors:", result.stderr)
+        except subprocess.CalledProcessError as e:
+         # print(f"Error occurred while running the script: {e}")
+         # print(f"Command output: {e.stdout}")
+         # print(f"Command errors: {e.stderr}")
+            raise
+
+    # Define the PythonOperator to run the function
+    run_python_task = PythonOperator(
+        task_id='run_main_script',
+        python_callable=run_main_script,
+    )
 
     # End of the pipeline
     finish_pipeline = DummyOperator(
@@ -439,7 +627,7 @@ with DAG(
         Append_Countries,
         Append_Customers,
         Append_Easyecom_Order_Status_History,
-        Append_GRN_detaill_Reports_sql_path,
+        Append_grn_details_report_sql_path,
         Append_Inventory_Aging_report,
         Append_Inventory_details,
         Append_Inventory_Snapshot,
@@ -456,10 +644,19 @@ with DAG(
         Append_States,
         Append_Vendors,
         Append_Status_Wise_Stock_report,
+        Append_daily_metrics,
+        Append_grn_details,
+        Append_inventory_view_by_bin_report,
+        Append_Kits,
+        Append_order_status_metrics,
+        Append_pending_return_orders,
+        Append_shipping_status_metrics,
+        Append_warehouse_metrics,
     ]
 
     # Ensure Append_Order_items runs after Append_Orders
     Append_Orders >> Append_Order_items
+    Append_Easyecom_All_Return_Order >> Append_All_Return_Order_items
 
     # Ensure all tasks finish at the end
     [
@@ -467,7 +664,7 @@ with DAG(
         Append_Countries,
         Append_Customers,
         Append_Easyecom_Order_Status_History,
-        Append_GRN_detaill_Reports_sql_path,
+        Append_grn_details_report_sql_path,
         Append_Inventory_Aging_report,
         Append_Inventory_details,
         Append_Inventory_Snapshot,
@@ -484,7 +681,19 @@ with DAG(
         Append_States,
         Append_Vendors,
         Append_Status_Wise_Stock_report,
-    ] >> finish_pipeline
+        Append_All_Return_Order_items,
+        Append_daily_metrics,
+        Append_grn_details,
+        Append_inventory_view_by_bin_report,
+        Append_Kits,
+        Append_order_status_metrics,
+        Append_pending_return_orders,
+        Append_shipping_status_metrics,
+        Append_warehouse_metrics,
+    ] >> DW_Sanity_check
+
+    DW_Sanity_check >> run_python_task
+    run_python_task >> finish_pipeline
 
 
 
