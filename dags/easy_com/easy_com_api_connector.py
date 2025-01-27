@@ -1,5 +1,6 @@
 
 import time
+from typing import List
 import requests
 import os
 
@@ -61,6 +62,7 @@ class EasyComApiConnector:
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json"
         }
+        self.client:bigquery.Client = None
 
     def send_get_request(self, url, params=None, auth_token = None):
 
@@ -102,8 +104,10 @@ class EasyComApiConnector:
         if not passing_df:
             data = pd.DataFrame(data)
         data["ee_extracted_at"] = extracted_at
+        # table = self.client.get_table(self.table_id)
         job_config = bigquery.LoadJobConfig(
-            write_disposition=bigquery.WriteDisposition.WRITE_APPEND
+            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+            # schema=table.schema,
         )
         try:
             job = self.client.load_table_from_dataframe(data, self.table_id, job_config=job_config)
@@ -194,3 +198,15 @@ class EasyComApiConnector:
         
     def get_google_credentials_info(self):
         return Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+
+    def convert_if_found(self, df:pd.DataFrame, keys:List[str], _type):
+        for key in keys:
+            if key in df.columns:
+                df[key] = df[key].apply(lambda x: self.convert(x, _type))
+        return df
+    
+    def apply_if_found(self, df:pd.DataFrame, keys:List[str], func):
+        for key in keys:
+            if key in df.columns:
+                df[key] = df[key].apply(func)
+        return df

@@ -46,9 +46,40 @@ class TaxReportParserAPI(EasyComApiConnector):
         transformed_data = []
         for df in data:
             df = df.astype(str)
+            old_cols = df.columns
             df.columns = [self.clean_column_name(col) for col in df.columns]
+            df.drop(df.loc[df[df.columns[0]]==old_cols[0]].index.tolist(), inplace=True)
+            
+
+            date_cols = [
+                "Return_Date","Import_Date","Order_Date","Invoice_Date",
+                "Acknowledgement_Date","Eway_Bill_Date","CreditNote_Acknowledgement_Date",
+                "Manifest_Date", "Delivery_Appointment_Date",
+            ]
+
+
+            float_cols = ["Parent_Quantity_", "Item_Quantity_", "Parent_SKU_Weight_", "Component_SKU_Weight_", 
+             "Component_SKU_Cost_", "Component_SKU_MRP_", "Tax_Rate_", "Sr_No_", "Collectible_Amount_", 
+             "Order_Invoice_Amount_", "TCS_Rate_", "TCS_", "Selling_Price_", "Wallet_Discount_", 
+             "Item_Price_Excluding_Tax_", "COD_Excluding_Tax_", "Shipping_Charge_Excluding_Tax_", 
+             "Shipping_Discount_Excluding_Tax_", "Promotion_Discount_Excluding_Tax_", 
+             "Miscellaneous_Excluding_Tax_", "Gift_Wrap_Charges_Excluding_Tax_", "Prepaid_Discount_Excluding_Tax_", 
+             "Promocode_Discount_Excluding_Tax_", "Taxable_Value_", "Tax_", "IGST_", "CGST_", "SGST_", "CESS_", "UTGST_", 
+             "TDS_", "A_c_Unit_", "GRN_Cost_per_unit_", "Additional_cost_per_unit_", "Cost_of_Goods_Purchase_", 
+             "Cost_of_Goods_Purchased_"] 
+            
+            float_cols = list(set(float_cols + [x.strip("_") for x in float_cols]))
+            
+            int_cols = ["Parent_Quantity_", "Sr_No_"]
+            int_cols = list(set(int_cols + [x.strip("_") for x in int_cols]))
+
+            df = self.apply_if_found(df, date_cols, lambda x:pd.to_datetime(x))
+            df = self.convert_if_found(df, float_cols, float)
+            df = self.convert_if_found(df, int_cols, int)
+            
             df = df.assign(**report_data)
             transformed_data.append(df)
+        # import pdb; pdb.set_trace()
             
         return transformed_data
     
@@ -78,11 +109,13 @@ class TaxReportParserAPI(EasyComApiConnector):
             print(f"Transforming the csv data for report id: {report['report_id']}")
             report_data = self.get_report_data(report)
             transformed_data = self.transform_data(data, report_data)
+            # import pdb; pdb.set_trace()
             # Truncate the table by deleting all rows
             # self.truncate_table()
 
             # Insert the transformed data into the table in chunks
             for data in transformed_data:
+                # import pdb; pdb.set_trace()
                 self.load_data_to_bigquery(data, extracted_at, passing_df=True)
 
             # Update the data in the table
