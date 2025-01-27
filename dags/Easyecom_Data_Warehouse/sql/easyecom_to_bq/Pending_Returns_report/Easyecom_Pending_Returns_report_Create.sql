@@ -8,7 +8,7 @@ OPTIONS(
  AS
 
 
-select
+select  
   Client_Name,
   Client_Location,
   Marketplace,
@@ -50,6 +50,11 @@ select
   created_on,
   inventory_type,
   ee_extracted_at,
-
-  FROM `shopify-pubsub-project.easycom.pending_returns_report`
-
+from
+(
+select distinct
+  *,
+  row_number() over(partition by invoice_id, Order_Item_ID order by created_on desc) as rn
+from shopify-pubsub-project.easycom.pending_returns_report
+)
+where rn = 1;

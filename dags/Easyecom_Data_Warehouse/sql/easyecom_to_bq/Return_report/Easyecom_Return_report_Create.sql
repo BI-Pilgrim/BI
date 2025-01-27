@@ -1,5 +1,3 @@
-
-
 CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Returns_report`
 PARTITION BY DATE_TRUNC(Order_Date,day)
 CLUSTER BY Seller_Return_Reason
@@ -8,9 +6,9 @@ OPTIONS(
  require_partition_filter = False
  )
  AS
-
-SELECT
-  distinct
+select *
+from(
+SELECT distinct
   Client_Name,
   Client_Location,
   Marketplace,
@@ -71,5 +69,7 @@ SELECT
   end_date,
   created_on,
   inventory_type,
-  -- ee_extracted_at
-  FROM `shopify-pubsub-project.easycom.returns_report`
+  ee_extracted_at,
+  row_number() over(partition by Order_Number, Order_Item_ID, Child_Sku order by ee_extracted_at DESC) as rn
+FROM `shopify-pubsub-project.easycom.returns_report`
+) where rn = 1

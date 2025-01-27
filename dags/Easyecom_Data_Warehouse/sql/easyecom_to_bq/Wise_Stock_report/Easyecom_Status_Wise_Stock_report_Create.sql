@@ -1,15 +1,7 @@
-CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report`
-PARTITION BY DATE_TRUNC(Report_Generated_Date,day)
--- CLUSTER BY 
-OPTIONS(
- description = "Report_Generated_Date table is partitioned on order date at day level",
- require_partition_filter = False
- )
- AS
-
-
-select
-
+MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report` AS TARGET
+USING
+(
+select distinct
   SAFE_CAST(Report_Generated_Date AS DATETIME) AS Report_Generated_Date,
   Company_Token,
   Location,
@@ -55,5 +47,158 @@ select
   created_on,
   inventory_type,
   ee_extracted_at,
-
-  FROM `shopify-pubsub-project.easycom.status_wise_stock_report`
+FROM
+(
+SELECT
+*,
+ROW_NUMBER() OVER(PARTITION BY SKU,Company_Token ORDER BY ee_extracted_at DESC) AS row_num
+FROM `shopify-pubsub-project.easycom.status_wise_stock_report`
+WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+)
+WHERE row_num = 1
+) AS SOURCE
+ON TARGET.SKU = SOURCE.SKU and TARGET.Company_Token = SOURCE.Company_Token
+WHEN MATCHED AND TARGET.ee_extracted_at < SOURCE.ee_extracted_at
+THEN UPDATE SET
+TARGET.Report_Generated_Date = SOURCE.Report_Generated_Date,
+TARGET.Company_Token = SOURCE.Company_Token,
+TARGET.Location = SOURCE.Location,
+TARGET.Product_Name = SOURCE.Product_Name,
+TARGET.Description = SOURCE.Description,
+TARGET.SKU = SOURCE.SKU,
+TARGET.EAN = SOURCE.EAN,
+TARGET.Brand = SOURCE.Brand,
+TARGET.Weight_gm_ = SOURCE.Weight_gm_,
+TARGET.Length_cm_ = SOURCE.Length_cm_,
+TARGET.Height_cm_ = SOURCE.Height_cm_,
+TARGET.Width_cm_ = SOURCE.Width_cm_,
+TARGET.Received = SOURCE.Received,
+TARGET.Reserved_Not_Picked_ = SOURCE.Reserved_Not_Picked_,
+TARGET.Reserved_Picked_ = SOURCE.Reserved_Picked_,
+TARGET.Damaged = SOURCE.Damaged,
+TARGET.Discard_Fraud = SOURCE.Discard_Fraud,
+TARGET.Repair = SOURCE.Repair,
+TARGET.To_Receive = SOURCE.To_Receive,
+TARGET.Return_Available = SOURCE.Return_Available,
+TARGET.Available_Quantity = SOURCE.Available_Quantity,
+TARGET.Available_Quantity_Bin_Locked_ = SOURCE.Available_Quantity_Bin_Locked_,
+TARGET.Quarantine = SOURCE.Quarantine,
+TARGET.Marketplace_Available = SOURCE.Marketplace_Available,
+TARGET.Undispatched_Unassigned_Quantity = SOURCE.Undispatched_Unassigned_Quantity,
+TARGET.QC_Passed = SOURCE.QC_Passed,
+TARGET.QC_Failed = SOURCE.QC_Failed,
+TARGET.QC_Pending = SOURCE.QC_Pending,
+TARGET.NearExpiry = SOURCE.NearExpiry,
+TARGET.Expiry = SOURCE.Expiry,
+TARGET.Total_Lost = SOURCE.Total_Lost,
+TARGET.Questionable = SOURCE.Questionable,
+TARGET.Website_Inventory = SOURCE.Website_Inventory,
+TARGET.E_Com_Inventory = SOURCE.E_Com_Inventory,
+TARGET.Retail_Inventory = SOURCE.Retail_Inventory,
+TARGET.IIA_Inventory = SOURCE.IIA_Inventory,
+TARGET.Amazon_Reserved = SOURCE.Amazon_Reserved,
+TARGET.Lost_In_Cycle_Count = SOURCE.Lost_In_Cycle_Count,
+TARGET.report_id = SOURCE.report_id,
+TARGET.report_type = SOURCE.report_type,
+TARGET.start_date = SOURCE.start_date,
+TARGET.end_date = SOURCE.end_date,
+TARGET.created_on = SOURCE.created_on,
+TARGET.inventory_type = SOURCE.inventory_type,
+TARGET.ee_extracted_at = SOURCE.ee_extracted_at
+WHEN NOT MATCHED
+THEN INSERT
+(
+  Report_Generated_Date,
+  Company_Token,
+  Location,
+  Product_Name,
+  Description,
+  SKU,
+  EAN,
+  Brand,
+  Weight_gm_,
+  Length_cm_,
+  Height_cm_,
+  Width_cm_,
+  Received,
+  Reserved_Not_Picked_,
+  Reserved_Picked_,
+  Damaged,
+  Discard_Fraud,
+  Repair,
+  To_Receive,
+  Return_Available,
+  Available_Quantity,
+  Available_Quantity_Bin_Locked_,
+  Quarantine,
+  Marketplace_Available,
+  Undispatched_Unassigned_Quantity,
+  QC_Passed,
+  QC_Failed,
+  QC_Pending,
+  NearExpiry,
+  Expiry,
+  Total_Lost,
+  Questionable,
+  Website_Inventory,
+  E_Com_Inventory,
+  Retail_Inventory,
+  IIA_Inventory,
+  Amazon_Reserved,
+  Lost_In_Cycle_Count,
+  report_id,
+  report_type,
+  start_date,
+  end_date,
+  created_on,
+  inventory_type,
+  ee_extracted_at
+)
+VALUES
+(
+SOURCE.Report_Generated_Date,
+SOURCE.Company_Token,
+SOURCE.Location,
+SOURCE.Product_Name,
+SOURCE.Description,
+SOURCE.SKU,
+SOURCE.EAN,
+SOURCE.Brand,
+SOURCE.Weight_gm_,
+SOURCE.Length_cm_,
+SOURCE.Height_cm_,
+SOURCE.Width_cm_,
+SOURCE.Received,
+SOURCE.Reserved_Not_Picked_,
+SOURCE.Reserved_Picked_,
+SOURCE.Damaged,
+SOURCE.Discard_Fraud,
+SOURCE.Repair,
+SOURCE.To_Receive,
+SOURCE.Return_Available,
+SOURCE.Available_Quantity,
+SOURCE.Available_Quantity_Bin_Locked_,
+SOURCE.Quarantine,
+SOURCE.Marketplace_Available,
+SOURCE.Undispatched_Unassigned_Quantity,
+SOURCE.QC_Passed,
+SOURCE.QC_Failed,
+SOURCE.QC_Pending,
+SOURCE.NearExpiry,
+SOURCE.Expiry,
+SOURCE.Total_Lost,
+SOURCE.Questionable,
+SOURCE.Website_Inventory,
+SOURCE.E_Com_Inventory,
+SOURCE.Retail_Inventory,
+SOURCE.IIA_Inventory,
+SOURCE.Amazon_Reserved,
+SOURCE.Lost_In_Cycle_Count,
+SOURCE.report_id,
+SOURCE.report_type,
+SOURCE.start_date,
+SOURCE.end_date,
+SOURCE.created_on,
+SOURCE.inventory_type,
+SOURCE.ee_extracted_at
+)

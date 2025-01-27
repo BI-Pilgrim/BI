@@ -2,6 +2,7 @@ MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Reports` AS T
 USING
 (
 select
+  report_id,
   report_type,
   start_date,
   end_date,
@@ -14,16 +15,15 @@ FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at DESC) AS row_num
+ROW_NUMBER() OVER(PARTITION BY report_id ORDER BY created_on DESC) AS row_num
 FROM `shopify-pubsub-project.easycom.reports`
 WHERE DATE(end_date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
 WHERE row_num = 1
 ) AS SOURCE
-ON TARGET.start_date = SOURCE.start_date
-AND TARGET.end_date = SOURCE.end_date
-AND TARGET.csv_url = SOURCE.csv_url
-WHEN MATCHED AND TARGET.end_date < SOURCE.end_date
+ON TARGET.report_id = SOURCE.report_id
+
+WHEN MATCHED AND TARGET.created_on < SOURCE.created_on
 THEN UPDATE SET
 TARGET.report_type = SOURCE.report_type,
 TARGET.start_date = SOURCE.start_date,
