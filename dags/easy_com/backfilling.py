@@ -116,17 +116,18 @@ def backfill_purchase_orders(start_date, end_date):
 #     easyEComDownloadReportsAPI().sync_data()
 
 if __name__ == "__main__":
-    backfill_reports(2024, 12)
-    backfill_reports(2024, 11)
-    backfill_reports(2024, 10)
-    backfill_reports(2024, 9)
-    backfill_reports(2024, 8)
-    backfill_reports(2024, 7)
-    backfill_reports(2024, 6)
+    # backfill_reports(2024, 12)
+    # backfill_reports(2024, 11)
+    # backfill_reports(2024, 10)
+    # backfill_reports(2024, 9)
+    # backfill_reports(2024, 8)
+    # backfill_reports(2024, 7)
+    # backfill_reports(2024, 6)
 
 
     from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
     TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
+    #TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
 
     # from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
     # MiniSalesReportParserAPI().sync_data()
