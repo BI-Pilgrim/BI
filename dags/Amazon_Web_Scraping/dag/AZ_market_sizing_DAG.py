@@ -1,4 +1,4 @@
-from airflow import DAG
+"""from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta 
 from airflow.decorators import task, dag
@@ -15,14 +15,14 @@ default_args = {
 }
 
 # Define the DAG
-"""with DAG(
+with DAG(
     dag_id='amazon_scraping',
     default_args=default_args,
     description='A simple DAG to run scraping of Amaozon',
     schedule_interval='30 1 * * *',  # 3:30 AM UTC is 9:00 AM IST
     start_date=datetime(2024, 10, 16),  # Update this with the desired start date
     catchup=False,
-) as dag:"""
+) as dag:
 
 # Define a function to execute the AZ_MS_face_serum.py script 
 @dag("Amazon_scraping", schedule='30 1 * * *', start_date=datetime(year=2025,month=1,day=24))
@@ -56,4 +56,4 @@ def Amazon_scraping():
     )
 
     install_playwright_firefox() >> run_scrape_task
-dag = Amazon_scraping()
+dag = Amazon_scraping() """
