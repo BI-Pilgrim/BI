@@ -111,6 +111,7 @@ class EasyComApiConnector:
         except Exception as e:
             if _retry<max_retry: 
                 mint = 60
+                print('Error:', str(e))
                 print(f"SLEEPING :: Error inserting to BQ retrying in {mint} min")
                 time.sleep(60*mint) # 15 min
                 return self.load_data_to_bigquery(data, extracted_at, passing_df=passing_df, _retry=_retry+1, max_retry=max_retry)
