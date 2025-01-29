@@ -24,3 +24,4 @@ webdriver-manager>=3.0.0
 chromedriver-autoinstaller==0.6.2
 undetected-chromedriver
 google-cloud-bigquery-storage~=2.27.0
+google_play_scraper
