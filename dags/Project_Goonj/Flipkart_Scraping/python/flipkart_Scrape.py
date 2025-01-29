@@ -200,24 +200,25 @@ def Reviews_scraper(df):
     print("Done with reviews scraping")
     return Rv_df
 
-project_id = 'shopify-pubsub-project'
-FK_top_products = 'Project_GOONJ.Flipkart_top_25_product'
-product_list = pd.read_csv('FK_top_products_link.csv')
+def main():
+    project_id = 'shopify-pubsub-project'
+    FK_top_products = 'Project_GOONJ.Flipkart_top_25_product'
+    product_list = pd.read_csv('FK_top_products_link.csv')
 
-# Ratings_op = Ratings_scraper(product_list[:1])
-# Ratings_op['Scraped_date'] = date.today()
-# Ratings_op.to_csv('Ratings_op.csv',index=False)
+    # Ratings_op = Ratings_scraper(product_list[:1])
+    # Ratings_op['Scraped_date'] = date.today()
+    # Ratings_op.to_csv('Ratings_op.csv',index=False)
 
-# Review_op = Reviews_scraper(product_list[:3])
-# Review_op['Scraped_date'] = date.today()
-# Review_op.to_csv('Review_op.csv',index=False)
+    # Review_op = Reviews_scraper(product_list[:3])
+    # Review_op['Scraped_date'] = date.today()
+    # Review_op.to_csv('Review_op.csv',index=False)
 
-credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS") 
-bq_client = get_bq_client(credentials_info)
-print(bq_client)
-df = read_from_gbq(bq_client,project_id, FK_top_products)  
-#df = list(df) 
-#df = pd.DataFrame(df,columns = ['sku', 'asin', 'title', 'amazon_url'] )
-print(df.columns)
-print(len(df))
-print('data read from gbq sucessfully')
+    credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS") 
+    bq_client = get_bq_client(credentials_info)
+    print(bq_client)
+    df = read_from_gbq(bq_client,project_id, FK_top_products)  
+    #df = list(df) 
+    #df = pd.DataFrame(df,columns = ['sku', 'asin', 'title', 'amazon_url'] )
+    print(df.columns)
+    print(len(df))
+    print('data read from gbq sucessfully')
