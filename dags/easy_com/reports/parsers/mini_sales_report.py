@@ -57,7 +57,8 @@ class MiniSalesReportParserAPI(EasyComApiConnector):
         del report['status']
         del report['csv_url']
 
-        del ['Cost_of_Goods_purchased']
+        if 'Cost_of_Goods_purchased' in report:
+            del report['Cost_of_Goods_purchased']
         return report
     
     def sync_data(self):
