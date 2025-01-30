@@ -113,7 +113,7 @@ class EasyComApiConnector:
             job = self.client.load_table_from_dataframe(data, self.table_id, job_config=job_config)
             job.result()
         except Exception as e:
-            if _retry<max_retry: 
+            if _retry+1<max_retry: 
                 mint = 60
                 print(f"SLEEPING :: Error inserting to BQ retrying in {mint} min")
                 time.sleep(60*mint) # 15 min
@@ -173,7 +173,7 @@ class EasyComApiConnector:
                     if chunk:
                         file.write(chunk)
 
-        data_frames =  pd.read_csv(file_path, chunksize=10000)
+        data_frames = pd.read_csv(file_path, chunksize=10000, on_bad_lines='skip')
 
         # os.remove(file_path)
         return data_frames
