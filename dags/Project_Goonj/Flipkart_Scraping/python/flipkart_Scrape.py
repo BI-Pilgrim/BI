@@ -36,20 +36,22 @@ def read_from_gbq(bq_client,p_id,t_id):
 def Rating_Normalization(Title,Product_url,No_of_ratings,No_of_reviews,Avg_rating,One_star_ratings,Two_star_ratings,Three_star_ratings,Four_star_ratings,Five_star_ratings):
 
     # Create a dictionary with column names and their corresponding lists
-    data = {'Title':Title,'Product_url':Product_url,'No_of_ratings':No_of_ratings,'No_of_reviews':No_of_reviews,'Avg_rating':Avg_rating,'One_star_ratings':One_star_ratings,'Two_star_ratings':Two_star_ratings,
-            'Three_star_ratings':Three_star_ratings,'Four_star_ratings':Four_star_ratings,'Five_star_ratings':Five_star_ratings}
+    data = {'Title1':Title,'Product_url1':Product_url,'No_of_ratings1':No_of_ratings,'No_of_reviews1':No_of_reviews,'Avg_rating1':Avg_rating,'One_star_ratings1':One_star_ratings,
+            'Two_star_ratings1':Two_star_ratings,'Three_star_ratings1':Three_star_ratings,'Four_star_ratings1':Four_star_ratings,'Five_star_ratings1':Five_star_ratings}
 
     # Create a DataFrame from the dictionary
     mtdf = pd.DataFrame(data)
     datatypes= {
-        'No_of_ratings':'int64',
-        'No_of_reviews':'int64',
-        'Avg_rating':'float64',
-        'One_star_ratings':'int64',
-        'Two_star_ratings':'int64',
-        'Three_star_ratings':'int64',
-        'Four_star_ratings':'int64',
-        'Five_star_ratings':'int64'
+        'Title1':'str',
+        'Product_url1':'str',
+        'No_of_ratings1':'int64',
+        'No_of_reviews1':'int64',
+        'Avg_rating1':'float64',
+        'One_star_ratings1':'int64',
+        'Two_star_ratings1':'int64',
+        'Three_star_ratings1':'int64',
+        'Four_star_ratings1':'int64',
+        'Five_star_ratings1':'int64'
         # 'Scraped_date':'datetime64[ns]'
     }
     for col, dtype in datatypes.items():
@@ -198,7 +200,7 @@ def Reviews_scraper(df):
 
                         desc = search_element(block,".ZmyHeo")
                         review_desc.append(desc if desc!=-1 else 0)
-                        
+                        months = ['jan,', 'feb,', 'mar,', 'apr,', 'may,', 'jun,', 'jul,', 'aug,', 'sep,', 'oct,', 'nov,', 'dec,']
                         name_date = block.locator("._2NsDsF").all()
                         if len(name_date)>0:
                             name = name_date[0].inner_text()
@@ -210,8 +212,12 @@ def Reviews_scraper(df):
                                 rvw_date = date.today()-timedelta(days=int(date_text[0]))
                             elif date_text[1] == 'month' or date_text[1] == 'months':
                                 rvw_date = date.today()-relativedelta(months=int(date_text[0]))
+                            elif date_text[0].lower() in months:
+                                i =  months.index(date_text[0].lower())
+                                rvw_date = f"{date_text[1]}-{str(i+1).zfill(2)}-01"
                             else:
-                                rvw_date = date
+                                rvw_date = date_text
+
                         else:
                             name = 0
                             rvw_date = 0
@@ -234,12 +240,41 @@ def main():
     credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS") 
     bq_client = get_bq_client(credentials_info)
     product_list = read_from_gbq(bq_client,project_id, FK_top_products)  
-    # product_list = pd.read_csv('FK_top_products_link.csv')
+   
     print('Starting with Rating Scraping',datetime.now())
     Ratings_op = Ratings_scraper(product_list)
-    Ratings_op['Scraped_date'] = date.today()
-    # Ratings_op.to_csv('Ratings_op.csv',index=False)
-    write_to_gbq(bq_client,Ratings_op,project_id,FK_ratings)
+    Ratings_op['Scraped_date1'] = date.today()
+    
+
+    old_ratings = read_from_gbq(bq_client,project_id, FK_ratings)
+
+    merged_df = pd.merge(Ratings_op,old_ratings, 
+                    left_on=['Title1', 'Product_url1', 'Scraped_date1'], right_on=['Title', 'Product_url', 'Scraped_date'],
+                    how='left') 
+
+    # Filter where B.prod_title is null
+    filtered_df = merged_df[merged_df['Title'].isnull()]
+
+    # Select only columns from df1
+    new_col = [
+        'Title1','Product_url1','No_of_ratings1','No_of_reviews1','Avg_rating1','One_star_ratings1',
+        'Two_star_ratings1','Three_star_ratings1','Four_star_ratings1','Five_star_ratings1','Scraped_date1']
+    filtered_df = filtered_df[new_col]
+    filtered_df = filtered_df.rename(columns={
+        'Title1':'Title',
+        'Product_url1':'Product_url',
+        'No_of_ratings1':'No_of_ratings',
+        'No_of_reviews1':'No_of_reviews',
+        'Avg_rating1':'Avg_rating',
+        'One_star_ratings1':'One_star_ratings',
+        'Two_star_ratings1':'Two_star_ratings',
+        'Three_star_ratings1':'Three_star_ratings',
+        'Four_star_ratings1':'Four_star_ratings',
+        'Five_star_ratings1':'Five_star_ratings',
+        'Scraped_date1':'Scraped_date'
+})
+    filtered_df.drop_duplicates(subset=['Title', 'Product_url','Scraped_date'],inplace=True)
+    write_to_gbq(bq_client,filtered_df,project_id,FK_ratings)
 
     print('Starting with Review Scraping',datetime.now())
     Review_op = Reviews_scraper(product_list)
@@ -248,17 +283,15 @@ def main():
     print('Ending with Review Scraping',datetime.now())
     # Review_op.to_csv('Review_op.csv',index=False)
 
-    old_reviews = read_from_gbq(bq_client,project_id, FK_reviews)
-    print("Old review columns:",old_reviews.columns)
-    print("New review columns:",Review_op.columns)
+    old_reviews = read_from_gbq(bq_client,project_id,FK_reviews)
+
     merged_df = pd.merge(Review_op,old_reviews, 
                     left_on=['prod_title1', 'prod_star1', 'review_title1', 'review_desc1'], right_on=['prod_title', 'prod_star', 'review_title', 'review_desc'],
                     how='left') 
-    print('Merged table columns ->',merged_df.columns)
-    # Filter where B.prod_title is null
+
     filtered_df = merged_df[merged_df['prod_title'].isnull()]
 
-    # Select only columns from df1
+
     new_col = [
       'prod_title1',
       'prod_link1',
@@ -279,4 +312,5 @@ def main():
     'review_date1':'review_date',
     'Scraped_date1':'Scraped_date'
 })
+    filtered_df.drop_duplicates(subset=['prod_title', 'prod_star','review_title','review_desc','cust_name'],inplace=True)
     write_to_gbq(bq_client,filtered_df,project_id,FK_reviews)
