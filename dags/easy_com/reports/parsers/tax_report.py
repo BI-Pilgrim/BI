@@ -47,10 +47,10 @@ class TaxReportParserAPI(EasyComApiConnector):
         for df in data:
             df = df.astype(str)
             old_cols = df.columns
-            df.columns = [self.clean_column_name(col) for col in df.columns]
+            df.columns = [self.clean_column_name(col).strip("_") for col in df.columns]
             df.drop(df.loc[df[df.columns[0]]==old_cols[0]].index.tolist(), inplace=True)
             
-
+            # import pdb; pdb.set_trace()
             date_cols = [
                 "Return_Date","Import_Date","Order_Date","Invoice_Date",
                 "Acknowledgement_Date","Eway_Bill_Date","CreditNote_Acknowledgement_Date",
@@ -58,7 +58,7 @@ class TaxReportParserAPI(EasyComApiConnector):
             ]
 
 
-            float_cols = ["Parent_Quantity_", "Item_Quantity_", "Parent_SKU_Weight_", "Component_SKU_Weight_", 
+            float_cols = [ "Item_Quantity_", "Parent_SKU_Weight_", "Component_SKU_Weight_", 
              "Component_SKU_Cost_", "Component_SKU_MRP_", "Tax_Rate_", "Sr_No_", "Collectible_Amount_", 
              "Order_Invoice_Amount_", "TCS_Rate_", "TCS_", "Selling_Price_", "Wallet_Discount_", 
              "Item_Price_Excluding_Tax_", "COD_Excluding_Tax_", "Shipping_Charge_Excluding_Tax_", 
