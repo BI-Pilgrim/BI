@@ -20,7 +20,7 @@ class Picture(BaseModel):
 
 class Reviewer(BaseModel):
     id: Optional[int] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     name: Optional[str] = None
     phone: Optional[str] = None
     tags: Optional[List[str]] = None
