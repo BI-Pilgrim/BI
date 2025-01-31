@@ -24,7 +24,7 @@ class GooglePlayRatingsAPI:
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("google_credentials_info")
+        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
