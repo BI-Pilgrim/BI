@@ -13,7 +13,7 @@ min(_airbyte_extracted_at) as _airbyte_extracted_at,
 COALESCE(MAX(case when key='gender' then value end),'NIL') as Gender_field,
 COALESCE(MAX(case when key='personalization_products' then value end),'NIL') as Personalization_field,
 COALESCE(MAX(case when key='concerns' then value end),'NIL') as Concerns_field,
-admin_graphql_api_id as admin_graphql_api_id
+--admin_graphql_api_id as admin_graphql_api_id
 
  FROM  `shopify-pubsub-project.pilgrim_bi_airbyte.metafield_customers`
  WHERE date(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
@@ -31,8 +31,8 @@ target.customer_created_at = source.customer_created_at,
 target.customer_updated_at = source.customer_updated_at,
 target.Gender_field = source.Gender_field,
 target.Personalization_field = source.Personalization_field,
-target.Concerns_field = source.Concerns_field,
-target.admin_graphql_api_id = source.admin_graphql_api_id
+target.Concerns_field = source.Concerns_field
+--target.admin_graphql_api_id = source.admin_graphql_api_id
 
 WHEN NOT MATCHED THEN INSERT (
 
@@ -44,8 +44,8 @@ customer_created_at,
 customer_updated_at,
 Gender_field,
 Personalization_field,
-Concerns_field,
-admin_graphql_api_id
+Concerns_field
+--admin_graphql_api_id
 
    )
   VALUES (
@@ -57,8 +57,8 @@ source.customer_created_at,
 source.customer_updated_at,
 source.Gender_field,
 source.Personalization_field,
-source.Concerns_field,
-source.admin_graphql_api_id 
+source.Concerns_field
+--source.admin_graphql_api_id 
   )
 
 
