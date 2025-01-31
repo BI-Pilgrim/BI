@@ -195,3 +195,7 @@ class EasyComApiConnector:
         
     def get_google_credentials_info(self):
         return Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+    
+    def get_table_columns(self): 
+        table = self.client.get_table(self.table_id) 
+        return [field.name for field in table.schema]
