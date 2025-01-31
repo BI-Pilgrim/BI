@@ -22,7 +22,7 @@ survey_id = SURVEY_ID = "3800908829962028804"
 TABLE_ID = "shopify-pubsub-project.pilgrim_bi_affiniv.order_nps_survey_responses"
 
 class ReportGeneratedSensor(BaseSensorOperator):
-    def __init__(self, *, survey_id:str, login_initializer:XComArg, report_id:str, **kwargs):
+    def __init__(self, *, survey_id:str, login_initializer:XComArg, report_id:XComArg, **kwargs):
         super().__init__(**kwargs)
         self.login_initializer = login_initializer
         self.start = datetime.now()-timedelta(hours=5)
@@ -33,12 +33,13 @@ class ReportGeneratedSensor(BaseSensorOperator):
     
     def poke(self, context:'Context'):
         login_data = context['ti'].xcom_pull(task_ids=self.login_initializer.operator.task_id, key=self.login_initializer.key)
+        report_id = context['ti'].xcom_pull(task_ids=self.report_id.operator.task_id, key=self.report_id.key)
         login_data = json.loads(login_data)
         aff_scraper = AffinivScraper(None, None, LoginInitializer(**login_data))
         resp = aff_scraper.get_report_jobs(self.survey_id, self.start, self.end)
-        if self.report_id is None: self.report_id = resp[0].id
+        
         for report in resp:
-            if(report.id == self.report_id and report.s3ReportLocation is not None):
+            if(report.id == report_id and report.s3ReportLocation is not None):
                 return True
         return False
     
