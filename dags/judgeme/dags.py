@@ -61,7 +61,7 @@ def judgeme_sync():
 
     sync_reviews
 
-dag = judgeme_sync()
+dag_sync = judgeme_sync()
     
 
 

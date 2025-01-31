@@ -3,8 +3,22 @@ import json
 from pytz import timezone, utc
 import requests
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import Dict, List, Optional, Union, Any
 
+import requests.structures
+
+ 
+class ReportJobItem(BaseModel):
+    id: Optional[str] = None
+    surveyId: Optional[int] = None
+    companyId: Optional[str] = None
+    requestedByUserId: Optional[str] = None
+    jobStartTime: Optional[str] = None
+    jobEndTime: Optional[str] = None
+    periodStartTime: Optional[str] = None
+    periodEndTime: Optional[str] = None
+    s3ReportLocation: Optional[str] = None
+    reportType: Optional[str] = None
 
 class Company(BaseModel):
     id: Optional[str] = None
@@ -71,7 +85,7 @@ class AffinivLoginData(BaseModel):
     isApiUser: Optional[bool] = None
     token: Optional[str] = None
     tokenExpiryDate: Optional[str] = None
-    userInvitationId: Optional[str] = None
+    userInvitationId: Union[str, None, int] = None
     joined: Optional[bool] = None
     ftu: Optional[bool] = None
 
@@ -181,6 +195,7 @@ class SurveyListResponse(BaseModel):
     company: Optional[Company] = None
 
 BASE_URL = "https://app.affiniv.com/api"
+
 BASE_HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:134.0) Gecko/20100101 Firefox/134.0",
                 "Accept":"application/json, text/plain, */*",
                 "Accept-Language":"en-US,en;q=0.5",
@@ -203,14 +218,20 @@ BASE_HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:1
 class LoginError(ValueError):
     pass
 
+
+class LoginInitializer(BaseModel):
+    session_headers:Dict
+    token: str
+    company_id:str
+
 class AffinivScraper:
     
-    def __init__(self, username:str, password:str, token:str=None):
+    def __init__(self, username:str, password:str, tokenInitializer:LoginInitializer=None):
         self.session = requests.Session()
-        if token:
-            self.token = token
-            self.session.headers.update({"Authorization": f"Bearer {self.token}"})
-            self.login_data = AffinivLoginData(**{"token": token, "company": {"id": "152474173483141219"}})
+        if tokenInitializer:
+            self.token = tokenInitializer.token
+            self.session.headers.update(tokenInitializer.session_headers)
+            self.login_data = AffinivLoginData(**{"token": tokenInitializer.token, "company": {"id": tokenInitializer.company_id}})
         else: self.login_data = self.login(username, password)
     
     def login(self, username:str, password:str)->AffinivLoginData:
@@ -219,6 +240,7 @@ class AffinivScraper:
         if resp.ok:
             login_data = AffinivLoginData(**resp.json())
             self.token = login_data.token
+            self.token = "9b262a43-4652-416d-ba33-160cbf27a46a"
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
             return login_data
         raise LoginError(f"Failed to login: {resp.text}")
@@ -229,12 +251,10 @@ class AffinivScraper:
         if resp.ok:
             return SurveyListResponse(**resp.json())
         raise ValueError(f"Failed to get survey details: {resp.text}")
-
-    
     
     def get_survey_results_for_period(self, survey_id:str, start_date:datetime, end_date:datetime):
-        start_date_str:str = AffinivScraper.get_time_str(start_date)
-        end_date_str:str = AffinivScraper.get_time_str(end_date)
+        start_date_str:str = AffinivScraper.get_time_str(self.start_date)
+        end_date_str:str = AffinivScraper.get_time_str(self.end_date)
         url = f"{BASE_URL}/v1/surveys/{survey_id}/results/dashboard"
         resp = self.session.post(url, params={"startDate":start_date_str, "endDate":end_date_str})
         if resp.ok:
@@ -244,16 +264,61 @@ class AffinivScraper:
     def get_survey_stats_for_period(self, survey_id:str, start_date:datetime, end_date:datetime):
         start_date_str:str = AffinivScraper.get_time_str(start_date)
         end_date_str:str = AffinivScraper.get_time_str(end_date)
-        url = f"{BASE_URL}/api/v1/surveys/{survey_id}/results/stats/forPeriod"
+        url = f"{BASE_URL}/v1/surveys/{survey_id}/results/stats/forPeriod"
+        resp = self.session.get(url, params={"startDate":start_date_str, "endDate":end_date_str})
+        if resp.ok:
+            return resp.json()
+        raise ValueError(f"Failed to get survey results: {resp.text}")
+    
+    def get_survey_summary_for_period(self, survey_id:str, start_date:datetime, end_date:datetime):
+        start_date_str:str = AffinivScraper.get_time_str(start_date)
+        end_date_str:str = AffinivScraper.get_time_str(end_date)
+        url = f"{BASE_URL}/v1/surveys/{survey_id}/results/summary"
         resp = self.session.post(url, params={"startDate":start_date_str, "endDate":end_date_str})
         if resp.ok:
             return resp.json()
         raise ValueError(f"Failed to get survey results: {resp.text}")
     
+    def get_survey_tags_for_period(self, survey_id:str, start_date:datetime, end_date:datetime):
+        start_date_str:str = AffinivScraper.get_time_str(start_date)
+        end_date_str:str = AffinivScraper.get_time_str(end_date)
+        url = f"{BASE_URL}/v1/surveys/{survey_id}/results/tags/forPeriod"
+        resp = self.session.post(url, params={"startDate":start_date_str, "endDate":end_date_str})
+        if resp.ok:
+            return resp.json()
+        raise ValueError(f"Failed to get survey results: {resp.text}")
+    
+    def get_report_jobs(self, survey_id:str, start_date:Optional[datetime]=None, end_date:Optional[datetime]=None)->List[ReportJobItem]:
+        start_date_str:str = AffinivScraper.get_time_str(start_date)
+        end_date_str:str = AffinivScraper.get_time_str(end_date)
+        url = f"{BASE_URL}/v1/surveys/{survey_id}/report-jobs"
+        resp = self.session.get(url, params={"startDate":start_date_str, "endDate":end_date_str})
+        if resp.ok:
+            return [ReportJobItem(**x) for x in resp.json()]
+        raise ValueError(f"Failed to get report status: {resp.text}")
+    
+    def trigger_report(self, survey_id:str, start_date:datetime, end_date:datetime):
+        start_date_str:str = AffinivScraper.get_time_str(start_date)
+        end_date_str:str = AffinivScraper.get_time_str(end_date)
+        url = f"{BASE_URL}/v1/surveys/{survey_id}/results/dashboard/report/apimode"
+        print(url, start_date_str, end_date_str)
+        try:
+            resp = self.session.post(url, params={"startDate":start_date_str, "endDate":end_date_str})
+            if resp.ok:
+                return ReportJobItem(**resp.json())
+        except Exception as e:
+            # This will timeout, so we need to catch the exception
+            pass
+        # raise ValueError(f"Failed to trigger report: {resp.text}")
+    
     @staticmethod
     def get_time_str(date_time:datetime)->str:
         local_tz = timezone("Asia/Kolkata")
-        return local_tz.localize(date_time).astimezone(utc).strftime("%a, %d %b %Y %H:%M:%S %z")
+        date_time = date_time.replace(tzinfo=local_tz)
+        return date_time.astimezone(utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
+    
+
+
         
     
 
