@@ -34,7 +34,7 @@ def fetch_greatest_id(bq_client)->int:
 def judgeme_sync():
 
     @task.python
-    def sync_reviews(max_id):
+    def sync_reviews():
         api_key = Variable.get("judgeme_api_key")
         shop_domain = Variable.get("judgeme_shop_domain")
         credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
@@ -59,7 +59,7 @@ def judgeme_sync():
             cur_page = reviews.current_page+1
             cur_id = int(df.id.min())
 
-    sync_reviews
+    resp = sync_reviews()
 
 dag_sync = judgeme_sync()
     
