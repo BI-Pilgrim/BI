@@ -20,9 +20,9 @@ def amazon_scrap_test_dag():
         return "playwright install-deps && playwright install firefox"
 
     @task.python
-    def trigger_login1(): 
-        main()
+    def trigger_login1(a,b): 
+        main(a,b)
 
-    install_playwright_chromium() >> trigger_login1()
+    install_playwright_chromium() >> trigger_login1(0,5)
 
 dag = amazon_scrap_test_dag() 
