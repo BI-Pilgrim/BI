@@ -12,8 +12,8 @@ from google_play_scraper import Sort, reviews, reviews_all
 
 import os
 import base64
+import time
 import json
-
 
 class GooglePlayRatingsAPI:
     def __init__(self):
@@ -24,7 +24,7 @@ class GooglePlayRatingsAPI:
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
-        credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+        credentials_info = Variable.get("google_credentials_info")
         credentials_info = base64.b64decode(credentials_info).decode("utf-8")
         credentials_info = json.loads(credentials_info)
 
@@ -52,6 +52,8 @@ class GooglePlayRatingsAPI:
         if val is None: return val
         try:
             if _type == datetime:
+                if type(val) == datetime:
+                    val = str(val)
                 return datetime.strptime(val, kwargs["strptime"])
             return _type(val)
         except:
@@ -86,66 +88,35 @@ class GooglePlayRatingsAPI:
 
         print('Transforming Reviews data')
         transformed_data = self.transform_data(data=reviews)
-        extrated_at = datetime.now(datetime.timezone.utc)
+        extrated_at = datetime.now()
 
         # Insert the transformed data into the table
+        print("Truncating the table")
+        self.truncate_table()
+        print("Total no of reviews to sync: ", len(transformed_data))
         self.load_data_to_bigquery(transformed_data, extrated_at)
 
-    # def truncate_table(self):
-    #     """Truncate the BigQuery table by deleting all rows."""
-    #     table_ref = self.client.dataset(self.dataset_id).table(Vendor.__tablename__)
-    #     truncate_query = f"DELETE FROM `{table_ref}` WHERE true"
-    #     self.client.query(truncate_query).result()  # Executes the DELETE query
+    def truncate_table(self):
+        """Truncate the BigQuery table by deleting all rows."""
+        table_ref = self.client.dataset(self.dataset_id).table(GooglePlayRatings.__tablename__)
+        truncate_query = f"DELETE FROM `{table_ref}` WHERE true"
+        self.client.query(truncate_query).result()  # Executes the DELETE query
 
-    def load_data_to_bigquery(self, data, extracted_at):
+    def load_data_to_bigquery(self, data, extracted_at, passing_df = False, _retry=0, max_retry=3):
         """Load the data into BigQuery."""
         print("Loading Google playstore reviews data to BigQuery")
-        df = pd.DataFrame(data)
-        df["ee_extracted_at"] = extracted_at
+        data = pd.DataFrame(data)
+        data["ee_extracted_at"] = extracted_at
 
-        # Create a temporary table to load the new data
-        temp_table_id = f"{self.table_id}_temp"
         job_config = bigquery.LoadJobConfig(
-            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE
+            write_disposition=bigquery.WriteDisposition.WRITE_APPEND
         )
-        job = self.client.load_table_from_dataframe(df, temp_table_id, job_config=job_config)
-        job.result()
-
-        # Merge the temporary table with the main table
-        merge_query = f"""
-        MERGE `{self.table_id}` T
-        USING `{temp_table_id}` S
-        ON T.review_id = S.review_id
-        WHEN MATCHED THEN
-          UPDATE SET
-            user_name = S.user_name,
-            user_image = S.user_image,
-            content = S.content,
-            score = S.score,
-            thumbs_up_count = S.thumbs_up_count,
-            review_created_version = S.review_created_version,
-            review_given_at = S.review_given_at,
-            reply_content = S.reply_content,
-            replied_at = S.replied_at,
-            app_version = S.app_version,
-            ee_extracted_at = S.ee_extracted_at
-        WHEN NOT MATCHED THEN
-          INSERT (
-            review_id, user_name, user_image, content, score, thumbs_up_count,
-            review_created_version, review_given_at, reply_content, replied_at,
-            app_version, ee_extracted_at
-          )
-          VALUES (
-            review_id, user_name, user_image, content, score, thumbs_up_count,
-            review_created_version, review_given_at, reply_content, replied_at,
-            app_version, ee_extracted_at
-          )
-        """
-        query_job = self.client.query(merge_query)
-        query_job.result()
-
-        # Delete the temporary table
-        self.client.delete_table(temp_table_id)
+        try:
+            job = self.client.load_table_from_dataframe(data, self.table_id, job_config=job_config)
+            job.result()
+        except Exception as e:
+            print(f"Error loading data to BigQuery: {e}")
+            raise e
 
     def get_data(self):
         """Fetch Google Playstore reviews data from the the library."""
