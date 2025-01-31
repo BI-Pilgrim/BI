@@ -287,7 +287,7 @@ def main():
     write_to_gbq(bq_client,filtered_df,project_id,FK_ratings)
 
     print('Starting with Review Scraping',datetime.now())
-    Review_op = Reviews_scraper(product_list[4:5])
+    Review_op = Reviews_scraper(product_list)
     Review_op['Scraped_date1'] = date.today()
     # write_to_gbq(bq_client,Review_op,project_id,FK_reviews)
 
