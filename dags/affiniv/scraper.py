@@ -240,7 +240,6 @@ class AffinivScraper:
         if resp.ok:
             login_data = AffinivLoginData(**resp.json())
             self.token = login_data.token
-            self.token = "9b262a43-4652-416d-ba33-160cbf27a46a"
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
             return login_data
         raise LoginError(f"Failed to login: {resp.text}")
