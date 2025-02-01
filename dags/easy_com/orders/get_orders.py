@@ -147,10 +147,10 @@ class easyEComOrdersAPI(EasyComApiConnector):
         """Sync data from the API to BigQuery."""
         if not (start_date and end_date):
             end_date = (datetime.now() - timedelta(days=1))
-            start_date = end_date - timedelta(days=90) # Add a 90 day look back period
+            start_date = end_date - timedelta(days=1)
 
-        start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
-        end_date = end_date.strftime("%Y-%m-%d %H:%M:%S")
+        start_date = start_date.strftime("%Y-%m-%d 00:00:00")
+        end_date = end_date.strftime("%Y-%m-%d 00:00:00")
         table_data = self.get_data(start_date, end_date)
         if not table_data:
             print(f"No {self.name} data found for Easy eCom")
@@ -189,8 +189,8 @@ class easyEComOrdersAPI(EasyComApiConnector):
                 next_url = response_data.get("data", {}).get("nextUrl")
                 next_url = self.base_url + next_url if next_url else None
             except Exception as e:
-                print(response_data)
                 print(f"Error in getting {self.name} data for Easy eCom: {e}")
+                raise e
                 return []            
 
         return table_data

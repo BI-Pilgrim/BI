@@ -10,3 +10,5 @@ def sync_reviews():
         from reviews.play_store.get_playstore_reviews import GooglePlayRatingsAPI
         GooglePlayRatingsAPI().sync_data()
     resp = sync()
+
+sync_reviews()

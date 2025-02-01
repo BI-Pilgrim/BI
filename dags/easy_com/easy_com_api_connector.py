@@ -115,6 +115,7 @@ class EasyComApiConnector:
         except Exception as e:
             if _retry+1<max_retry: 
                 mint = 60
+                print('Error:', str(e))
                 print(f"SLEEPING :: Error inserting to BQ retrying in {mint} min")
                 time.sleep(60*mint) # 15 min
                 return self.load_data_to_bigquery(data, extracted_at, passing_df=passing_df, _retry=_retry+1, max_retry=max_retry)
@@ -198,6 +199,10 @@ class EasyComApiConnector:
         
     def get_google_credentials_info(self):
         return Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+    
+    def get_table_columns(self): 
+        table = self.client.get_table(self.table_id) 
+        return [field.name for field in table.schema]
 
     def convert_if_found(self, df:pd.DataFrame, keys:List[str], _type):
         for key in keys:
