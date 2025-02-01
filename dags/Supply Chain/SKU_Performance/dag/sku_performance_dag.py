@@ -27,7 +27,7 @@ with DAG(
     default_args=default_args,
     description='Dag to append latest Sales data to bigquery',
     #schedule_interval='30 1 * * *',  # 3:30 AM UTC is 9:00 AM IST
-    schedule_interval='30 2 * * *',  # 7:00 AM IST (02:30 AM UTC)
+    schedule_interval='30 3 * * *',  # 8:00 AM IST (03:30 AM UTC)
 
     start_date=datetime(2024, 11, 5),  # Update this with the desired start date
     catchup=False,
@@ -69,10 +69,10 @@ with DAG(
             raise
 
     # Define the PythonOperator to run the function
-    run_main_task = PythonOperator(
-        task_id='run_main_script',
-        python_callable=run_main_script,
-    )
+    #run_main_task = PythonOperator(
+    #    task_id='run_main_script',
+    #    python_callable=run_main_script,
+    #)
 
-    run_main_task
+    #run_main_task
     EasyEcom_Orders

@@ -4,6 +4,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 
 # Define the start date in UTC 
@@ -237,3 +238,66 @@ with DAG(
             }
         }
     )
+
+# SALES_AND_TRAFFIC_REPORT Staging Table Refresh - Append
+
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/Sales and Traffic Report/SALES_AND_TRAFFIC_REPORT_append.sql', 'r') as file:
+        sql_query_12 = file.read()
+
+    append_SALES_AND_TRAFFIC_REPORT = BigQueryInsertJobOperator(
+        task_id='append_SALES_AND_TRAFFIC_REPORT',
+        configuration={
+            "query": {
+                "query": sql_query_12,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
+
+
+# Sanity check Table 
+
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/Amazon_Seller_DW_Sanity_check.sql', 'r') as file:
+        sql_query_13 = file.read()
+
+    sanity_check = BigQueryInsertJobOperator(
+        task_id='sanity_check',
+        configuration={
+            "query": {
+                "query": sql_query_13,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )   
+
+    
+
+    def run_main_script():
+        script_path = '/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/python/Amazon_Seller_DW_Sanity_check_mail.py'
+        try:
+            # Use subprocess to run the Python script with the specified path
+            result = subprocess.run(
+                ['python', script_path],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            # print("Script output:", result.stdout)
+            # print("Script errors:", result.stderr)
+        except subprocess.CalledProcessError as e:
+            # print(f"Error occurred while running the script: {e}")
+            # print(f"Command output: {e.stdout}")
+            # print(f"Command errors: {e.stderr}")
+            raise
+
+# Define the PythonOperator to run the function
+    run_python_task = PythonOperator(
+        task_id='run_main_script',
+        python_callable=run_main_script,
+    )
+
+start_pipeline >> [append_all_orders_data_last_update_general,append_all_orders_data_order_date_general,append_merchant_cancelled_listings_data,append_merchant_listings_all_data,append_merchant_listings_data,append_merchant_listings_data_back_compat,append_merchant_listings_inactive_data,append_open_listings_data,append_orders,append_XML_BROWSE_TREE_DATA,append_SALES_AND_TRAFFIC_REPORT] >> sanity_check >> run_python_task 

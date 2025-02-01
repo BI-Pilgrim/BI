@@ -1,10 +1,13 @@
 
+
 # Import Functions 
 from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
+from airflow.operators.python import PythonOperator
+import subprocess
 
 # Define the start date in UTC 
 START_DATE = timezone.datetime(2025, 1, 2, 7, 55, 0, tzinfo=timezone.utc)  # Corresponds to 1.15 PM IST on 2025-01-02
@@ -37,7 +40,6 @@ with DAG(
         task_id='start_pipeline',
         dag=dag
     )
-
 # Abandoned Checkout Staging Table Refresh - Append
 
     # Load SQL query from file
@@ -57,24 +59,22 @@ with DAG(
 
 
 
-
-
 # Metafield Customer Staging Table Refresh - Append
 
     # Load SQL query from file
-    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Customer/Metafield_customer_append.sql', 'r') as file:
-    #     sql_query_2 = file.read()
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_Customer/Metafield_customer_append.sql', 'r') as file:
+        sql_query_2 = file.read()
 
-    # append_metafield_customers = BigQueryInsertJobOperator(
-    #     task_id='append_metafield_customers',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_2,
-    #             "useLegacySql": False,
-    #             "location": LOCATION,
-    #         }
-    #     }
-    # )
+    append_metafield_customers = BigQueryInsertJobOperator(
+        task_id='append_metafield_customers',
+        configuration={
+            "query": {
+                "query": sql_query_2,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
 
     
 
@@ -158,21 +158,36 @@ with DAG(
 # Draft Order Staging Table Refresh - Append
 
     # Load SQL query from file
-    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Draft_orders/Draft_order_append.sql', 'r') as file:
-    #     sql_query_7 = file.read()
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Draft_orders/Draft_order_append.sql', 'r') as file:
+        sql_query_7 = file.read()
 
-    # append_draft_order = BigQueryInsertJobOperator(
-    #     task_id='append_draft_order',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_7,
-    #             "useLegacySql": False,
-    #             "location": LOCATION,
-    #         }
-    #     }
-    # )
+    append_draft_order = BigQueryInsertJobOperator(
+        task_id='append_draft_order',
+        configuration={
+            "query": {
+                "query": sql_query_7,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
 
+# Draft Order Items Staging Table Refresh - Append
 
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Draft_Order_items/Draft_order_item_append.sql', 'r') as file:
+        sql_query_31 = file.read()
+
+    append_draft_order_items = BigQueryInsertJobOperator(
+        task_id='append_draft_order_items',
+        configuration={
+            "query": {
+                "query": sql_query_31,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
 
 # Refund Order Staging Table Refresh - Append
 
@@ -180,7 +195,7 @@ with DAG(
     with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Refund_Orders/Refund_Orders_append.sql', 'r') as file:
         sql_query_8 = file.read()
 
-    append_refund_order_item = BigQueryInsertJobOperator(
+    append_refund_order = BigQueryInsertJobOperator(
         task_id='append_refund_order',
         configuration={
             "query": {
@@ -192,10 +207,10 @@ with DAG(
     )
 
 
-# Metafield Order Staging Table Refresh - Append
+#Metafield Order Staging Table Refresh - Append
 
-    # Load SQL query from file
-    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_orders_append.sql', 'r') as file:
+   # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Metafield_orders/Metafield_order_append.sql', 'r') as file:
         sql_query_9 = file.read()
 
     append_metafield_order = BigQueryInsertJobOperator(
@@ -266,19 +281,19 @@ with DAG(
 # Inventory Level Staging Table Refresh - Append
 
     # Load SQL query from file
-    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Inventory_level/Inventory_level_append.sql', 'r') as file:
-    #     sql_query_13 = file.read()
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Inventory_level/Inventory_level_append.sql', 'r') as file:
+        sql_query_13 = file.read()
 
-    # append_inventory_level = BigQueryInsertJobOperator(
-    #     task_id='append_inventory_level',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_13,
-    #             "useLegacySql": False,
-    #             "location": LOCATION,
-    #         }
-    #     }
-    # )
+    append_inventory_level = BigQueryInsertJobOperator(
+        task_id='append_inventory_level',
+        configuration={
+            "query": {
+                "query": sql_query_13,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
 
 
 # Pages Staging Table Refresh - Append
@@ -525,19 +540,19 @@ with DAG(
 # Fulfillments Staging Table Refresh - Append
 
     # # Load SQL query from file
-    # with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Fulfillments/Fulfillments_append.sql', 'r') as file:
-    #     sql_query_27 = file.read()
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Fulfillments/Fulfillments_append.sql', 'r') as file:
+        sql_query_27 = file.read()
 
-    # append_Fulfillments = BigQueryInsertJobOperator(
-    #     task_id='append_Fulfillments',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_27,
-    #             "useLegacySql": False,
-    #             "location": LOCATION,
-    #         }
-    #     }
-    # )
+    append_Fulfillments = BigQueryInsertJobOperator(
+        task_id='append_Fulfillments',
+        configuration={
+            "query": {
+                "query": sql_query_27,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )
 
 # Fulfillment Orders Staging Table Refresh - Append
 
@@ -572,7 +587,65 @@ with DAG(
                 "location": LOCATION,
             }
         }
-    )    
+    )   
 
+# Order Items Staging Table Refresh - Append
 
-start_pipeline >> [append_abandoned_checkout, append_discount_code, append_customer, append_order, append_transaction, append_refund_order, append_metafield_order, append_customer_address, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Smart_collections]
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Order Items/Order_items_append.sql', 'r') as file:
+        sql_query_30 = file.read()
+
+    append_order_items = BigQueryInsertJobOperator(
+        task_id='append_order_items',
+        configuration={
+            "query": {
+                "query": sql_query_30,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )  
+# Sanity check Table 
+
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Shopify_DW_Sanity_check.sql', 'r') as file:
+        sql_query_32 = file.read()
+
+    sanity_check = BigQueryInsertJobOperator(
+        task_id='sanity_check',
+        configuration={
+            "query": {
+                "query": sql_query_32,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )   
+
+    
+
+    def run_main_script():
+        script_path = '/home/airflow/gcs/dags/Shopify_Data_Warehouse/python/Shopify_DW_Sanity_check_mail.py'
+        try:
+            # Use subprocess to run the Python script with the specified path
+            result = subprocess.run(
+                ['python', script_path],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            # print("Script output:", result.stdout)
+            # print("Script errors:", result.stderr)
+        except subprocess.CalledProcessError as e:
+            # print(f"Error occurred while running the script: {e}")
+            # print(f"Command output: {e.stdout}")
+            # print(f"Command errors: {e.stderr}")
+            raise
+
+# Define the PythonOperator to run the function
+    run_python_task = PythonOperator(
+        task_id='run_main_script',
+        python_callable=run_main_script,
+    )
+
+start_pipeline >> [append_abandoned_checkout, append_metafield_customers, append_discount_code, append_customer, append_order >> append_order_items, append_draft_order >> append_draft_order_items, append_transaction, append_refund_order, append_customer_address, append_metafield_order, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_inventory_level, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Fulfillments, append_Smart_collections] >> sanity_check >> run_python_task
