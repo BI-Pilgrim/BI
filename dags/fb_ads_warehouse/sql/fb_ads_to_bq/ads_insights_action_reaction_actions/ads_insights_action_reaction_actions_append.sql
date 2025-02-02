@@ -1,84 +1,79 @@
-MERGE INTO `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.ads_insights_action_reaction_actions` AS TARGET
-USING
+merge into `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.ads_insights_action_reaction_actions` as target
+using
 (
-  SELECT
-    _airbyte_extracted_at,
+SELECT
     ad_id,
+    date_start,
     adset_id,
     account_id,
     campaign_id,
-
-
-    -- actions,
-    json_extract_scalar(acts, '$.1d_click') as actions_1d_click,
-    json_extract_scalar(acts, '$.1d_view') as actions_1d_view,
-    json_extract_scalar(acts, '$.28d_click') as actions_28d_click,
-    json_extract_scalar(acts, '$.28d_view') as actions_28d_view,
-    json_extract_scalar(acts, '$.7d_click') as actions_7d_click,
-    json_extract_scalar(acts, '$.7d_view') as actions_7d_view,
+    sum(cast(json_extract_scalar(acts, '$.1d_click') as float64)) as actions_1d_click,
+    sum(cast(json_extract_scalar(acts, '$.1d_view') as float64)) as actions_1d_view,
+    sum(cast(json_extract_scalar(acts, '$.28d_click') as float64)) as actions_28d_click,
+    sum(cast(json_extract_scalar(acts, '$.28d_view') as float64)) as actions_28d_view,
+    sum(cast(json_extract_scalar(acts, '$.7d_click') as float64)) as actions_7d_click,
+    sum(cast(json_extract_scalar(acts, '$.7d_view') as float64)) as actions_7d_view,
     json_extract_scalar(acts, '$.action_type') as actions_action_type,
-    json_extract_scalar(acts, '$.value') as actions_value,
-  FROM
-    (
-      SELECT
-        *,
-        ROW_NUMBER() OVER(PARTITION BY adset_id ORDER BY _airbyte_extracted_at) AS row_num
-      FROM
-        shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_reaction,
-        UNNEST(JSON_EXTRACT_ARRAY(actions)) AS acts
-      WHERE
-        DATE(_airbyte_extracted_at) > DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-    )
-  WHERE row_nuM = 1  
-) AS SOURCE
-
-
-ON TARGET.ad_id = SOURCE.ad_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
-THEN UPDATE SET
-    TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
-    TARGET.ad_id = SOURCE.ad_id,
-    TARGET.adset_id = SOURCE.adset_id,
-    TARGET.account_id = SOURCE.account_id,
-    TARGET.campaign_id = SOURCE.campaign_id,  
-    TARGET.actions_1d_click = SOURCE.actions_1d_click,
-    TARGET.actions_1d_view = SOURCE.actions_1d_view,
-    TARGET.actions_28d_click = SOURCE.actions_28d_click,
-    TARGET.actions_28d_view = SOURCE.actions_28d_view,
-    TARGET.actions_7d_click = SOURCE.actions_7d_click,
-    TARGET.actions_7d_view = SOURCE.actions_7d_view,
-    TARGET.actions_action_type = SOURCE.actions_action_type,
-    TARGET.actions_value = SOURCE.actions_value
-WHEN NOT MATCHED
-THEN INSERT
+    sum(cast(json_extract_scalar(acts, '$.value') as int)) as actions_value,
+FROM
 (
-    _airbyte_extracted_at,
-    ad_id,
-    adset_id,
-    account_id,
-    campaign_id,
-    actions_1d_click,
-    actions_1d_view,
-    actions_28d_click,
-    actions_28d_view,
-    actions_7d_click,
-    actions_7d_view,
-    actions_action_type,
-    actions_value
+select
+*,
+row_number() over(partition by ad_id,date_start,json_extract_scalar(acts, '$.action_type') order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_reaction,
+UNNEST(JSON_EXTRACT_ARRAY(actions)) AS acts
+where date(date_start) >= date_sub(current_date("Asia/Kolkata"), INTERVAL 10 day)
 )
-VALUES
+group by all
+) as source
+on target.ad_id = source.ad_id
+and target.date_start = source.date_start
+and target.actions_action_type = source.actions_action_type
+when matched and target.date_start < source.date_start
+then update set
+  target.ad_id = source.ad_id,
+  target.date_start = source.date_start,
+  target.adset_id = source.adset_id,
+  target.account_id = source.account_id,
+  target.campaign_id = source.campaign_id,
+  target.actions_1d_click = source.actions_1d_click,
+  target.actions_1d_view = source.actions_1d_view,
+  target.actions_28d_click = source.actions_28d_click,
+  target.actions_28d_view = source.actions_28d_view,
+  target.actions_7d_click = source.actions_7d_click,
+  target.actions_7d_view = source.actions_7d_view,
+  target.actions_action_type = source.actions_action_type,
+  target.actions_value = source.actions_value
+when not matched
+then insert
 (
-    SOURCE._airbyte_extracted_at,
-    SOURCE.ad_id,
-    SOURCE.adset_id,
-    SOURCE.account_id,
-    SOURCE.campaign_id,
-    SOURCE.actions_1d_click,
-    SOURCE.actions_1d_view,
-    SOURCE.actions_28d_click,
-    SOURCE.actions_28d_view,
-    SOURCE.actions_7d_click,
-    SOURCE.actions_7d_view,
-    SOURCE.actions_action_type,
-    SOURCE.actions_value
+ad_id,
+date_start,
+adset_id,
+account_id,
+campaign_id,
+actions_1d_click,
+actions_1d_view,
+actions_28d_click,
+actions_28d_view,
+actions_7d_click,
+actions_7d_view,
+actions_action_type,
+actions_value
+)
+values
+(
+source.ad_id,
+source.date_start,
+source.adset_id,
+source.account_id,
+source.campaign_id,
+source.actions_1d_click,
+source.actions_1d_view,
+source.actions_28d_click,
+source.actions_28d_view,
+source.actions_7d_click,
+source.actions_7d_view,
+source.actions_action_type,
+source.actions_value
 )

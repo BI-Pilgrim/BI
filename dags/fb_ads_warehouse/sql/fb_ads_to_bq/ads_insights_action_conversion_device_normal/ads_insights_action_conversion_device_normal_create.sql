@@ -192,4 +192,10 @@ SELECT
 
 
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_conversion_device
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,device_platform order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_conversion_device
+)
+where rn = 1

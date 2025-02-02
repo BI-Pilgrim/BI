@@ -8,6 +8,8 @@ SELECT
   cpp,
   ctr,
   ad_id,
+  date_start,
+  rn,
   reach,
   spend,
   clicks,
@@ -19,7 +21,6 @@ SELECT
   objective,
   account_id,
   adset_name,
-  date_start,
   unique_ctr,
   buying_type,
   campaign_id,
@@ -114,4 +115,10 @@ SELECT
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_avg_time_watched_actions, '$[0]'), '$.value') AS video_avg_time_watched_actions_value,
  
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_country
+(
+select
+*,
+row_number() over(partition by ad_id, date_start,country order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_country
+)
+where rn = 1

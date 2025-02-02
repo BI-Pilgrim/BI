@@ -4,6 +4,8 @@ AS
 SELECT
   _airbyte_extracted_at,
   ad_id,
+  date_start,
+  publisher_platform,
   adset_id,
   account_id,
   campaign_id,
@@ -23,5 +25,11 @@ SELECT
 
 
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_platform,
-  UNNEST(JSON_EXTRACT_ARRAY(unique_actions)) AS unique_acts
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,publisher_platform,JSON_EXTRACT_SCALAR(unique_acts, '$.action_type') order by _airbyte_extracted_at) as rn
+FROM shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_platform,
+UNNEST(JSON_EXTRACT_ARRAY(unique_actions)) AS unique_acts
+)
+where rn = 1

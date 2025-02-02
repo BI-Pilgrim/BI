@@ -155,57 +155,63 @@ SELECT
     JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_p95_watched_actions, '$[0]'), '$.value') AS video_p100_watched_actions_value,
 
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-    -- -- video_15_sec_watched_actions,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_15_sec_watched_actions, '$[0]'), '$.action_type') AS video_15_sec_watched_actions_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_15_sec_watched_actions, '$[0]'), '$.value') AS video_15_sec_watched_actions_value,
-
-
-
-
-    -- -- video_30_sec_watched_actions,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_30_sec_watched_actions, '$[0]'), '$.action_type') AS video_30_sec_watched_actions_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_30_sec_watched_actions, '$[0]'), '$.value') AS video_30_sec_watched_actions_value,
+    -- video_15_sec_watched_actions,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_15_sec_watched_actions, '$[0]'), '$.action_type') AS video_15_sec_watched_actions_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_15_sec_watched_actions, '$[0]'), '$.value') AS video_15_sec_watched_actions_value,
 
 
 
 
-    -- -- video_avg_time_watched_actions,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_avg_time_watched_actions, '$[0]'), '$.action_type') AS video_avg_time_watched_actions_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_avg_time_watched_actions, '$[0]'), '$.value') AS video_avg_time_watched_actions_value,
+    -- video_30_sec_watched_actions,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_30_sec_watched_actions, '$[0]'), '$.action_type') AS video_30_sec_watched_actions_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_30_sec_watched_actions, '$[0]'), '$.value') AS video_30_sec_watched_actions_value,
 
 
-    -- -- unique_outbound_clicks_ctr,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(unique_outbound_clicks_ctr, '$[0]'), '$.action_type') AS unique_outbound_clicks_ctr_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(unique_outbound_clicks_ctr, '$[0]'), '$.value') AS unique_outbound_clicks_ctr_value,
 
 
-    -- -- cost_per_outbound_click,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_outbound_click, '$[0]'), '$.action_type') AS cost_per_outbound_click_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_outbound_click, '$[0]'), '$.value') AS cost_per_outbound_click_value,
+    -- video_avg_time_watched_actions,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_avg_time_watched_actions, '$[0]'), '$.action_type') AS video_avg_time_watched_actions_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_avg_time_watched_actions, '$[0]'), '$.value') AS video_avg_time_watched_actions_value,
 
 
-    -- -- cost_per_15_sec_video_view,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_15_sec_video_view, '$[0]'), '$.action_type') AS cost_per_15_sec_video_view_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_15_sec_video_view, '$[0]'), '$.value') AS cost_per_15_sec_video_view_value,
+    -- unique_outbound_clicks_ctr,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(unique_outbound_clicks_ctr, '$[0]'), '$.action_type') AS unique_outbound_clicks_ctr_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(unique_outbound_clicks_ctr, '$[0]'), '$.value') AS unique_outbound_clicks_ctr_value,
 
 
-    -- -- cost_per_unique_outbound_click,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_unique_outbound_click, '$[0]'), '$.action_type') AS cost_per_unique_outbound_click_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_unique_outbound_click, '$[0]'), '$.value') AS cost_per_unique_outbound_click_value,
+    -- cost_per_outbound_click,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_outbound_click, '$[0]'), '$.action_type') AS cost_per_outbound_click_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_outbound_click, '$[0]'), '$.value') AS cost_per_outbound_click_value,
 
 
-    -- -- cost_per_thruplay
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.1d_click') AS cost_per_thruplay_1d_click,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.1d_view') AS cost_per_thruplay_1d_view,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.7d_click') AS cost_per_thruplay_7d_click,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.7d_view') AS cost_per_thruplay_7d_view,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.28d_click') AS cost_per_thruplay_28d_click,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.28d_view') AS cost_per_thruplay_28d_view,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.action_type') AS cost_per_thruplay_action_type,
-    -- JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.value') AS cost_per_thruplay_value,    
+    -- cost_per_15_sec_video_view,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_15_sec_video_view, '$[0]'), '$.action_type') AS cost_per_15_sec_video_view_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_15_sec_video_view, '$[0]'), '$.value') AS cost_per_15_sec_video_view_value,
+
+
+    -- cost_per_unique_outbound_click,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_unique_outbound_click, '$[0]'), '$.action_type') AS cost_per_unique_outbound_click_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_unique_outbound_click, '$[0]'), '$.value') AS cost_per_unique_outbound_click_value,
+
+
+    -- cost_per_thruplay
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.1d_click') AS cost_per_thruplay_1d_click,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.1d_view') AS cost_per_thruplay_1d_view,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.7d_click') AS cost_per_thruplay_7d_click,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.7d_view') AS cost_per_thruplay_7d_view,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.28d_click') AS cost_per_thruplay_28d_click,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.28d_view') AS cost_per_thruplay_28d_view,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.action_type') AS cost_per_thruplay_action_type,
+    JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_thruplay, '$[0]'), '$.value') AS cost_per_thruplay_value,    
 
 
 FROM
-    shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_video_sound
+(
+select
+*,
+row_number() over(partition by ad_id,date_start order by _airbyte_extracted_at desc) as rn,
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_video_sound
+)
+where rn = 1

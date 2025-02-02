@@ -1,9 +1,10 @@
-MERGE INTO `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.ads_insights_action_video_type_unique_actions` AS TARGET
-USING
+merge into `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.ads_insights_action_video_type_unique_actions` as target
+using
 (
-  SELECT
+  select
     _airbyte_extracted_at,
     ad_id,
+    date_start,
     adset_id,
     account_id,
     campaign_id,
@@ -18,48 +19,39 @@ USING
     JSON_EXTRACT_SCALAR(unique_acts, '$.7d_view') AS unique_actions_7d_view,
     JSON_EXTRACT_SCALAR(unique_acts, '$.action_type') AS unique_actions_action_type,
     JSON_EXTRACT_SCALAR(unique_acts, '$.value') AS unique_actions_value,
-
-
-
-
-  FROM
-    (
-      SELECT
-        *,
-        ROW_NUMBER() OVER(PARTITION BY adset_id ORDER BY _airbyte_extracted_at) AS row_num
-      FROM
-        shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_video_type,
-        UNNEST(JSON_EXTRACT_ARRAY(unique_actions)) AS unique_acts
-      WHERE
-        DATE(_airbyte_extracted_at) > DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-    )
-  WHERE row_nuM = 1  
-) AS SOURCE
-
-
-
-
-ON TARGET.ad_id = SOURCE.ad_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
-THEN UPDATE SET
-  TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
-  TARGET.ad_id = SOURCE.ad_id,
-  TARGET.adset_id = SOURCE.adset_id,
-  TARGET.account_id = SOURCE.account_id,
-  TARGET.campaign_id = SOURCE.campaign_id,
-  TARGET.unique_actions_1d_click = SOURCE.unique_actions_1d_click,
-  TARGET.unique_actions_1d_view = SOURCE.unique_actions_1d_view,
-  TARGET.unique_actions_28d_click = SOURCE.unique_actions_28d_click,
-  TARGET.unique_actions_28d_view = SOURCE.unique_actions_28d_view,
-  TARGET.unique_actions_7d_click = SOURCE.unique_actions_7d_click,
-  TARGET.unique_actions_7d_view = SOURCE.unique_actions_7d_view,
-  TARGET.unique_actions_action_type = SOURCE.unique_actions_action_type,
-  TARGET.unique_actions_value = SOURCE.unique_actions_value
-WHEN NOT MATCHED
-THEN INSERT
+FROM
 (
-  _airbyte_extracted_at,
+select
+*,
+row_number() over(partition by ad_id, date_start,JSON_EXTRACT_SCALAR(unique_acts, '$.action_type') order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_video_type,
+UNNEST(JSON_EXTRACT_ARRAY(unique_actions)) AS unique_acts
+)
+where rn  = 1 and date(_airbyte_extracted_at) >= date_sub(current_date("Asia/Kolkata"), interval 10 day)
+) as source
+on target.ad_id = source.ad_id
+and target.date_start = source.date_start
+and target.unique_actions_action_type = source.unique_actions_action_type
+when matched and target.date_start < source.date_start
+then update set
+target.ad_id = source.ad_id,
+target.date_start = source.date_start,
+target.adset_id = source.adset_id,
+target.account_id = source.account_id,
+target.campaign_id = source.campaign_id,
+target.unique_actions_1d_click = source.unique_actions_1d_click,
+target.unique_actions_1d_view = source.unique_actions_1d_view,
+target.unique_actions_28d_click = source.unique_actions_28d_click,
+target.unique_actions_28d_view = source.unique_actions_28d_view,
+target.unique_actions_7d_click = source.unique_actions_7d_click,
+target.unique_actions_7d_view = source.unique_actions_7d_view,
+target.unique_actions_action_type = source.unique_actions_action_type,
+target.unique_actions_value = source.unique_actions_value
+when not matched
+then insert
+(
   ad_id,
+  date_start,
   adset_id,
   account_id,
   campaign_id,
@@ -72,19 +64,19 @@ THEN INSERT
   unique_actions_action_type,
   unique_actions_value
 )
-VALUES
+values
 (
-  SOURCE._airbyte_extracted_at,
-  SOURCE.ad_id,
-  SOURCE.adset_id,
-  SOURCE.account_id,
-  SOURCE.campaign_id,
-  SOURCE.unique_actions_1d_click,
-  SOURCE.unique_actions_1d_view,
-  SOURCE.unique_actions_28d_click,
-  SOURCE.unique_actions_28d_view,
-  SOURCE.unique_actions_7d_click,
-  SOURCE.unique_actions_7d_view,
-  SOURCE.unique_actions_action_type,
-  SOURCE.unique_actions_value
+source.ad_id,
+source.date_start,
+source.adset_id,
+source.account_id,
+source.campaign_id,
+source.unique_actions_1d_click,
+source.unique_actions_1d_view,
+source.unique_actions_28d_click,
+source.unique_actions_28d_view,
+source.unique_actions_7d_click,
+source.unique_actions_7d_view,
+source.unique_actions_action_type,
+source.unique_actions_value
 )

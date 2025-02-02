@@ -208,4 +208,10 @@ SELECT
 
 
 FROM
-    shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_video_type
+(
+select
+*,
+row_number() over(partition by ad_id, date_start order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_video_type
+)
+where rn = 1
