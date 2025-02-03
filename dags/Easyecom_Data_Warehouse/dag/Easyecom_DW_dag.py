@@ -553,24 +553,25 @@ with DAG(
         }
     )
 
-    # # Tax_report_new Staging Table Refresh - Append
-    # Tax_report_new_sql_path = os.path.join(SQL_DIR, "Tax_report_new/Tax_report_new_Append.sql")
-    # with open(Tax_report_new_sql_path, 'r') as file:
-    #     sql_query_24 = file.read()
+    # Tax_report_new Staging Table Refresh - Append
+    Tax_report_new_sql_path = os.path.join(SQL_DIR, "Tax_report_new/Tax_report_new_Append.sql")
+    with open(Tax_report_new_sql_path, 'r') as file:
+        sql_query_24 = file.read()
 
-    # Append_Tax_report_new = BigQueryInsertJobOperator(
-    #     task_id='Append_Tax_report_new',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_2,
-    #             "useLegacySql": False,
-    #         },
-    #         "location": LOCATION,
-    #     }
-    # )
+    Append_Tax_report_new = BigQueryInsertJobOperator(
+        task_id='Append_Tax_report_new',
+        configuration={
+            "query": {
+                "query": sql_query_2,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
 
     # Sanity Check of all table
     # Load SQL query from file
+    # with open("../dags/Easyecom_Data_Warehouse/sql/Easyecom_DW_sanity_check.sql", 'r') as file:
     with open("/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Easyecom_DW_sanity_check.sql", 'r') as file:
         sql_query_33 = file.read()
 
@@ -643,6 +644,8 @@ with DAG(
         Append_Return_report,
         Append_States,
         Append_Vendors,
+        Append_Mini_Sales_Report,
+        Append_Tax_report_new,
         Append_Status_Wise_Stock_report,
         Append_daily_metrics,
         Append_grn_details,
@@ -686,6 +689,8 @@ with DAG(
         Append_grn_details,
         Append_inventory_view_by_bin_report,
         Append_Kits,
+        Append_Mini_Sales_Report,
+        Append_Tax_report_new,
         Append_order_status_metrics,
         Append_pending_return_orders,
         Append_shipping_status_metrics,
