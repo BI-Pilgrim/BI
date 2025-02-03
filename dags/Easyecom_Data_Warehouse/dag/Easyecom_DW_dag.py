@@ -554,7 +554,7 @@ with DAG(
     )
 
     # Tax_report_new Staging Table Refresh - Append
-    Tax_report_new_sql_path = os.path.join(SQL_DIR, "Tax_report_new/Tax_report_new_Append.sql")
+    Tax_report_new_sql_path = os.path.join(SQL_DIR, "Tax_report_new/Tax_report_new_append.sql")
     with open(Tax_report_new_sql_path, 'r') as file:
         sql_query_24 = file.read()
 
