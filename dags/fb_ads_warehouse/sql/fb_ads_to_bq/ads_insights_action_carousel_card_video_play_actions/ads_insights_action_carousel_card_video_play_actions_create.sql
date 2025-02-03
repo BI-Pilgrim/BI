@@ -7,6 +7,7 @@ SELECT
   adset_id,
   account_id,
   campaign_id,
+  date_start,
 
 
   -- video_play_actions,
@@ -18,8 +19,15 @@ SELECT
   JSON_EXTRACT_SCALAR(vid_play_action, '$.1d_view') AS vid_play_action_1d_view,
   JSON_EXTRACT_SCALAR(vid_play_action, '$.action_type') AS vid_play_action_action_type,
   JSON_EXTRACT_SCALAR(vid_play_action, '$.value') AS vid_play_action_value,
+  rn
 
 
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card,
-  UNNEST(JSON_EXTRACT_ARRAY(video_play_actions)) AS vid_play_action
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,JSON_EXTRACT_SCALAR(vid_play_action, '$.action_type') order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card,
+UNNEST(JSON_EXTRACT_ARRAY(video_play_actions)) AS vid_play_action
+)
+where rn = 1

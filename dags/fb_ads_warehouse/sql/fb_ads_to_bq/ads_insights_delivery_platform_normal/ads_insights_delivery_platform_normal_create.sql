@@ -8,6 +8,8 @@ SELECT
   cpp,
   ctr,
   ad_id,
+  date_start,
+  rn,
   reach,
   spend,
   clicks,
@@ -18,7 +20,6 @@ SELECT
   objective,
   account_id,
   adset_name,
-  date_start,
   unique_ctr,
   buying_type,
   campaign_id,
@@ -164,4 +165,10 @@ SELECT
 
 
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_platform
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,publisher_platform order by _airbyte_extracted_at) as rn
+FROM shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_platform
+)
+where rn = 1

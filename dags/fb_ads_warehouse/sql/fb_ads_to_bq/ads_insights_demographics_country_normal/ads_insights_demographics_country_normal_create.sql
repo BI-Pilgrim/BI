@@ -163,5 +163,15 @@ SELECT
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_unique_outbound_click, '$[0]'), '$.value') AS cost_per_unique_outbound_click_value,
 
 
+
+
+
+
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_demographics_country
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,country order by _airbyte_extracted_at) as rn
+FROM shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_demographics_country
+)
+where rn = 1

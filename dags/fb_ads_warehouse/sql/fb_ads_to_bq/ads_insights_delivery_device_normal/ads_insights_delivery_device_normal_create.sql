@@ -8,6 +8,8 @@ SELECT
   cpp,
   ctr,
   ad_id,
+  date_start,
+  device_platform,
   reach,
   spend,
   clicks,
@@ -18,7 +20,6 @@ SELECT
   objective,
   account_id,
   adset_name,
-  date_start,
   unique_ctr,
   buying_type,
   campaign_id,
@@ -152,4 +153,10 @@ SELECT
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_unique_outbound_click, '$[0]'), '$.action_type') AS cost_per_unique_outbound_click_action_type,
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(cost_per_unique_outbound_click, '$[0]'), '$.value') AS cost_per_unique_outbound_click_value,
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_device
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,device_platform order by _airbyte_extracted_at) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_device
+)
+where rn = 1

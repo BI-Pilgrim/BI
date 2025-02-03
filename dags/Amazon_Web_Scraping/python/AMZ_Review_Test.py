@@ -53,6 +53,10 @@ def Login_AMZ(homepage, username, password, df):
             print("Element not visible")
             page.wait_for_selector('#nav-link-accountList', state='attached', timeout=60000)
             page.locator('#nav-link-accountList').click()
+
+        #page.wait_for_selector('#nav-link-accountList', state='attached', timeout=60000)
+        #page.locator('#nav-link-accountList').click()
+
         page.wait_for_load_state('load') 
         if page.locator('input#ap_email_login').is_visible():
             # If present, use the 'ap_email_login' field
@@ -166,7 +170,8 @@ def ratings_count(page, df):
         for s in star:        
             url = amazon_url + '&filterByStar=' + s
             
-            page.goto(url,wait_until="load")
+            page.goto(url,wait_until="load") 
+            page.wait_for_selector('div[data-hook="cr-filter-info-review-rating-count"]', state='attached')
             rating_counts = page.locator('div[data-hook="cr-filter-info-review-rating-count"]')
             print(f'rating_counts for {s} star', rating_counts.inner_text())
 

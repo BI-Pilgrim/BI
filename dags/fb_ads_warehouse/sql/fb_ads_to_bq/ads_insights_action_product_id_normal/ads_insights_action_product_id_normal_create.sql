@@ -6,6 +6,7 @@ SELECT
   cpm,
   ctr,
   ad_id,
+  date_start,
   spend,
   clicks,
   ad_name,
@@ -14,7 +15,7 @@ SELECT
   objective,
   account_id,
   adset_name,
-  date_start,
+
   product_id,
   buying_type,
   campaign_id,
@@ -57,4 +58,10 @@ SELECT
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(mobile_app_purchase_roas, '$[0]'), '$.action_type') AS mobile_app_purchase_roas_action_type,  
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(mobile_app_purchase_roas, '$[0]'), '$.value') AS mobile_app_purchase_roas_value,
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_product_id
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,product_id order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_product_id
+)
+where rn = 1

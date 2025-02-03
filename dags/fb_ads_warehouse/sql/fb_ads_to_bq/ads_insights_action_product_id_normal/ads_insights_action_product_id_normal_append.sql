@@ -1,5 +1,5 @@
-MERGE INTO `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.ads_insights_action_product_id_normal` AS TARGET
-USING
+merge into `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.ads_insights_action_product_id_normal` as target
+using
 (
 SELECT
   _airbyte_extracted_at,
@@ -7,6 +7,7 @@ SELECT
   cpm,
   ctr,
   ad_id,
+  date_start,
   spend,
   clicks,
   ad_name,
@@ -15,7 +16,6 @@ SELECT
   objective,
   account_id,
   adset_name,
-  date_start,
   product_id,
   buying_type,
   campaign_id,
@@ -59,69 +59,67 @@ SELECT
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(mobile_app_purchase_roas, '$[0]'), '$.value') AS mobile_app_purchase_roas_value,
 FROM
 (
-  SELECT
-  *,
-  ROW_NUMBER() OVER(PARTITION BY ad_id ORDER BY date_stop) AS row_nuM
-  FROM
-  `shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_product_id`
-  WHERE DATE(date_stop) > DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+select
+*,
+row_number() over(partition by ad_id,date_start,product_id order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_product_id
 )
-WHERE row_nuM = 1 
-) AS SOURCE
-ON SOURCE.ad_id = TARGET.ad_id
-AND SOURCE.adset_id = TARGET.adset_id
-AND SOURCE.campaign_id = TARGET.campaign_id
-AND SOURCE.account_id = TARGET.account_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
-THEN UPDATE SET
-TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
-TARGET.cpc = SOURCE.cpc,
-TARGET.cpm = SOURCE.cpm,
-TARGET.ctr = SOURCE.ctr,
-TARGET.ad_id = SOURCE.ad_id,
-TARGET.spend = SOURCE.spend,
-TARGET.clicks = SOURCE.clicks,
-TARGET.ad_name = SOURCE.ad_name,
-TARGET.adset_id = SOURCE.adset_id,
-TARGET.date_stop = SOURCE.date_stop,
-TARGET.objective = SOURCE.objective,
-TARGET.account_id = SOURCE.account_id,
-TARGET.adset_name = SOURCE.adset_name,
-TARGET.date_start = SOURCE.date_start,
-TARGET.product_id = SOURCE.product_id,
-TARGET.buying_type = SOURCE.buying_type,
-TARGET.campaign_id = SOURCE.campaign_id,
-TARGET.impressions = SOURCE.impressions,
-TARGET.account_name = SOURCE.account_name,
-TARGET.created_time = SOURCE.created_time,
-TARGET.updated_time = SOURCE.updated_time,
-TARGET.campaign_name = SOURCE.campaign_name,
-TARGET.account_currency = SOURCE.account_currency,
-TARGET.optimization_goal = SOURCE.optimization_goal,
-TARGET.inline_link_clicks = SOURCE.inline_link_clicks,
-TARGET.full_view_impressions = SOURCE.full_view_impressions,
-TARGET.inline_link_click_ctr = SOURCE.inline_link_click_ctr,
-TARGET.inline_post_engagement = SOURCE.inline_post_engagement,
-TARGET.cost_per_inline_link_click = SOURCE.cost_per_inline_link_click,
-TARGET.cost_per_inline_post_engagement = SOURCE.cost_per_inline_post_engagement,
-TARGET.website_ctr_action_type = SOURCE.website_ctr_action_type,
-TARGET.website_ctr_value = SOURCE.website_ctr_value,
-TARGET.outbound_clicks_action_type = SOURCE.outbound_clicks_action_type,
-TARGET.outbound_clicks_value = SOURCE.outbound_clicks_value,
-TARGET.outbound_clicks_ctr_action_type = SOURCE.outbound_clicks_ctr_action_type,
-TARGET.outbound_clicks_ctr_value = SOURCE.outbound_clicks_ctr_value,
-TARGET.cost_per_outbound_click_action_type = SOURCE.cost_per_outbound_click_action_type,
-TARGET.cost_per_outbound_click_value = SOURCE.cost_per_outbound_click_value,
-TARGET.mobile_app_purchase_roas_action_type = SOURCE.mobile_app_purchase_roas_action_type,
-TARGET.mobile_app_purchase_roas_value = SOURCE.mobile_app_purchase_roas_value
-WHEN NOT MATCHED
-THEN INSERT
+where rn = 1 and date(_airbyte_extracted_at) >= date_sub(current_date("Asia/Kolkata"), INTERVAL 10 day)
+) as source
+on target.ad_id = source.ad_id
+and target.date_start = source.date_start
+and target.product_id = source.product_id
+when matched and target.date_start < source.date_start
+then update set
+target._airbyte_extracted_at = source._airbyte_extracted_at,
+target.cpc = source.cpc,
+target.cpm = source.cpm,
+target.ctr = source.ctr,
+target.ad_id = source.ad_id,
+target.date_start = source.date_start,
+target.spend = source.spend,
+target.clicks = source.clicks,
+target.ad_name = source.ad_name,
+target.adset_id = source.adset_id,
+target.date_stop = source.date_stop,
+target.objective = source.objective,
+target.account_id = source.account_id,
+target.adset_name = source.adset_name,
+target.product_id = source.product_id,
+target.buying_type = source.buying_type,
+target.campaign_id = source.campaign_id,
+target.impressions = source.impressions,
+target.account_name = source.account_name,
+target.created_time = source.created_time,
+target.updated_time = source.updated_time,
+target.campaign_name = source.campaign_name,
+target.account_currency = source.account_currency,
+target.optimization_goal = source.optimization_goal,
+target.inline_link_clicks = source.inline_link_clicks,
+target.full_view_impressions = source.full_view_impressions,
+target.inline_link_click_ctr = source.inline_link_click_ctr,
+target.inline_post_engagement = source.inline_post_engagement,
+target.cost_per_inline_link_click = source.cost_per_inline_link_click,
+target.cost_per_inline_post_engagement = source.cost_per_inline_post_engagement,
+target.website_ctr_action_type = source.website_ctr_action_type,
+target.website_ctr_value = source.website_ctr_value,
+target.outbound_clicks_action_type = source.outbound_clicks_action_type,
+target.outbound_clicks_value = source.outbound_clicks_value,
+target.outbound_clicks_ctr_action_type = source.outbound_clicks_ctr_action_type,
+target.outbound_clicks_ctr_value = source.outbound_clicks_ctr_value,
+target.cost_per_outbound_click_action_type = source.cost_per_outbound_click_action_type,
+target.cost_per_outbound_click_value = source.cost_per_outbound_click_value,
+target.mobile_app_purchase_roas_action_type = source.mobile_app_purchase_roas_action_type,
+target.mobile_app_purchase_roas_value = source.mobile_app_purchase_roas_value
+when not matched
+then insert
 (
   _airbyte_extracted_at,
   cpc,
   cpm,
   ctr,
   ad_id,
+  date_start,
   spend,
   clicks,
   ad_name,
@@ -130,7 +128,6 @@ THEN INSERT
   objective,
   account_id,
   adset_name,
-  date_start,
   product_id,
   buying_type,
   campaign_id,
@@ -158,46 +155,46 @@ THEN INSERT
   mobile_app_purchase_roas_action_type,  
   mobile_app_purchase_roas_value
 )
-VALUES
+values
 (
-SOURCE._airbyte_extracted_at,
-SOURCE.cpc,
-SOURCE.cpm,
-SOURCE.ctr,
-SOURCE.ad_id,
-SOURCE.spend,
-SOURCE.clicks,
-SOURCE.ad_name,
-SOURCE.adset_id,
-SOURCE.date_stop,
-SOURCE.objective,
-SOURCE.account_id,
-SOURCE.adset_name,
-SOURCE.date_start,
-SOURCE.product_id,
-SOURCE.buying_type,
-SOURCE.campaign_id,
-SOURCE.impressions,
-SOURCE.account_name,
-SOURCE.created_time,
-SOURCE.updated_time,
-SOURCE.campaign_name,
-SOURCE.account_currency,
-SOURCE.optimization_goal,
-SOURCE.inline_link_clicks,
-SOURCE.full_view_impressions,
-SOURCE.inline_link_click_ctr,
-SOURCE.inline_post_engagement,
-SOURCE.cost_per_inline_link_click,
-SOURCE.cost_per_inline_post_engagement,
-SOURCE.website_ctr_action_type,
-SOURCE.website_ctr_value,
-SOURCE.outbound_clicks_action_type,
-SOURCE.outbound_clicks_value,
-SOURCE.outbound_clicks_ctr_action_type,
-SOURCE.outbound_clicks_ctr_value,
-SOURCE.cost_per_outbound_click_action_type,
-SOURCE.cost_per_outbound_click_value,
-SOURCE.mobile_app_purchase_roas_action_type,
-SOURCE.mobile_app_purchase_roas_value
+source._airbyte_extracted_at,
+source.cpc,
+source.cpm,
+source.ctr,
+source.ad_id,
+source.date_start,
+source.spend,
+source.clicks,
+source.ad_name,
+source.adset_id,
+source.date_stop,
+source.objective,
+source.account_id,
+source.adset_name,
+source.product_id,
+source.buying_type,
+source.campaign_id,
+source.impressions,
+source.account_name,
+source.created_time,
+source.updated_time,
+source.campaign_name,
+source.account_currency,
+source.optimization_goal,
+source.inline_link_clicks,
+source.full_view_impressions,
+source.inline_link_click_ctr,
+source.inline_post_engagement,
+source.cost_per_inline_link_click,
+source.cost_per_inline_post_engagement,
+source.website_ctr_action_type,
+source.website_ctr_value,
+source.outbound_clicks_action_type,
+source.outbound_clicks_value,
+source.outbound_clicks_ctr_action_type,
+source.outbound_clicks_ctr_value,
+source.cost_per_outbound_click_action_type,
+source.cost_per_outbound_click_value,
+source.mobile_app_purchase_roas_action_type,
+source.mobile_app_purchase_roas_value
 )

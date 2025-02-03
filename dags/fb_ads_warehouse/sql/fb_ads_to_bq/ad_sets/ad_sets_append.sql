@@ -35,7 +35,7 @@ USING
   (
     SELECT
       *,
-      ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY _airbyte_extracted_at DESC) AS row_num
+      ROW_NUMBER() OVER (PARTITION BY id ORDER BY created_time DESC) AS row_num
       FROM
         shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ad_sets,
         UNNEST(JSON_EXTRACT_ARRAY(targeting, '$.excluded_custom_audiences')) AS excluded_audience

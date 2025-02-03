@@ -18,16 +18,18 @@ USING (
   FROM (
     SELECT
       *,
-      ROW_NUMBER() OVER (PARTITION BY object_id ORDER BY _airbyte_extracted_at DESC) AS row_num
+      ROW_NUMBER() OVER (PARTITION BY object_id, event_time, account_id ORDER BY event_time DESC) AS row_num
     FROM
       `shopify-pubsub-project.pilgrim_bi_airbyte_facebook.activities`
     WHERE
-      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+      DATE(event_time) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
   )
   WHERE row_num = 1 -- Keep only the most recent row per object_id
 ) AS SOURCE
 ON TARGET.object_id = SOURCE.object_id
-WHEN MATCHED AND TARGET._airbyte_extracted_at < SOURCE._airbyte_extracted_at
+and TARGET.event_time = SOURCE.event_time
+and TARGET.account_id = SOURCE.account_id
+WHEN MATCHED AND TARGET.event_time < SOURCE.event_time
 THEN UPDATE SET
   TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,
   TARGET.actor_id = SOURCE.actor_id,

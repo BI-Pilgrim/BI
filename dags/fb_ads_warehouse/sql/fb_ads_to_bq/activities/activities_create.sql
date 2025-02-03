@@ -16,5 +16,11 @@ SELECT
   application_name,
   date_time_in_timezone,
   translated_event_type,
+from
+(
+select
+*,
+row_number() over(partition by object_id, event_time, account_id order by event_time desc) as rn
 FROM `shopify-pubsub-project.pilgrim_bi_airbyte_facebook.activities`
--- LIMIT 1000
+)
+where rn = 1

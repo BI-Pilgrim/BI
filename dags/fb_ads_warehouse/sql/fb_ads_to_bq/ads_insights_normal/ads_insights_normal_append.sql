@@ -57,13 +57,14 @@ using
   (
     select
     *,
-    row_number() over(partition by ad_id order by ad_id) as row_num
+    row_number() over(partition by ad_id,date_start order by _airbyte_extracted_at desc) as row_num
     from
     shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights
   )
-  where row_num = 1
+  where row_num = 1 and date(_airbyte_extracted_at) >= date_sub(current_date("Asia/Kolkata"), interval 10 day)
 ) as source
 on target.ad_id = source.ad_id
+and target.date_start = source.date_start
 when matched and target._airbyte_extracted_at < source._airbyte_extracted_at
 then update set
   target.created_time = source.created_time,

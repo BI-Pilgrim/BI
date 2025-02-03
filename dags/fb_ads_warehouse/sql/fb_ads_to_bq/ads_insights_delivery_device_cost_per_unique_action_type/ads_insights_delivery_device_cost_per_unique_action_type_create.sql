@@ -4,10 +4,11 @@ AS
 SELECT
   _airbyte_extracted_at,
   ad_id,
+  date_start,
+  device_platform,
   adset_id,
   account_id,
   campaign_id,
-
 
 
 
@@ -21,7 +22,12 @@ SELECT
   JSON_EXTRACT_SCALAR(cpuat, '$.action_type') AS cost_per_unique_action_type_action_type,
   JSON_EXTRACT_SCALAR(cpuat, '$.value') AS cost_per_unique_action_type_value,
 
-
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_device,
-  UNNEST(JSON_EXTRACT_ARRAY(cost_per_unique_action_type)) AS cpuat
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,device_platform,JSON_EXTRACT_SCALAR(cpuat, '$.action_type') order by _airbyte_extracted_at) as rn
+FROM shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_delivery_device,
+UNNEST(JSON_EXTRACT_ARRAY(cost_per_unique_action_type)) AS cpuat
+)
+where rn = 1

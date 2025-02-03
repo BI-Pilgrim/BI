@@ -7,6 +7,7 @@ SELECT
   adset_id,
   account_id,
   campaign_id,
+  date_start,
 
 
   -- mobile_app_purchase_roas,
@@ -18,6 +19,13 @@ SELECT
   JSON_EXTRACT_SCALAR(mob_app_purchase_roas, '$.1d_view') AS mob_app_purchase_roas_1d_view,
   JSON_EXTRACT_SCALAR(mob_app_purchase_roas, '$.action_type') AS mob_app_purchase_roas_action_type,
   JSON_EXTRACT_SCALAR(mob_app_purchase_roas, '$.value') AS mob_app_purchase_roas_value,
+
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card,
+(
+  select *,
+  row_number() over(partition by ad_id,date_start,JSON_EXTRACT_SCALAR(mob_app_purchase_roas, '$.action_type') order by _airbyte_extracted_at desc) as rn,
+  from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card,
   UNNEST(JSON_EXTRACT_ARRAY(mobile_app_purchase_roas)) AS mob_app_purchase_roas
+)
+where rn = 1
+  

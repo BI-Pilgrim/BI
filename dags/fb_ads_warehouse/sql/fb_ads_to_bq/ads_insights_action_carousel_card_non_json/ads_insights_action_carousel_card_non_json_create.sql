@@ -81,6 +81,13 @@ SELECT
 
   -- video_continuous_2_sec_watched_actions,
   JSON_EXTRACT_SCALAR(JSON_EXTRACT(video_continuous_2_sec_watched_actions, '$[0]'), '$.action_type') AS video_2sec_actions_type,
-  JSON_EXTRACT(JSON_EXTRACT(video_continuous_2_sec_watched_actions, '$[0]'), '$.value') AS video_2sec_value,  
+  JSON_EXTRACT(JSON_EXTRACT(video_continuous_2_sec_watched_actions, '$[0]'), '$.value') AS video_2sec_value,
+  rn
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card
+(
+select
+*,
+row_number() over(partition by ad_id,date_start order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card
+)
+where rn = 1

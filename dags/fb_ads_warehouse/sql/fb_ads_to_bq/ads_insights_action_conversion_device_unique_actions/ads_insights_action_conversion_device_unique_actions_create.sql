@@ -1,12 +1,12 @@
 CREATE OR REPLACE TABLE `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.ads_insights_action_conversion_device_unique_actions`
-PARTITION BY DATE_TRUNC(_airbyte_extracted_at,DAY)
-AS
+as
 SELECT
   _airbyte_extracted_at,
   ad_id,
   adset_id,
   campaign_id,
-
+  date_start,
+  device_platform,
 
   -- unique_actions,
   JSON_EXTRACT_SCALAR(unique_acts, '$.1d_click') AS unique_actions_1d_click,
@@ -18,5 +18,12 @@ SELECT
   JSON_EXTRACT_SCALAR(unique_acts, '$.action_type') AS unique_actions_action_type,
   JSON_EXTRACT_SCALAR(unique_acts, '$.value') AS unique_actions_value,
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_conversion_device,
-  UNNEST(JSON_EXTRACT_ARRAY(unique_actions)) AS unique_acts
+(
+select
+*,
+row_number() over(partition by ad_id,date_start,device_platform,JSON_EXTRACT_SCALAR(unique_acts, '$.action_type') order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_conversion_device,
+UNNEST(JSON_EXTRACT_ARRAY(unique_actions)) AS unique_acts
+)
+where rn = 1
+order by ad_id,date_start,device_platform,rn

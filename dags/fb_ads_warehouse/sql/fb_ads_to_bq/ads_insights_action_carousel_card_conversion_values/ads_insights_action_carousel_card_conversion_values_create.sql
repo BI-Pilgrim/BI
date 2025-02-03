@@ -7,6 +7,8 @@ SELECT
   adset_id,
   account_id,
   campaign_id,
+  date_start,
+  date_stop,
 
 
   -- conversion_values,
@@ -16,7 +18,12 @@ SELECT
   JSON_EXTRACT_SCALAR(conv_values, '$.action_type') AS conv_values_action_type,
   JSON_EXTRACT_SCALAR(conv_values, '$.value') AS conv_values_value,
 
-
 FROM
-  shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card,
+(
+  select
+  *,
+  row_number() over(partition by ad_id,date_start,JSON_EXTRACT_SCALAR(conv_values, '$.action_type')  order by _airbyte_extracted_at desc) as rn,
+  from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card,
   UNNEST(JSON_EXTRACT_ARRAY(conversion_values)) AS conv_values
+)
+where rn = 1
