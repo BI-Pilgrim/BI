@@ -1,0 +1,21 @@
+CREATE TABLE pilgrim_bi_judgeme.reviews (
+            id INT64,
+            title STRING,
+            body STRING,
+            rating INT64,
+            product_external_id INT64,
+            product_title STRING,
+            product_handle STRING,
+            reviewer JSON,
+            source STRING,
+            curated STRING,
+            hidden BOOL,
+            verified STRING,
+            created_at TIMESTAMP,
+            updated_at TIMESTAMP,
+            ip_address STRING,
+            has_published_pictures BOOL,
+            has_published_videos BOOL,
+            pictures JSON,
+            ee_extracted_at TIMESTAMP
+)

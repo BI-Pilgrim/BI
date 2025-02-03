@@ -53,8 +53,10 @@ def Login_AMZ(homepage, username, password, df):
             print("Element not visible")
             page.wait_for_selector('#nav-link-accountList', state='attached', timeout=60000)
             page.locator('#nav-link-accountList').click()
+
         #page.wait_for_selector('#nav-link-accountList', state='attached', timeout=60000)
         #page.locator('#nav-link-accountList').click()
+
         page.wait_for_load_state('load') 
         if page.locator('input#ap_email_login').is_visible():
             # If present, use the 'ap_email_login' field

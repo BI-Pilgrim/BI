@@ -142,7 +142,7 @@ class easyEComPendingReturnOrdersAPI(EasyComApiConnector):
                     break
                 try:
                     max_count += 1
-                    data = self.send_get_request(next_url)
+                    data = self.send_get_request(next_url, auth_token=token)
                     pending_returns = data.get("data") or {}
                     table_data.extend(pending_returns.get('pending_returns', []))
                     next_url = data.get("nextUrl")

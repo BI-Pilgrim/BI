@@ -48,6 +48,7 @@ class MiniSalesReportParserAPI(EasyComApiConnector):
             df = df.astype(str)
             df.columns = [self.clean_column_name(col) for col in df.columns]
             df = df.assign(**report_data)
+            df = df[self.get_table_columns()]
             transformed_data.append(df)
             
         return transformed_data
@@ -56,6 +57,9 @@ class MiniSalesReportParserAPI(EasyComApiConnector):
         """Get the report data."""
         del report['status']
         del report['csv_url']
+
+        if 'Cost_of_Goods_purchased' in report:
+            del report['Cost_of_Goods_purchased']
         return report
     
     def sync_data(self):

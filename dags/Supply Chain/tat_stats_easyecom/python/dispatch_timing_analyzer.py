@@ -29,16 +29,18 @@ class DispatchTimingAnalyzer:
             self.dataset_id = "easycom"
             
             # Get credentials from environment similar to get_orders
-            credentials_info = self.get_google_credentials_info()
-            credentials_info = base64.b64decode(credentials_info).decode("utf-8")
-            credentials_info = json.loads(credentials_info)
+            # credentials_info = self.get_google_credentials_info()
+            # credentials_info = base64.b64decode(credentials_info).decode("utf-8")
+            # credentials_info = json.loads(credentials_info)
 
-            credentials = service_account.Credentials.from_service_account_info(credentials_info)
-            self.client = bigquery.Client(credentials=credentials, project=self.project_id)
+            # credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            # self.client = bigquery.Client(credentials=credentials, project=self.project_id)
+            self.client = bigquery.Client()
             
             # Create engine for SQLAlchemy operations if needed
             connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
-            self.engine = create_engine(connection_string, credentials_info=credentials_info)
+            # self.engine = create_engine(connection_string, credentials_info=credentials_info)
+            self.engine = create_engine(connection_string)
             
         except Exception as e:
             logging.error(f"Error initializing DispatchTimingAnalyzer: {str(e)}")
