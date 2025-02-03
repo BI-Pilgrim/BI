@@ -1,5 +1,6 @@
 
 import time
+from typing import List
 import requests
 import os
 
@@ -61,6 +62,7 @@ class EasyComApiConnector:
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json"
         }
+        self.client:bigquery.Client = None
 
     def send_get_request(self, url, params=None, auth_token = None):
 
@@ -102,15 +104,18 @@ class EasyComApiConnector:
         if not passing_df:
             data = pd.DataFrame(data)
         data["ee_extracted_at"] = extracted_at
+        # table = self.client.get_table(self.table_id)
         job_config = bigquery.LoadJobConfig(
-            write_disposition=bigquery.WriteDisposition.WRITE_APPEND
+            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+            # schema=table.schema,
         )
         try:
             job = self.client.load_table_from_dataframe(data, self.table_id, job_config=job_config)
             job.result()
         except Exception as e:
-            if _retry<max_retry: 
+            if _retry+1<max_retry: 
                 mint = 60
+                print('Error:', str(e))
                 print(f"SLEEPING :: Error inserting to BQ retrying in {mint} min")
                 time.sleep(60*mint) # 15 min
                 return self.load_data_to_bigquery(data, extracted_at, passing_df=passing_df, _retry=_retry+1, max_retry=max_retry)
@@ -169,7 +174,7 @@ class EasyComApiConnector:
                     if chunk:
                         file.write(chunk)
 
-        data_frames =  pd.read_csv(file_path, chunksize=10000)
+        data_frames = pd.read_csv(file_path, chunksize=10000, on_bad_lines='skip')
 
         # os.remove(file_path)
         return data_frames
@@ -194,3 +199,19 @@ class EasyComApiConnector:
         
     def get_google_credentials_info(self):
         return Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
+    
+    def get_table_columns(self): 
+        table = self.client.get_table(self.table_id) 
+        return [field.name for field in table.schema]
+
+    def convert_if_found(self, df:pd.DataFrame, keys:List[str], _type):
+        for key in keys:
+            if key in df.columns:
+                df[key] = df[key].apply(lambda x: self.convert(x, _type))
+        return df
+    
+    def apply_if_found(self, df:pd.DataFrame, keys:List[str], func):
+        for key in keys:
+            if key in df.columns:
+                df[key] = df[key].apply(func)
+        return df

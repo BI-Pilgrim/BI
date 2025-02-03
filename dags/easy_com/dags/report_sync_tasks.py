@@ -39,7 +39,7 @@ def sync_mini_sales_report():
     resp = sync()
 
 @dag("sync_tax_report_return", schedule='30 0 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
-def sync_tax_report():
+def sync_tax_report_return():
     from easy_com.reports.parsers.tax_report import TaxReportParserAPI
     
     @task.python
