@@ -22,7 +22,7 @@ def Search_page(nopage,key):
     print('Hold your seat belt tight and enjoy the show !!!....')
 
     categories = ['Face Wash','Facial Cleanser','Face Serum','Shampoo','Hair Conditioner','Hair Growth Serum','Hair Growth Oil',
-                  'Sunscreen','Body Lotion','Hair Mask','Body Mist','Face Cream','Anti-Aging Cream','Fairness Cream','Face Moisturizers']
+                  'Sunscreen','Body Lotion','Hair Mask','Face Cream','Anti-Aging Cream','Fairness Cream','Face Moisturizers']
 
     keyword = key
 
@@ -40,6 +40,7 @@ def Search_page(nopage,key):
     Top_brands = []
 
     driver = webdriver.Firefox()
+    driver.implicitly_wait(20)
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
         Prod_url,Asin = Scrape_Page(driver,url)
@@ -128,7 +129,7 @@ def Scrape_child_asin(df):
     std = "https://www.amazon.in/dp/"
     time_interval = 1
     driver = webdriver.Firefox()
-
+    driver.implicitly_wait(20)
     for index, row in df.iterrows():
         
         amazon_url = row['Product_URL']
@@ -188,7 +189,6 @@ def child_details(df):
     inbuilt_category = []
     
     driver = webdriver.Firefox()
-    
     prefixes = ["Visit the ", "Brand: "]
     for index, row in df.iterrows():
         url =  row['Product_URL']
@@ -632,7 +632,7 @@ def write_to_gbq(df):
     print("Done appending in the table")
     
     
-keyword = 'Face Wash'
+keyword = 'Hair Mask'
 
 No_of_pages = 10
 
