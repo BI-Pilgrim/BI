@@ -18,8 +18,8 @@ default_args = {
 
 # Define constants
 LOCATION = "US"  # Replace with your BigQuery dataset location (e.g., "US", "EU")
-# SQL_DIR = "//home//airflow//gcs//dags//fb_ads_warehouse//sql//fb_ads_to_bq"  # Adjust this path if necessary
-SQL_DIR = "..//dags//fb_ads_warehouse//sql//fb_ads_to_bq"  # Adjust this path if necessary
+SQL_DIR = "/home/airflow/gcs/dags/fb_ads_warehouse/sql/fb_ads_to_bq"  # Adjust this path if necessary
+# SQL_DIR = "../dags/fb_ads_warehouse/sql/fb_ads_to_bq"  # Adjust this path if necessary
 
 # Define the DAG
 with DAG(
@@ -37,7 +37,7 @@ with DAG(
     )
 
     # activities Table Refresh - Append
-    activities_sql_path = os.path.join(SQL_DIR, "activities//activities_append.sql")
+    activities_sql_path = os.path.join(SQL_DIR, "activities/activities_append.sql")
     with open(activities_sql_path, 'r') as file:
         sql_query_1 = file.read()
 
@@ -53,7 +53,7 @@ with DAG(
     )
 
     # ads Staging Table Refresh - Append
-    ads_sql_path = os.path.join(SQL_DIR, "ads//ads_append.sql")
+    ads_sql_path = os.path.join(SQL_DIR, "ads/ads_append.sql")
     with open(ads_sql_path, 'r') as file:
         sql_query_2 = file.read()
 
@@ -69,7 +69,7 @@ with DAG(
     )
 
     # ads_insights_action_carousel_card_conversion_values Staging Table Refresh - Append
-    ads_insights_action_carousel_card_conversion_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_conversion_values//ads_insights_action_carousel_card_conversion_values_append.sql")
+    ads_insights_action_carousel_card_conversion_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_conversion_values/ads_insights_action_carousel_card_conversion_values_append.sql")
     with open(ads_insights_action_carousel_card_conversion_values_sql_path, 'r') as file:
         sql_query_3 = file.read()
 
@@ -85,7 +85,7 @@ with DAG(
     )
 
     # ads_insights_action_carousel_card_cost_per_conversion Staging Table Refresh - Append
-    ads_insights_action_carousel_card_cost_per_conversion_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_cost_per_conversion//ads_insights_action_carousel_card_cost_per_conversion_append.sql")
+    ads_insights_action_carousel_card_cost_per_conversion_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_cost_per_conversion/ads_insights_action_carousel_card_cost_per_conversion_append.sql")
     with open(ads_insights_action_carousel_card_cost_per_conversion_sql_path, 'r') as file:
         sql_query_4 = file.read()
 
@@ -101,7 +101,7 @@ with DAG(
     )
 
     # ads_insights_action_carousel_card_mobile_app_purchase_roas Staging Table Refresh - Append
-    ads_insights_action_carousel_card_mobile_app_purchase_roas_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_mobile_app_purchase_roas//ads_insights_action_carousel_card_mobile_app_purchase_roas_append.sql")
+    ads_insights_action_carousel_card_mobile_app_purchase_roas_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_mobile_app_purchase_roas/ads_insights_action_carousel_card_mobile_app_purchase_roas_append.sql")
     with open(ads_insights_action_carousel_card_mobile_app_purchase_roas_sql_path, 'r') as file:
         sql_query_5 = file.read()
 
@@ -117,7 +117,7 @@ with DAG(
     )
 
     # ads_insights_action_carousel_card_non_json Staging Table Refresh - Append
-    ads_insights_action_carousel_card_non_json_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_non_json//ads_insights_action_carousel_card_non_json_append.sql")
+    ads_insights_action_carousel_card_non_json_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_non_json/ads_insights_action_carousel_card_non_json_append.sql")
     with open(ads_insights_action_carousel_card_non_json_sql_path, 'r') as file:
         sql_query_6 = file.read()
 
@@ -133,7 +133,7 @@ with DAG(
     )
 
     # ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr Staging Table Refresh - Append
-    ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr//ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr_append.sql")
+    ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr/ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr_append.sql")
     with open(ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr_sql_path, 'r') as file:
         sql_query_7 = file.read()
 
@@ -149,7 +149,7 @@ with DAG(
     )
 
     # ads_insights_action_carousel_card_video_play_actions Staging Table Refresh - Append
-    ads_insights_action_carousel_card_video_play_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_video_play_actions//ads_insights_action_carousel_card_video_play_actions_append.sql")
+    ads_insights_action_carousel_card_video_play_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_carousel_card_video_play_actions/ads_insights_action_carousel_card_video_play_actions_append.sql")
     with open(ads_insights_action_carousel_card_video_play_actions_sql_path, 'r') as file:
         sql_query_8 = file.read()
 
@@ -165,7 +165,7 @@ with DAG(
     )
 
     # ads_insights_action_conversion_device_actions Staging Table Refresh - Append
-    ads_insights_action_conversion_device_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_actions//ads_insights_action_conversion_device_actions_append.sql")
+    ads_insights_action_conversion_device_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_actions/ads_insights_action_conversion_device_actions_append.sql")
     with open(ads_insights_action_conversion_device_actions_sql_path, 'r') as file:
         sql_query_9 = file.read()
 
@@ -181,7 +181,7 @@ with DAG(
     )
 
     # ads_insights_action_conversion_device_action_values Staging Table Refresh - Append
-    ads_insights_action_conversion_device_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_action_values//ads_insights_action_conversion_device_action_values_append.sql")
+    ads_insights_action_conversion_device_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_action_values/ads_insights_action_conversion_device_action_values_append.sql")
     with open(ads_insights_action_conversion_device_action_values_sql_path, 'r') as file:
         sql_query_10 = file.read()
 
@@ -197,7 +197,7 @@ with DAG(
     )
 
     # ads_insights_action_conversion_device_cost_per_unique_action_type Staging Table Refresh - Append
-    ads_insights_action_conversion_device_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_cost_per_unique_action_type//ads_insights_action_conversion_device_cost_per_unique_action_type_append.sql")
+    ads_insights_action_conversion_device_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_cost_per_unique_action_type/ads_insights_action_conversion_device_cost_per_unique_action_type_append.sql")
     with open(ads_insights_action_conversion_device_cost_per_unique_action_type_sql_path, 'r') as file:
         sql_query_11 = file.read()
 
@@ -213,7 +213,7 @@ with DAG(
     )
 
     # ads_insights_action_conversion_device_normal Staging Table Refresh - Append
-    ads_insights_action_conversion_device_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_normal//ads_insights_action_conversion_device_normal_append.sql")
+    ads_insights_action_conversion_device_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_normal/ads_insights_action_conversion_device_normal_append.sql")
     with open(ads_insights_action_conversion_device_normal_sql_path, 'r') as file:
         sql_query_12 = file.read()
 
@@ -229,7 +229,7 @@ with DAG(
     )
 
     # ads_insights_action_conversion_device_unique_actions Staging Table Refresh - Append
-    ads_insights_action_conversion_device_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_unique_actions//ads_insights_action_conversion_device_unique_actions_append.sql")
+    ads_insights_action_conversion_device_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_conversion_device_unique_actions/ads_insights_action_conversion_device_unique_actions_append.sql")
     with open(ads_insights_action_conversion_device_unique_actions_sql_path, 'r') as file:
         sql_query_13 = file.read()
 
@@ -245,7 +245,7 @@ with DAG(
     )
 
     # ads_insights_action_product_id_actions Staging Table Refresh - Append
-    ads_insights_action_product_id_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_actions//ads_insights_action_product_id_actions_append.sql")
+    ads_insights_action_product_id_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_actions/ads_insights_action_product_id_actions_append.sql")
     with open(ads_insights_action_product_id_actions_sql_path, 'r') as file:
         sql_query_14 = file.read()
 
@@ -261,7 +261,7 @@ with DAG(
     )
 
     # ads_insights_action_product_id_action_values Staging Table Refresh - Append
-    ads_insights_action_product_id_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_action_values//ads_insights_action_product_id_action_values_append.sql")
+    ads_insights_action_product_id_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_action_values/ads_insights_action_product_id_action_values_append.sql")
     with open(ads_insights_action_product_id_action_values_sql_path, 'r') as file:
         sql_query_15 = file.read()
 
@@ -277,7 +277,7 @@ with DAG(
     )
 
     # ads_insights_action_product_id_cost_per_action_type Staging Table Refresh - Append
-    ads_insights_action_product_id_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_cost_per_action_type//ads_insights_action_product_id_cost_per_action_type_append.sql")
+    ads_insights_action_product_id_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_cost_per_action_type/ads_insights_action_product_id_cost_per_action_type_append.sql")
     with open(ads_insights_action_product_id_cost_per_action_type_sql_path, 'r') as file:
         sql_query_16 = file.read()
 
@@ -293,7 +293,7 @@ with DAG(
     )
 
     # ads_insights_action_product_id_normal Staging Table Refresh - Append
-    ads_insights_action_product_id_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_normal//ads_insights_action_product_id_normal_append.sql")
+    ads_insights_action_product_id_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_normal/ads_insights_action_product_id_normal_append.sql")
     with open(ads_insights_action_product_id_normal_sql_path, 'r') as file:
         sql_query_17 = file.read()
 
@@ -309,7 +309,7 @@ with DAG(
     )
 
     # ads_insights_action_product_id_purchase_roas Staging Table Refresh - Append
-    ads_insights_action_product_id_purchase_roas_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_purchase_roas//ads_insights_action_product_id_purchase_roas_append.sql")
+    ads_insights_action_product_id_purchase_roas_sql_path = os.path.join(SQL_DIR, "ads_insights_action_product_id_purchase_roas/ads_insights_action_product_id_purchase_roas_append.sql")
     with open(ads_insights_action_product_id_purchase_roas_sql_path, 'r') as file:
         sql_query_18 = file.read()
 
@@ -325,7 +325,7 @@ with DAG(
     )
 
     # ads_insights_action_reaction_actions Staging Table Refresh - Append
-    ads_insights_action_reaction_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_actions//ads_insights_action_reaction_actions_append.sql")
+    ads_insights_action_reaction_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_actions/ads_insights_action_reaction_actions_append.sql")
     with open(ads_insights_action_reaction_actions_sql_path, 'r') as file:
         sql_query_19 = file.read()
 
@@ -341,7 +341,7 @@ with DAG(
     )
 
     # ads_insights_action_reaction_action_values Staging Table Refresh - Append
-    ads_insights_action_reaction_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_action_values//ads_insights_action_reaction_action_values_append.sql")
+    ads_insights_action_reaction_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_action_values/ads_insights_action_reaction_action_values_append.sql")
     with open(ads_insights_action_reaction_action_values_sql_path, 'r') as file:
         sql_query_20 = file.read()
 
@@ -357,7 +357,7 @@ with DAG(
     )
 
     # ads_insights_action_reaction_conversion_values Staging Table Refresh - Append
-    ads_insights_action_reaction_conversion_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_conversion_values//ads_insights_action_reaction_conversion_values_append.sql")
+    ads_insights_action_reaction_conversion_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_conversion_values/ads_insights_action_reaction_conversion_values_append.sql")
     with open(ads_insights_action_reaction_conversion_values_sql_path, 'r') as file:
         sql_query_21 = file.read()
 
@@ -373,7 +373,7 @@ with DAG(
     )
 
     # ads_insights_action_reaction_normal Staging Table Refresh - Append
-    ads_insights_action_reaction_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_normal//ads_insights_action_reaction_normal_append.sql")
+    ads_insights_action_reaction_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_normal/ads_insights_action_reaction_normal_append.sql")
     with open(ads_insights_action_reaction_normal_sql_path, 'r') as file:
         sql_query_22 = file.read()
 
@@ -390,7 +390,7 @@ with DAG(
 
 
     # ads_insights_action_type_actions Staging Table Refresh - Append
-    ads_insights_action_type_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_actions//ads_insights_action_type_actions_append.sql")
+    ads_insights_action_type_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_actions/ads_insights_action_type_actions_append.sql")
     with open(ads_insights_action_type_actions_sql_path, 'r') as file:
         sql_query_23 = file.read()
 
@@ -406,7 +406,7 @@ with DAG(
     )
 
     # ads_insights_action_type_action_values Staging Table Refresh - Append
-    ads_insights_action_type_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_action_values//ads_insights_action_type_action_values_append.sql")
+    ads_insights_action_type_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_action_values/ads_insights_action_type_action_values_append.sql")
     with open(ads_insights_action_type_action_values_sql_path, 'r') as file:
         sql_query_24 = file.read()
 
@@ -422,7 +422,7 @@ with DAG(
     )
 
     # ads_insights_action_type_cost_per_action_type Staging Table Refresh - Append
-    ads_insights_action_type_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_cost_per_action_type//ads_insights_action_type_cost_per_action_type_append.sql")
+    ads_insights_action_type_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_cost_per_action_type/ads_insights_action_type_cost_per_action_type_append.sql")
     with open(ads_insights_action_type_cost_per_action_type_sql_path, 'r') as file:
         sql_query_25 = file.read()
 
@@ -438,7 +438,7 @@ with DAG(
     )
 
     # ads_insights_action_type_cost_per_unique_action_type Staging Table Refresh - Append
-    ads_insights_action_type_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_cost_per_unique_action_type//ads_insights_action_type_cost_per_unique_action_type_append.sql")
+    ads_insights_action_type_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_cost_per_unique_action_type/ads_insights_action_type_cost_per_unique_action_type_append.sql")
     with open(ads_insights_action_type_cost_per_unique_action_type_sql_path, 'r') as file:
         sql_query_26 = file.read()
 
@@ -454,7 +454,7 @@ with DAG(
     )
 
     # ads_insights_action_type_normal Staging Table Refresh - Append
-    ads_insights_action_type_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_normal//ads_insights_action_type_normal_append.sql")
+    ads_insights_action_type_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_normal/ads_insights_action_type_normal_append.sql")
     with open(ads_insights_action_type_normal_sql_path, 'r') as file:
         sql_query_27 = file.read()
 
@@ -470,7 +470,7 @@ with DAG(
     )
 
     # ads_insights_action_type_unique_actions Staging Table Refresh - Append
-    ads_insights_action_type_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_unique_actions//ads_insights_action_type_unique_actions_append.sql")
+    ads_insights_action_type_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_type_unique_actions/ads_insights_action_type_unique_actions_append.sql")
     with open(ads_insights_action_type_unique_actions_sql_path, 'r') as file:
         sql_query_28 = file.read()
 
@@ -486,7 +486,7 @@ with DAG(
     )
 
     # ads_insights_action_video_sound_actions Staging Table Refresh - Append
-    ads_insights_action_video_sound_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_sound_actions//ads_insights_action_video_sound_actions_append.sql")
+    ads_insights_action_video_sound_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_sound_actions/ads_insights_action_video_sound_actions_append.sql")
     with open(ads_insights_action_video_sound_actions_sql_path, 'r') as file:
         sql_query_29 = file.read()
 
@@ -502,7 +502,7 @@ with DAG(
     )
 
     # ads_insights_action_video_sound_action_values Staging Table Refresh - Append
-    ads_insights_action_video_sound_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_sound_action_values//ads_insights_action_video_sound_action_values_append.sql")
+    ads_insights_action_video_sound_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_sound_action_values/ads_insights_action_video_sound_action_values_append.sql")
     with open(ads_insights_action_video_sound_action_values_sql_path, 'r') as file:
         sql_query_30 = file.read()
 
@@ -518,7 +518,7 @@ with DAG(
     )
 
     # ads_insights_action_video_sound_normal Staging Table Refresh - Append
-    ads_insights_action_video_sound_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_sound_normal//ads_insights_action_video_sound_normal_append.sql")
+    ads_insights_action_video_sound_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_sound_normal/ads_insights_action_video_sound_normal_append.sql")
     with open(ads_insights_action_video_sound_normal_sql_path, 'r') as file:
         sql_query_31 = file.read()
 
@@ -534,7 +534,7 @@ with DAG(
     )
 
     # ads_insights_action_video_type_actions Staging Table Refresh - Append
-    ads_insights_action_video_type_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_actions//ads_insights_action_video_type_actions_append.sql")
+    ads_insights_action_video_type_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_actions/ads_insights_action_video_type_actions_append.sql")
     with open(ads_insights_action_video_type_actions_sql_path, 'r') as file:
         sql_query_32 = file.read()
 
@@ -550,7 +550,7 @@ with DAG(
     )
 
     # ads_insights_action_video_type_action_values Staging Table Refresh - Append
-    ads_insights_action_video_type_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_action_values//ads_insights_action_video_type_action_values_append.sql")
+    ads_insights_action_video_type_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_action_values/ads_insights_action_video_type_action_values_append.sql")
     with open(ads_insights_action_video_type_action_values_sql_path, 'r') as file:
         sql_query_33 = file.read()
 
@@ -566,7 +566,7 @@ with DAG(
     )
 
     # ads_insights_action_video_type_normal Staging Table Refresh - Append
-    ads_insights_action_video_type_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_normal//ads_insights_action_video_type_normal_append.sql")
+    ads_insights_action_video_type_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_normal/ads_insights_action_video_type_normal_append.sql")
     with open(ads_insights_action_video_type_normal_sql_path, 'r') as file:
         sql_query_34 = file.read()
 
@@ -582,7 +582,7 @@ with DAG(
     )
 
     # ads_insights_action_video_type_unique_actions Staging Table Refresh - Append
-    ads_insights_action_video_type_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_unique_actions//ads_insights_action_video_type_unique_actions_append.sql")
+    ads_insights_action_video_type_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_video_type_unique_actions/ads_insights_action_video_type_unique_actions_append.sql")
     with open(ads_insights_action_video_type_unique_actions_sql_path, 'r') as file:
         sql_query_35 = file.read()
 
@@ -598,7 +598,7 @@ with DAG(
     )
 
     # ads_insights_age_and_gender_actions Staging Table Refresh - Append
-    ads_insights_age_and_gender_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_actions//ads_insights_age_and_gender_actions_append.sql")
+    ads_insights_age_and_gender_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_actions/ads_insights_age_and_gender_actions_append.sql")
     with open(ads_insights_age_and_gender_actions_sql_path, 'r') as file:
         sql_query_36 = file.read()
 
@@ -614,7 +614,7 @@ with DAG(
     )
 
     # ads_insights_age_and_gender_action_values Staging Table Refresh - Append
-    ads_insights_age_and_gender_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_action_values//ads_insights_age_and_gender_action_values_append.sql")
+    ads_insights_age_and_gender_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_action_values/ads_insights_age_and_gender_action_values_append.sql")
     with open(ads_insights_age_and_gender_action_values_sql_path, 'r') as file:
         sql_query_37 = file.read()
 
@@ -630,7 +630,7 @@ with DAG(
     )
 
     # ads_insights_age_and_gender_normal Staging Table Refresh - Append
-    ads_insights_age_and_gender_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_normal//ads_insights_age_and_gender_normal_append.sql")
+    ads_insights_age_and_gender_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_normal/ads_insights_age_and_gender_normal_append.sql")
     with open(ads_insights_age_and_gender_normal_sql_path, 'r') as file:
         sql_query_38 = file.read()
 
@@ -646,7 +646,7 @@ with DAG(
     )
 
     # ads_insights_age_and_gender_unique_actions Staging Table Refresh - Append
-    ads_insights_age_and_gender_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_unique_actions//ads_insights_age_and_gender_unique_actions_append.sql")
+    ads_insights_age_and_gender_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_age_and_gender_unique_actions/ads_insights_age_and_gender_unique_actions_append.sql")
     with open(ads_insights_age_and_gender_unique_actions_sql_path, 'r') as file:
         sql_query_39 = file.read()
 
@@ -662,7 +662,7 @@ with DAG(
     )
 
     # ads_insights_country_actions Staging Table Refresh - Append
-    ads_insights_country_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_country_actions//ads_insights_country_actions_append.sql")
+    ads_insights_country_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_country_actions/ads_insights_country_actions_append.sql")
     with open(ads_insights_country_actions_sql_path, 'r') as file:
         sql_query_40 = file.read()
 
@@ -678,7 +678,7 @@ with DAG(
     )
 
     # ads_insights_country_normal Staging Table Refresh - Append
-    ads_insights_country_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_country_normal//ads_insights_country_normal_append.sql")
+    ads_insights_country_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_country_normal/ads_insights_country_normal_append.sql")
     with open(ads_insights_country_normal_sql_path, 'r') as file:
         sql_query_41 = file.read()
 
@@ -694,7 +694,7 @@ with DAG(
     )
 
     # ads_insights_country_unique_actions Staging Table Refresh - Append
-    ads_insights_country_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_country_unique_actions//ads_insights_country_unique_actions_append.sql")
+    ads_insights_country_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_country_unique_actions/ads_insights_country_unique_actions_append.sql")
     with open(ads_insights_country_unique_actions_sql_path, 'r') as file:
         sql_query_42 = file.read()
 
@@ -710,7 +710,7 @@ with DAG(
     )
 
     # ads_insights_delivery_device_actions Staging Table Refresh - Append
-    ads_insights_delivery_device_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_actions//ads_insights_delivery_device_actions_append.sql")
+    ads_insights_delivery_device_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_actions/ads_insights_delivery_device_actions_append.sql")
     with open(ads_insights_delivery_device_actions_sql_path, 'r') as file:
         sql_query_43 = file.read()
 
@@ -726,7 +726,7 @@ with DAG(
     )
 
     # ads_insights_delivery_device_action_values Staging Table Refresh - Append
-    ads_insights_delivery_device_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_action_values//ads_insights_delivery_device_action_values_append.sql")
+    ads_insights_delivery_device_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_action_values/ads_insights_delivery_device_action_values_append.sql")
     with open(ads_insights_delivery_device_action_values_sql_path, 'r') as file:
         sql_query_44 = file.read()
 
@@ -742,7 +742,7 @@ with DAG(
     )
 
     # ads_insights_delivery_device_cost_per_action_type Staging Table Refresh - Append
-    ads_insights_delivery_device_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_cost_per_action_type//ads_insights_delivery_device_cost_per_action_type_append.sql")
+    ads_insights_delivery_device_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_cost_per_action_type/ads_insights_delivery_device_cost_per_action_type_append.sql")
     with open(ads_insights_delivery_device_cost_per_action_type_sql_path, 'r') as file:
         sql_query_45 = file.read()
 
@@ -758,7 +758,7 @@ with DAG(
     )
 
     # ads_insights_delivery_device_cost_per_unique_action_type Staging Table Refresh - Append
-    ads_insights_delivery_device_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_cost_per_unique_action_type//ads_insights_delivery_device_cost_per_unique_action_type_append.sql")
+    ads_insights_delivery_device_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_cost_per_unique_action_type/ads_insights_delivery_device_cost_per_unique_action_type_append.sql")
     with open(ads_insights_delivery_device_cost_per_unique_action_type_sql_path, 'r') as file:
         sql_query_46 = file.read()
 
@@ -774,7 +774,7 @@ with DAG(
     )
 
     # ads_insights_delivery_device_normal Staging Table Refresh - Append
-    ads_insights_delivery_device_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_normal//ads_insights_delivery_device_normal_append.sql")
+    ads_insights_delivery_device_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_normal/ads_insights_delivery_device_normal_append.sql")
     with open(ads_insights_delivery_device_normal_sql_path, 'r') as file:
         sql_query_47 = file.read()
 
@@ -790,7 +790,7 @@ with DAG(
     )
 
     # ads_insights_delivery_device_unique_actions Staging Table Refresh - Append
-    ads_insights_delivery_device_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_unique_actions//ads_insights_delivery_device_unique_actions_append.sql")
+    ads_insights_delivery_device_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_device_unique_actions/ads_insights_delivery_device_unique_actions_append.sql")
     with open(ads_insights_delivery_device_unique_actions_sql_path, 'r') as file:
         sql_query_48 = file.read()
 
@@ -806,7 +806,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_actions Staging Table Refresh - Append
-    ads_insights_delivery_platform_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_actions//ads_insights_delivery_platform_actions_append.sql")
+    ads_insights_delivery_platform_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_actions/ads_insights_delivery_platform_actions_append.sql")
     with open(ads_insights_delivery_platform_actions_sql_path, 'r') as file:
         sql_query_49 = file.read()
 
@@ -822,7 +822,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_action_values Staging Table Refresh - Append
-    ads_insights_delivery_platform_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_action_values//ads_insights_delivery_platform_action_values_append.sql")
+    ads_insights_delivery_platform_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_action_values/ads_insights_delivery_platform_action_values_append.sql")
     with open(ads_insights_delivery_platform_action_values_sql_path, 'r') as file:
         sql_query_50 = file.read()
 
@@ -838,7 +838,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_and_device_platform_actions Staging Table Refresh - Append
-    ads_insights_delivery_platform_and_device_platform_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_actions//ads_insights_delivery_platform_and_device_platform_actions_append.sql")
+    ads_insights_delivery_platform_and_device_platform_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_actions/ads_insights_delivery_platform_and_device_platform_actions_append.sql")
     with open(ads_insights_delivery_platform_and_device_platform_actions_sql_path, 'r') as file:
         sql_query_51 = file.read()
 
@@ -854,7 +854,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_and_device_platform_normal Staging Table Refresh - Append
-    ads_insights_delivery_platform_and_device_platform_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_normal//ads_insights_delivery_platform_and_device_platform_normal_append.sql")
+    ads_insights_delivery_platform_and_device_platform_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_normal/ads_insights_delivery_platform_and_device_platform_normal_append.sql")
     with open(ads_insights_delivery_platform_and_device_platform_normal_sql_path, 'r') as file:
         sql_query_52 = file.read()
 
@@ -870,7 +870,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_cost_per_action_type Staging Table Refresh - Append
-    ads_insights_delivery_platform_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_cost_per_action_type//ads_insights_delivery_platform_cost_per_action_type_append.sql")
+    ads_insights_delivery_platform_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_cost_per_action_type/ads_insights_delivery_platform_cost_per_action_type_append.sql")
     with open(ads_insights_delivery_platform_cost_per_action_type_sql_path, 'r') as file:
         sql_query_53 = file.read()
 
@@ -886,7 +886,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_cost_per_unique_action_type Staging Table Refresh - Append
-    ads_insights_delivery_platform_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_cost_per_unique_action_type//ads_insights_delivery_platform_cost_per_unique_action_type_append.sql")
+    ads_insights_delivery_platform_cost_per_unique_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_cost_per_unique_action_type/ads_insights_delivery_platform_cost_per_unique_action_type_append.sql")
     with open(ads_insights_delivery_platform_cost_per_unique_action_type_sql_path, 'r') as file:
         sql_query_54 = file.read()
 
@@ -902,7 +902,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_normal Staging Table Refresh - Append
-    ads_insights_delivery_platform_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_normal//ads_insights_delivery_platform_normal_append.sql")
+    ads_insights_delivery_platform_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_normal/ads_insights_delivery_platform_normal_append.sql")
     with open(ads_insights_delivery_platform_normal_sql_path, 'r') as file:
         sql_query_55 = file.read()
 
@@ -918,7 +918,7 @@ with DAG(
     )
 
     # ads_insights_delivery_platform_unique_actions Staging Table Refresh - Append
-    ads_insights_delivery_platform_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_unique_actions//ads_insights_delivery_platform_unique_actions_append.sql")
+    ads_insights_delivery_platform_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_unique_actions/ads_insights_delivery_platform_unique_actions_append.sql")
     with open(ads_insights_delivery_platform_unique_actions_sql_path, 'r') as file:
         sql_query_56 = file.read()
 
@@ -934,7 +934,7 @@ with DAG(
     )
 
     # ads_insights_demographics_age_normal Staging Table Refresh - Append
-    ads_insights_demographics_age_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_normal//ads_insights_demographics_age_normal_append.sql")
+    ads_insights_demographics_age_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_normal/ads_insights_demographics_age_normal_append.sql")
     with open(ads_insights_demographics_age_normal_sql_path, 'r') as file:
         sql_query_57 = file.read()
 
@@ -950,7 +950,7 @@ with DAG(
     )
 
     # ads_insights_demographics_country_normal Staging Table Refresh - Append
-    ads_insights_demographics_country_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_normal//ads_insights_demographics_country_normal_append.sql")
+    ads_insights_demographics_country_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_normal/ads_insights_demographics_country_normal_append.sql")
     with open(ads_insights_demographics_country_normal_sql_path, 'r') as file:
         sql_query_58 = file.read()
 
@@ -966,7 +966,7 @@ with DAG(
     )
 
     # ads_insights_demographics_dma_region_normal Staging Table Refresh - Append
-    ads_insights_demographics_dma_region_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_dma_region_normal//ads_insights_demographics_dma_region_normal_append.sql")
+    ads_insights_demographics_dma_region_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_dma_region_normal/ads_insights_demographics_dma_region_normal_append.sql")
     with open(ads_insights_demographics_dma_region_normal_sql_path, 'r') as file:
         sql_query_59 = file.read()
 
@@ -982,7 +982,7 @@ with DAG(
     )
 
     # ads_insights_demographics_gender_normal Staging Table Refresh - Append
-    ads_insights_demographics_gender_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_gender_normal//ads_insights_demographics_gender_normal_append.sql")
+    ads_insights_demographics_gender_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_gender_normal/ads_insights_demographics_gender_normal_append.sql")
     with open(ads_insights_demographics_gender_normal_sql_path, 'r') as file:
         sql_query_60 = file.read()
 
@@ -998,7 +998,7 @@ with DAG(
     )
 
     # ads_insights_dma_normal Staging Table Refresh - Append
-    ads_insights_dma_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_dma_normal//ads_insights_dma_normal_append.sql")
+    ads_insights_dma_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_dma_normal/ads_insights_dma_normal_append.sql")
     with open(ads_insights_dma_normal_sql_path, 'r') as file:
         sql_query_61 = file.read()
 
@@ -1014,7 +1014,7 @@ with DAG(
     )
 
     # ads_insights_normal Staging Table Refresh - Append
-    ads_insights_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_normal//ads_insights_normal_append.sql")
+    ads_insights_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_normal/ads_insights_normal_append.sql")
     with open(ads_insights_normal_sql_path, 'r') as file:
         sql_query_62 = file.read()
 
@@ -1030,7 +1030,7 @@ with DAG(
     )
 
     # ads_insights_platform_and_device_normal Staging Table Refresh - Append
-    ads_insights_platform_and_device_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_platform_and_device_normal//ads_insights_platform_and_device_normal_append.sql")
+    ads_insights_platform_and_device_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_platform_and_device_normal/ads_insights_platform_and_device_normal_append.sql")
     with open(ads_insights_platform_and_device_normal_sql_path, 'r') as file:
         sql_query_63 = file.read()
 
@@ -1046,7 +1046,7 @@ with DAG(
     )
 
     # ads_insights_region_normal Staging Table Refresh - Append
-    ads_insights_region_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_region_normal//ads_insights_region_normal_append.sql")
+    ads_insights_region_normal_sql_path = os.path.join(SQL_DIR, "ads_insights_region_normal/ads_insights_region_normal_append.sql")
     with open(ads_insights_region_normal_sql_path, 'r') as file:
         sql_query_64 = file.read()
 
@@ -1062,7 +1062,7 @@ with DAG(
     )
 
     # ad_sets Staging Table Refresh - Append
-    ad_sets_sql_path = os.path.join(SQL_DIR, "ad_sets//ad_sets_append.sql")
+    ad_sets_sql_path = os.path.join(SQL_DIR, "ad_sets/ad_sets_append.sql")
     with open(ad_sets_sql_path, 'r') as file:
         sql_query_65 = file.read()
 
@@ -1078,7 +1078,7 @@ with DAG(
     )
 
     # campaigns Staging Table Refresh - Append
-    campaigns_sql_path = os.path.join(SQL_DIR, "campaigns//campaigns_append.sql")
+    campaigns_sql_path = os.path.join(SQL_DIR, "campaigns/campaigns_append.sql")
     with open(campaigns_sql_path, 'r') as file:
         sql_query_66 = file.read()
 
@@ -1094,7 +1094,7 @@ with DAG(
     )
 
     # clicks Staging Table Refresh - Append
-    clicks_sql_path = os.path.join(SQL_DIR, "ads_insights_clicks//ads_insights_clicks_append.sql")
+    clicks_sql_path = os.path.join(SQL_DIR, "ads_insights_clicks/ads_insights_clicks_append.sql")
     with open(clicks_sql_path, 'r') as file:
         sql_query_67 = file.read()
 
@@ -1110,7 +1110,7 @@ with DAG(
     )
 
     # conversion_data Staging Table Refresh - Append
-    conversion_data_sql_path = os.path.join(SQL_DIR, "conversion_data//conversion_data_append.sql")
+    conversion_data_sql_path = os.path.join(SQL_DIR, "conversion_data/conversion_data_append.sql")
     with open(conversion_data_sql_path, 'r') as file:
         sql_query_68 = file.read()
 
@@ -1126,7 +1126,7 @@ with DAG(
     )
 
     # images Staging Table Refresh - Append
-    images_sql_path = os.path.join(SQL_DIR, "images//images_append.sql")
+    images_sql_path = os.path.join(SQL_DIR, "images/images_append.sql")
     with open(images_sql_path, 'r') as file:
         sql_query_69 = file.read()
 
@@ -1142,7 +1142,7 @@ with DAG(
     )
 
     # roas Staging Table Refresh - Append
-    roas_sql_path = os.path.join(SQL_DIR, "roas//roas_append.sql")
+    roas_sql_path = os.path.join(SQL_DIR, "roas/roas_append.sql")
     with open(roas_sql_path, 'r') as file:
         sql_query_70 = file.read()
 
@@ -1158,7 +1158,7 @@ with DAG(
     )
 
     # videos Staging Table Refresh - Append
-    videos_sql_path = os.path.join(SQL_DIR, "videos//videos_append.sql")
+    videos_sql_path = os.path.join(SQL_DIR, "videos/videos_append.sql")
     with open(videos_sql_path, 'r') as file:
         sql_query_71 = file.read()
 
@@ -1174,7 +1174,7 @@ with DAG(
     )
 
     # video_2sec_video15_30sec_and_video_avg_details Staging Table Refresh - Append
-    video_2sec_video15_30sec_and_video_avg_details_sql_path = os.path.join(SQL_DIR, "video_2sec_video15_30sec_and_video_avg_details//video_2sec_video15_30sec_and_video_avg_details_append.sql")
+    video_2sec_video15_30sec_and_video_avg_details_sql_path = os.path.join(SQL_DIR, "video_2sec_video15_30sec_and_video_avg_details/video_2sec_video15_30sec_and_video_avg_details_append.sql")
     with open(video_2sec_video15_30sec_and_video_avg_details_sql_path, 'r') as file:
         sql_query_72 = file.read()
 
@@ -1190,7 +1190,7 @@ with DAG(
     )
 
     # video_actions Staging Table Refresh - Append
-    video_actions_sql_path = os.path.join(SQL_DIR, "video_actions//video_actions_append.sql")
+    video_actions_sql_path = os.path.join(SQL_DIR, "video_actions/video_actions_append.sql")
     with open(video_actions_sql_path, 'r') as file:
         sql_query_73 = file.read()
 
@@ -1206,7 +1206,7 @@ with DAG(
     )
 
     # video_p25_to_p100_details Staging Table Refresh - Append
-    video_p25_to_p100_details_sql_path = os.path.join(SQL_DIR, "video_p25_to_p100_details//video_p25_to_p100_details_append.sql")
+    video_p25_to_p100_details_sql_path = os.path.join(SQL_DIR, "video_p25_to_p100_details/video_p25_to_p100_details_append.sql")
     with open(video_p25_to_p100_details_sql_path, 'r') as file:
         sql_query_74 = file.read()
 
@@ -1222,7 +1222,7 @@ with DAG(
     )
 
     # ads_insights_action_reaction_unique_actions Staging Table Refresh - Append
-    ads_insights_action_reaction_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_unique_actions//ads_insights_action_reaction_unique_actions_append.sql")
+    ads_insights_action_reaction_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_action_reaction_unique_actions/ads_insights_action_reaction_unique_actions_append.sql")
     with open(ads_insights_action_reaction_unique_actions_sql_path, 'r') as file:
         sql_query_75 = file.read()
 
@@ -1238,7 +1238,7 @@ with DAG(
     )
 
     # ads_insights_country_action_values Staging Table Refresh - Append
-    ads_insights_country_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_country_action_values//ads_insights_country_action_values_append.sql")
+    ads_insights_country_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_country_action_values/ads_insights_country_action_values_append.sql")
     with open(ads_insights_country_action_values_sql_path, 'r') as file:
         sql_query_76 = file.read()
 
@@ -1254,7 +1254,7 @@ with DAG(
     )
 
     # ad_creatives Staging Table Refresh - Append
-    ad_creatives_sql_path = os.path.join(SQL_DIR, "ad_creatives//ad_creatives_append.sql")
+    ad_creatives_sql_path = os.path.join(SQL_DIR, "ad_creatives/ad_creatives_append.sql")
     with open(ad_creatives_sql_path, 'r') as file:
         sql_query_77 = file.read()
 
@@ -1270,7 +1270,7 @@ with DAG(
     )
 
     # ads_excluded_audience Staging Table Refresh - Append
-    ads_excluded_audience_sql_path = os.path.join(SQL_DIR, "ads_excluded_audience//ads_excluded_audience_append.sql")
+    ads_excluded_audience_sql_path = os.path.join(SQL_DIR, "ads_excluded_audience/ads_excluded_audience_append.sql")
     with open(ads_excluded_audience_sql_path, 'r') as file:
         sql_query_78 = file.read()
 
@@ -1287,7 +1287,7 @@ with DAG(
 
 
     # ads_insights_conversion_data Staging Table Refresh - Append
-    ads_insights_conversion_data_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_data//ads_insights_conversion_data_append.sql")
+    ads_insights_conversion_data_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_data/ads_insights_conversion_data_append.sql")
     with open(ads_insights_conversion_data_sql_path, 'r') as file:
         sql_query_79 = file.read()
 
@@ -1304,7 +1304,7 @@ with DAG(
 
 
     # ads_insights_delivery_platform_and_device_platform_cost_per_action_type  Staging Table Refresh - Append
-    ads_insights_delivery_platform_and_device_platform_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_cost_per_action_type//ads_insights_delivery_platform_and_device_platform_cost_per_action_type_append.sql")
+    ads_insights_delivery_platform_and_device_platform_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_cost_per_action_type/ads_insights_delivery_platform_and_device_platform_cost_per_action_type_append.sql")
     with open(ads_insights_country_action_values_sql_path, 'r') as file:
         sql_query_80 = file.read()
 
@@ -1321,7 +1321,7 @@ with DAG(
 
 
     # ads_insights_delivery_platform_and_device_platform_unique_actions  Staging Table Refresh - Append
-    ads_insights_delivery_platform_and_device_platform_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_unique_actions//ads_insights_delivery_platform_and_device_platform_unique_actions_append.sql")
+    ads_insights_delivery_platform_and_device_platform_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_delivery_platform_and_device_platform_unique_actions/ads_insights_delivery_platform_and_device_platform_unique_actions_append.sql")
     with open(ads_insights_delivery_platform_and_device_platform_unique_actions_sql_path, 'r') as file:
         sql_query_81 = file.read()
 
@@ -1337,7 +1337,7 @@ with DAG(
     )
 
     # ads_insights_demographics_age_action_values Staging Table Refresh - Append
-    ads_insights_demographics_age_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_action_values//ads_insights_demographics_age_action_values_append.sql")
+    ads_insights_demographics_age_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_action_values/ads_insights_demographics_age_action_values_append.sql")
     with open(ads_insights_demographics_age_action_values_sql_path, 'r') as file:
         sql_query_82 = file.read()
 
@@ -1354,7 +1354,7 @@ with DAG(
 
 
     # ads_insights_demographics_age_actions Staging Table Refresh - Append
-    ads_insights_demographics_age_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_actions//ads_insights_demographics_age_actions_append.sql")
+    ads_insights_demographics_age_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_actions/ads_insights_demographics_age_actions_append.sql")
     with open(ads_insights_demographics_age_actions_sql_path, 'r') as file:
         sql_query_83 = file.read()
 
@@ -1371,7 +1371,7 @@ with DAG(
 
 
     # ads_insights_demographics_age_cost_per_action_type Staging Table Refresh - Append
-    ads_insights_demographics_age_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_cost_per_action_type//ads_insights_demographics_age_cost_per_action_type_append.sql")
+    ads_insights_demographics_age_cost_per_action_type_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_cost_per_action_type/ads_insights_demographics_age_cost_per_action_type_append.sql")
     with open(ads_insights_demographics_age_cost_per_action_type_sql_path, 'r') as file:
         sql_query_84 = file.read()
 
@@ -1388,7 +1388,7 @@ with DAG(
 
 
     # ads_insights_demographics_age_unique_actions Staging Table Refresh - Append
-    ads_insights_demographics_age_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_unique_actions//ads_insights_demographics_age_unique_actions_append.sql")
+    ads_insights_demographics_age_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_age_unique_actions/ads_insights_demographics_age_unique_actions_append.sql")
     with open(ads_insights_demographics_age_unique_actions_sql_path, 'r') as file:
         sql_query_85 = file.read()
 
@@ -1405,7 +1405,7 @@ with DAG(
 
 
     # ads_insights_demographics_country_action_values Staging Table Refresh - Append
-    ads_insights_demographics_country_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_action_values//ads_insights_demographics_country_action_values_append.sql")
+    ads_insights_demographics_country_action_values_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_action_values/ads_insights_demographics_country_action_values_append.sql")
     with open(ads_insights_demographics_country_action_values_sql_path, 'r') as file:
         sql_query_86 = file.read()
 
@@ -1422,7 +1422,7 @@ with DAG(
 
 
     # ads_insights_demographics_country_actions Staging Table Refresh - Append
-    ads_insights_demographics_country_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_actions//ads_insights_demographics_country_actions_append.sql")
+    ads_insights_demographics_country_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_actions/ads_insights_demographics_country_actions_append.sql")
     with open(ads_insights_demographics_country_actions_sql_path, 'r') as file:
         sql_query_87 = file.read()
 
@@ -1439,7 +1439,7 @@ with DAG(
 
 
     # ads_insights_demographics_country_unique_actions Staging Table Refresh - Append
-    ads_insights_demographics_country_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_unique_actions//ads_insights_demographics_country_unique_actions_append.sql")
+    ads_insights_demographics_country_unique_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_demographics_country_unique_actions/ads_insights_demographics_country_unique_actions_append.sql")
     with open(ads_insights_demographics_country_unique_actions_sql_path, 'r') as file:
         sql_query_88 = file.read()
 
@@ -1456,7 +1456,7 @@ with DAG(
 
 
     # ads_insights_video_2sec_video15_30sec_and_video_avg_details Staging Table Refresh - Append
-    ads_insights_video_2sec_video15_30sec_and_video_avg_details_sql_path = os.path.join(SQL_DIR, "ads_insights_video_2sec_video15_30sec_and_video_avg_details//ads_insights_video_2sec_video15_30sec_and_video_avg_details_append.sql")
+    ads_insights_video_2sec_video15_30sec_and_video_avg_details_sql_path = os.path.join(SQL_DIR, "ads_insights_video_2sec_video15_30sec_and_video_avg_details/ads_insights_video_2sec_video15_30sec_and_video_avg_details_append.sql")
     with open(ads_insights_video_2sec_video15_30sec_and_video_avg_details_sql_path, 'r') as file:
         sql_query_89 = file.read()
 
@@ -1472,7 +1472,7 @@ with DAG(
     )
 
     # ads_insights_video_actions  Staging Table Refresh - Append
-    ads_insights_video_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_video_actions//ads_insights_video_actions_append.sql")
+    ads_insights_video_actions_sql_path = os.path.join(SQL_DIR, "ads_insights_video_actions/ads_insights_video_actions_append.sql")
     with open(ads_insights_country_action_values_sql_path, 'r') as file:
         sql_query_90 = file.read()
 
@@ -1488,7 +1488,7 @@ with DAG(
     )
 
     # ads_insights_video_p25_to_p100_details Staging Table Refresh - Append
-    ads_insights_video_p25_to_p100_details_sql_path = os.path.join(SQL_DIR, "ads_insights_video_p25_to_p100_details//ads_insights_video_p25_to_p100_details_append.sql")
+    ads_insights_video_p25_to_p100_details_sql_path = os.path.join(SQL_DIR, "ads_insights_video_p25_to_p100_details/ads_insights_video_p25_to_p100_details_append.sql")
     with open(ads_insights_video_p25_to_p100_details_sql_path, 'r') as file:
         sql_query_91 = file.read()
 
@@ -1504,7 +1504,7 @@ with DAG(
     )
 
     # ads_non_json Staging Table Refresh - Append
-    ads_non_json_sql_path = os.path.join(SQL_DIR, "ads_non_json//ads_non_json_append.sql")
+    ads_non_json_sql_path = os.path.join(SQL_DIR, "ads_non_json/ads_non_json_append.sql")
     with open(ads_non_json_sql_path, 'r') as file:
         sql_query_92 = file.read()
 
@@ -1520,7 +1520,7 @@ with DAG(
     )
 
     # ads_recommendations Staging Table Refresh - Append
-    ads_recommendations_sql_path = os.path.join(SQL_DIR, "ads_recommendations//ads_recommendations_append.sql")
+    ads_recommendations_sql_path = os.path.join(SQL_DIR, "ads_recommendations/ads_recommendations_append.sql")
     with open(ads_recommendations_sql_path, 'r') as file:
         sql_query_93 = file.read()
 
