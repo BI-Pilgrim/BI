@@ -71,10 +71,10 @@ WITH source_orders AS (
     JSON_EXTRACT_SCALAR(shipping_address, '$.province_code') AS shipping_province_code,
     JSON_EXTRACT_SCALAR(shipping_address, '$.zip') AS shipping_zip,
 
-    admin_graphql_api_id
-
+    admin_graphql_api_id,
+    JSON_EXTRACT_SCALAR(discount_applications, '$[0].title') AS discount_application,
     -- Extract the payment_gateway_names JSON array as is
-    ,payment_gateway_names
+    payment_gateway_names
 
   FROM `shopify-pubsub-project.pilgrim_bi_airbyte.orders`
 )
@@ -93,7 +93,7 @@ SELECT
   o.billing_address, o.billing_city, o.billing_country, o.billing_country_code, o.billing_province, 
   o.billing_province_code, o.billing_zip, o.shipping_address, o.shipping_city, o.shipping_country, 
   o.shipping_country_code, o.shipping_province, o.shipping_province_code, o.shipping_zip, 
-  o.admin_graphql_api_id, 
+  o.admin_graphql_api_id, o.discount_application,
   STRING_AGG(payment_gateway_name, ', ') AS payment_gateway_names
 FROM source_orders AS o
 LEFT JOIN UNNEST(JSON_VALUE_ARRAY(o.payment_gateway_names)) AS payment_gateway_name
@@ -110,7 +110,7 @@ GROUP BY
   o.billing_address, o.billing_city, o.billing_country, o.billing_country_code, o.billing_province, 
   o.billing_province_code, o.billing_zip, o.shipping_address, o.shipping_city, o.shipping_country, 
   o.shipping_country_code, o.shipping_province, o.shipping_province_code, o.shipping_zip, 
-  o.admin_graphql_api_id
+  o.admin_graphql_api_id, o.discount_application
  ) AS source
 ON target.Order_id = source.Order_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
@@ -177,7 +177,8 @@ target.shipping_province = source.shipping_province,
 target.shipping_province_code = source.shipping_province_code,
 target.shipping_zip = source.shipping_zip,
 target.payment_gateway_names = source.payment_gateway_names,
-target.admin_graphql_api_id = source.admin_graphql_api_id
+target.admin_graphql_api_id = source.admin_graphql_api_id,
+target.discount_application = source.discount_application
 
 WHEN NOT MATCHED THEN INSERT (
  _airbyte_extracted_at,
@@ -242,7 +243,8 @@ shipping_province,
 shipping_province_code,
 shipping_zip,
 payment_gateway_names,
-admin_graphql_api_id
+admin_graphql_api_id,
+discount_application
 )
   VALUES (
 source._airbyte_extracted_at,
@@ -307,5 +309,6 @@ source.shipping_province,
 source.shipping_province_code,
 source.shipping_zip,
 source.admin_graphql_api_id,
-source.payment_gateway_names
+source.payment_gateway_names,
+source.discount_application
   )
