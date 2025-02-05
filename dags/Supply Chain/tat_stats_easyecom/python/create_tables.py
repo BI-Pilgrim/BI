@@ -15,7 +15,7 @@ def get_google_credentials_info():
     return os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
 
 project_id = 'shopify-pubsub-project'
-dataset_id = 'easycom'
+dataset_id = 'Easyecom_data_metrics'
 
 def create_bigquery_tables():
     """Create BigQuery tables if they don't exist"""
