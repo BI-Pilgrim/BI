@@ -232,21 +232,21 @@ with DAG(
         }
     )
 
-    # Mini_Sales_Report Staging Table Refresh - Append
-    Mini_Sales_Report_sql_path = os.path.join(SQL_DIR, "Mini_Sales_Report/Easyecom_Mini_Sales_Report_Append.sql")
-    with open(Mini_Sales_Report_sql_path, 'r') as file:
-        sql_query_13 = file.read()
+    # # Mini_Sales_Report Staging Table Refresh - Append
+    # Mini_Sales_Report_sql_path = os.path.join(SQL_DIR, "Mini_Sales_Report/Easyecom_Mini_Sales_Report_Append.sql")
+    # with open(Mini_Sales_Report_sql_path, 'r') as file:
+    #     sql_query_13 = file.read()
 
-    Append_Mini_Sales_Report = BigQueryInsertJobOperator(
-        task_id='Append_Mini_Sales_Report',
-        configuration={
-            "query": {
-                "query": sql_query_13,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_Mini_Sales_Report = BigQueryInsertJobOperator(
+    #     task_id='Append_Mini_Sales_Report',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_13,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # Order_items Staging Table Refresh - Append
     Order_items_sql_path = os.path.join(SQL_DIR, "Order_items/Easyecom_Order_items_Append.sql")
@@ -644,7 +644,7 @@ with DAG(
         Append_Return_report,
         Append_States,
         Append_Vendors,
-        Append_Mini_Sales_Report,
+        #Append_Mini_Sales_Report,
         Append_Tax_report_new,
         Append_Status_Wise_Stock_report,
         Append_grn_details,
@@ -684,7 +684,7 @@ with DAG(
         Append_grn_details,
         Append_inventory_view_by_bin_report,
         Append_Kits,
-        Append_Mini_Sales_Report,
+        #Append_Mini_Sales_Report,
         Append_Tax_report_new,
         Append_pending_return_orders,
     ] >> DW_Sanity_check
