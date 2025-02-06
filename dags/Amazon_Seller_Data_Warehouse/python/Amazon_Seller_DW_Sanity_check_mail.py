@@ -1,5 +1,4 @@
 import smtplib
-import sys
 import pandas as pd
 import pandas_gbq as pgbq
 from email.mime.base import MIMEBase
@@ -7,58 +6,64 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
 from airflow.models import Variable
-import os
 
 def send_sanity_check_email():
-    # Query the data from BigQuery
-    query = """
-       SELECT * FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.Amazon_seller_Sanity_check`
-    """
-    df = pgbq.read_gbq(query, project_id="shopify-pubsub-project")
-
-    # Handle NULL values to prevent errors
-    df['Source_max_date'] = pd.to_datetime(df['Source_max_date'], errors='coerce')
-    df['Dest_max_date'] = pd.to_datetime(df['Dest_max_date'], errors='coerce')
-    # Check if 'Latest_date' exists
-    if 'Latest_date' in df.columns:
-        df['Latest_date'] = pd.to_datetime(df['Latest_date'], errors='coerce')
-    else:
-    # You can handle the missing column, like filling with a default value or exiting.
-        df['Latest_date'] = pd.Timestamp.today()
-
-    # Fill missing values with today's date
-    df = df.fillna(pd.Timestamp.today())
-
-    # Apply filtering logic
-    filtered_df = df[
-        (df['Source_max_date'] != df['Dest_max_date']) & 
-        (df['Latest_date'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
-        (df['Source_pk_count'] != df['Dest_pk_count'])
-    ]
-    print("The filtered_df is as -",filtered_df.head())
+    """Fetches sanity check data from BigQuery and sends an email if discrepancies are found."""
     
-    # Email Configuration
-    SENDER_EMAIL = "cloud@discoverpilgrim.com"
-    RECIPIENT_EMAILS = "rwitapa.mitra@discoverpilgrim.com"
-    EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
-    subject = "Amazon Seller DW Discrepancy !!!"
-    
-    # Send email based on filtered data
-    if not filtered_df.empty:
-        filtered_df.to_csv("sanity_check_mismatch.csv", index=False)
-        body = "Hi Team,<br><br>Please find the mismatch details attached.<br><br>Warm Regards,"
-        send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch.csv")
-    else:
-        # If filtered_df is empty, send a message indicating no issues
-        body = "Hi Team,<br><br>No discrepancies found in the Amazon Seller data warehouse.<br><br>Warm Regards,"
-        send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body)
+    try:
+        # Query the data from BigQuery
+        query = """
+           SELECT * FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.Amazon_seller_Sanity_check`
+        """
+        df = pgbq.read_gbq(query, project_id="shopify-pubsub-project")
 
+        # Handle NULL values to prevent errors
+        df['Source_max_date'] = pd.to_datetime(df['Source_max_date'], errors='coerce')
+        df['Dest_max_date'] = pd.to_datetime(df['Dest_max_date'], errors='coerce')
+
+        # Ensure 'Latest_date' exists, otherwise create it
+        if 'Latest_date' not in df.columns:
+            print("'Latest_date' column is missing! Adding it.")
+            df['Latest_date'] = pd.Timestamp.today()
+        else:
+            df['Latest_date'] = pd.to_datetime(df['Latest_date'], errors='coerce')
+
+        # Fill missing values with today's date
+        df = df.fillna(pd.Timestamp.today())
+
+        # Apply filtering logic
+        filtered_df = df[
+            (df['Source_max_date'] != df['Dest_max_date']) & 
+            (df['Latest_date'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
+            (df['Source_pk_count'] != df['Dest_pk_count'])
+        ]
+
+        print("Filtered Data (First 5 rows):\n", filtered_df.head())
+
+        # Email Configuration
+        SENDER_EMAIL = "cloud@discoverpilgrim.com"
+        RECIPIENT_EMAILS = "rwitapa.mitra@discoverpilgrim.com"
+        EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
+        subject = "Amazon Seller DW Discrepancy !!!"
+
+        # Send email based on filtered data
+        if not filtered_df.empty:
+            filtered_df.to_csv("sanity_check_mismatch.csv", index=False)
+            body = "Hi Team,<br><br>Please find the mismatch details attached.<br><br>Warm Regards,"
+            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch.csv")
+        else:
+            body = "Hi Team,<br><br>No discrepancies found in the Amazon Seller data warehouse.<br><br>Warm Regards."
+            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body)
+
+    except Exception as e:
+        print(f"Error in send_sanity_check_email: {e}")
 
 def send_email(sender_email, sender_password, recipient_email, subject, body, attachment_path=None):
+    """Sends an email with or without an attachment."""
     try:
-        if body is None or body.strip() == '':
+        if not body or body.strip() == '':
             raise ValueError("Email body cannot be empty")
-        
+
         msg = MIMEMultipart()
         msg['From'] = sender_email
         msg['To'] = recipient_email
@@ -77,17 +82,16 @@ def send_email(sender_email, sender_password, recipient_email, subject, body, at
         # Set up the SMTP server
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        print(sender_email)
-        print(sender_password)
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
         server.quit()
+        print("Email sent successfully!")
         return True
 
     except Exception as e:
         print(f"Error sending email: {e}")
         return False
 
-
-# Call the send_sanity_check_email function to execute the task
-send_sanity_check_email()
+# ✅ Prevent automatic execution when the script is imported
+if __name__ == "__main__":
+    send_sanity_check_email()  # Now it runs **only when executed directly**
