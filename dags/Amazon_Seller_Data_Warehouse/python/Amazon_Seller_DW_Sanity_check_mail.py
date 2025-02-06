@@ -39,7 +39,7 @@ def send_sanity_check_email():
     
     # Email Configuration
     SENDER_EMAIL = "cloud@discoverpilgrim.com"
-    RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
+    RECIPIENT_EMAILS = "rwitapa.mitra@discoverpilgrim.com"
     EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
     subject = "Amazon Seller DW Discrepancy !!!"
     
