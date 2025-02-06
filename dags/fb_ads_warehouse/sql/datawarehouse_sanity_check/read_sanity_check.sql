@@ -1,0 +1,1 @@
+select * from shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.Sanity_check
