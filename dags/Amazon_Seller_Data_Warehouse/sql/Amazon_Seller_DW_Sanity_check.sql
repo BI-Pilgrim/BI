@@ -1,73 +1,107 @@
-create or replace table `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.Amazon_seller_Sanity_check` as
-with Sources as
-  (
-    select 
-  'ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL' as Source_table_name,
-  max(purchase_date) as Source_max_date,
-  count(distinct case when date(purchase_date) = (select max(date(purchase_date)) from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`) then amazon_order_id end ) as Source_pk_count
-  from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`
+CREATE OR REPLACE TABLE `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.Amazon_seller_Sanity_check` AS
+WITH Sources AS (
+  SELECT 
+    'ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL' AS Source_table_name,
+    TIMESTAMP(MAX(purchase_date)) AS Source_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(purchase_date) = (SELECT MAX(DATE(purchase_date)) 
+                                    FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`) 
+        THEN amazon_order_id 
+    END) AS Source_pk_count
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`
 
- union all
+  UNION ALL
 
-select 
-  'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL' as Source_table_name,
-  max(purchase_date) as Source_max_date,
-  count(distinct case when date(purchase_date) = (select max(date(purchase_date)) from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`) then amazon_order_id end ) as Source_pk_count
-  from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`
+  SELECT 
+    'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL' AS Source_table_name,
+    TIMESTAMP(MAX(purchase_date)) AS Source_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(purchase_date) = (SELECT MAX(DATE(purchase_date)) 
+                                    FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`) 
+        THEN amazon_order_id 
+    END) AS Source_pk_count
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`
 
+  UNION ALL
 
- union all
+  SELECT 
+    'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML' AS Source_table_name,
+    TIMESTAMP(MAX(PurchaseDate)) AS Source_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(PurchaseDate) = (SELECT MAX(DATE(PurchaseDate)) 
+                                   FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML`) 
+        THEN AmazonOrderID 
+    END) AS Source_pk_count
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_XML_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`
 
-select 
-  'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML' as Source_table_name,
-  max(PurchaseDate) as Source_max_date,
-  count(distinct case when date(PurchaseDate) = (select max(date(PurchaseDate)) from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML`) then AmazonOrderID end ) as Source_pk_count
-  from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_XML_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`
+  UNION ALL
 
-
-  union all
-
-select 
-  'MERCHANT_CANCELLED_LISTINGS_DATA' as Source_table_name,
-  max(dataEndTime) as Source_max_date,
-  count(distinct case when date(dataEndTime) = (select max(date(dataEndTime)) from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.MERCHANT_CANCELLED_LISTINGS_DATA`) then product_id end ) as Source_pk_count
-  from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_MERCHANT_CANCELLED_LISTINGS_DATA`
-
-
-
+  SELECT 
+    'MERCHANT_CANCELLED_LISTINGS_DATA' AS Source_table_name,
+    TIMESTAMP(MAX(dataEndTime)) AS Source_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(dataEndTime) = (SELECT MAX(DATE(dataEndTime)) 
+                                  FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.MERCHANT_CANCELLED_LISTINGS_DATA`) 
+        THEN product_id 
+    END) AS Source_pk_count
+  FROM `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_MERCHANT_CANCELLED_LISTINGS_DATA`
 ),
------------------------------------------------------------------------------------------------------
-Destination as 
-(
-    select 
-  'ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL' as Dest_table_name,
-  max(purchase_date) as Dest_max_date,
-  count(distinct case when date(purchase_date) = (select max(date(purchase_date)) from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`) then Amazon_Order_id end ) as Dest_pk_count
-  from  `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`
 
-  
-  union all
+Destination AS (
+  SELECT 
+    'ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL' AS Dest_table_name,
+    TIMESTAMP(MAX(purchase_date)) AS Dest_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(purchase_date) = (SELECT MAX(DATE(purchase_date)) 
+                                    FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`) 
+        THEN amazon_order_id 
+    END) AS Dest_pk_count
+  FROM  `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL`
 
-  select 
-  'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL' as Dest_table_name,
-  max(purchase_date) as Dest_max_date,
- count(distinct case when date(purchase_date) = (select max(date(purchase_date)) from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`) then Amazon_Order_id end ) as Dest_pk_count
-  from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`
+  UNION ALL
 
+  SELECT 
+    'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL' AS Dest_table_name,
+    TIMESTAMP(MAX(purchase_date)) AS Dest_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(purchase_date) = (SELECT MAX(DATE(purchase_date)) 
+                                    FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`) 
+        THEN amazon_order_id 
+    END) AS Dest_pk_count
+  FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`
 
-union all
+  UNION ALL
 
-  select 
-  'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML' as Dest_table_name,
-  max(PurchaseDate) as Dest_max_date,
- count(distinct case when date(PurchaseDate) = (select max(date(PurchaseDate)) from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_XML_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL`) then amazon_order_id end ) as Dest_pk_count
-  from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML`
+  SELECT 
+    'ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML' AS Dest_table_name,
+    TIMESTAMP(MAX(PurchaseDate)) AS Dest_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(PurchaseDate) = (SELECT MAX(DATE(PurchaseDate)) 
+                                   FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML`) 
+        THEN amazon_order_id 
+    END) AS Dest_pk_count
+  FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL_XML`
 
+  UNION ALL
 
-union all
+  SELECT 
+    'MERCHANT_CANCELLED_LISTINGS_DATA' AS Dest_table_name,
+    TIMESTAMP(MAX(dataEndTime)) AS Dest_max_date,  -- Cast to TIMESTAMP
+    COUNT(DISTINCT CASE 
+        WHEN DATE(dataEndTime) = (SELECT MAX(DATE(dataEndTime)) 
+                                  FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.MERCHANT_CANCELLED_LISTINGS_DATA`) 
+        THEN product_id 
+    END) AS Dest_pk_count
+  FROM `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.MERCHANT_CANCELLED_LISTINGS_DATA`
+)
 
-  select 
-  'MERCHANT_CANCELLED_LISTINGS_DATA' as Dest_table_name,
-  max(dataEndTime) as Dest_max_date,
- count(distinct case when date(dataEndTime) = (select max(date(dataEndTime)) from `shopify-pubsub-project.pilgrim_bi_airbyte_amazon_seller.GET_MERCHANT_CANCELLED_LISTINGS_DATA`) then product_id end ) as Dest_pk_count
-  from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.MERCHANT_CANCELLED_LISTINGS_DATA`
+SELECT 
+  s.Source_table_name,
+  s.Source_max_date,
+  s.Source_pk_count,
+  d.Dest_table_name,
+  d.Dest_max_date,
+  d.Dest_pk_count
+FROM Sources s
+LEFT JOIN Destination d 
+ON s.Source_table_name = d.Dest_table_name;
