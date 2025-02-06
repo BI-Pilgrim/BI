@@ -35,7 +35,7 @@ def send_sanity_check_email():
         (df['Latest_date'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
         (df['Source_pk_count'] != df['Dest_pk_count'])
     ]
-    print("The filtered_df is as -",filtered_df.head())
+   # print("The filtered_df is as -",filtered_df.head())
     
     # Email Configuration
     SENDER_EMAIL = "cloud@discoverpilgrim.com"
@@ -77,8 +77,8 @@ def send_email(sender_email, sender_password, recipient_email, subject, body, at
         # Set up the SMTP server
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        print(sender_email)
-        print(sender_password)
+        #print(sender_email)
+        #print(sender_password)
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
         server.quit()
