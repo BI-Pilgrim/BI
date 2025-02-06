@@ -1,6 +1,6 @@
 import smtplib
 import pandas as pd
-import subprocess
+import subprocess  # Make sure to import subprocess
 from google.cloud import bigquery
 from email.mime.base import MIMEBase
 import pandas_gbq as pgbq
@@ -24,8 +24,8 @@ df = df.fillna(pd.Timestamp.today())
 
 # Filtering logic
 filtered_df = df[
-    (df['Source_max_date'] != df['Dest_max_date']) &
-    (df['Latest_date'] - pd.to_timedelta('1 day') != df['Source_max_date']) &
+    (df['Source_max_date'] != df['Dest_max_date']) & 
+    (df['Latest_date'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
     (df['Source_pk_count'] != df['Dest_pk_count'])
 ]
 
