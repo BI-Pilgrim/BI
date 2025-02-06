@@ -22,7 +22,6 @@ def send_sanity_check_email():
     if 'Latest_date' in df.columns:
         df['Latest_date'] = pd.to_datetime(df['Latest_date'], errors='coerce')
     else:
-        print("'Latest_date' column is missing!")
     # You can handle the missing column, like filling with a default value or exiting.
         df['Latest_date'] = pd.Timestamp.today()
 
@@ -35,6 +34,7 @@ def send_sanity_check_email():
         (df['Latest_date'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
         (df['Source_pk_count'] != df['Dest_pk_count'])
     ]
+    print("The filtered_df is as -",filtered_df.head())
     
     # Email Configuration
     SENDER_EMAIL = "cloud@discoverpilgrim.com"
