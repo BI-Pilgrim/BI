@@ -6,6 +6,10 @@ from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
+
+# Add the path where Amazon_Seller_DW_Sanity_check_mail.py is located
+sys.path.append('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/python')
+
 from Amazon_Seller_DW_Sanity_check_mail import send_sanity_check_email  # Import the function from the script
 
 
