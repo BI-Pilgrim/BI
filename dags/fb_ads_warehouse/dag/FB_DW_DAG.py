@@ -1,35 +1,50 @@
 # Import Functions
 from datetime import timedelta
 from airflow import DAG
-from airflow.utils.dates import timezone
+import subprocess
+import sys
+from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-import os
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 
-# Define default arguments for the DAG
+# Add the path where Amazon_Seller_DW_Sanity_check_mail.py is located
+sys.path.append('/home/airflow/gcs/dags/fb_ads_warehouse/python')
+
+from FB_DW_Sanity_Check_mail import send_sanity_check_email  # Import the function from the script
+
+
+# Define the start date in UTC 
+START_DATE = timezone.datetime(2025, 1, 13, 7, 55, 0, tzinfo=timezone.utc)  # Corresponds to 1.15 PM IST on 2025-01-02
+
+GOOGLE_CONN_ID = "google_cloud_default"
+PROJECT_ID = "shopify-pubsub-project"
+DATASET = "Data_Warehouse_Amazon_Seller_Staging"
+LOCATION = "asia-south1"  # Ensure this matches your dataset location
+
+DATASET_STAGING = "Data_Warehouse_Amazon_Seller_Staging"
+
+
 default_args = {
     'owner': 'omkar.sadawarte@discoverpilgrim.com',
     'depends_on_past': False,
     'email_on_failure': True,
     'email_on_retry': True,
     'retries': 1,
+    'start_date': START_DATE,
     'retry_delay': timedelta(minutes=5),
 }
 
-# Define constants
-LOCATION = "US"  # Replace with your BigQuery dataset location (e.g., "US", "EU")
-SQL_DIR = "/home/airflow/gcs/dags/fb_ads_warehouse/sql/fb_ads_to_bq"  # Adjust this path if necessary
-# SQL_DIR = "../dags/fb_ads_warehouse/sql/fb_ads_to_bq"  # Adjust this path if necessary
-
-# Define the DAG
 with DAG(
-    dag_id='fb_ads_warehouse',
+    dag_id='FB_ADS',
+    schedule_interval='30 23 * * *',  # Cron expression for 5 AM IST (11:30 PM UTC)
     default_args=default_args,
-    description='',
-    schedule_interval='30 3 * * *',  # 3:30 AM UTC is 9:00 AM IST
-    start_date=timezone.datetime(2025, 1, 3),
-    catchup=False,
+    catchup=False
 ) as dag:
+    start_pipeline = DummyOperator(
+        task_id='start_pipeline',
+        dag=dag
+    )
 
     # Start of the pipeline
     start_pipeline = DummyOperator(
@@ -1535,13 +1550,242 @@ with DAG(
         }
     )
 
+    # sanity_check Staging Table Refresh - Append
+    sanity_check_sql_path = "../dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql"
+    with open(sanity_check_sql_path, 'r') as file:
+        sql_query_94 = file.read()
 
+    perform_sanity_check = BigQueryInsertJobOperator(
+        task_id='perform_sanity_check',
+        configuration={
+            "query": {
+                "query": sql_query_94,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
+  
+
+# Sanity check Table 
+
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
+        sql_query_95 = file.read()
+
+    sanity_check = BigQueryInsertJobOperator(
+        task_id='sanity_check',
+        configuration={
+            "query": {
+                "query": sql_query_13,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    )   
 
     # End of the pipeline
     finish_pipeline = DummyOperator(
         task_id='finish_pipeline'
-    )
+    )   
 
     # Task Orchestration
-    start_pipeline >> [append_activities, append_ads, append_ads_insights_action_carousel_card_conversion_values, append_ads_insights_action_carousel_card_cost_per_conversion, append_ads_insights_action_carousel_card_mobile_app_purchase_roas, append_ads_insights_action_carousel_card_non_json, append_ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr, append_ads_insights_action_carousel_card_video_play_actions, append_ads_insights_action_conversion_device_actions, append_ads_insights_action_conversion_device_action_values, append_ads_insights_action_conversion_device_cost_per_unique_action_type, append_ads_insights_action_conversion_device_normal, append_ads_insights_action_conversion_device_unique_actions, append_ads_insights_action_product_id_actions, append_ads_insights_action_product_id_action_values, append_ads_insights_action_product_id_cost_per_action_type, append_ads_insights_action_product_id_normal, append_ads_insights_action_product_id_purchase_roas, append_ads_insights_action_reaction_actions, append_ads_insights_action_reaction_action_values, append_ads_insights_action_reaction_conversion_values, append_ads_insights_action_reaction_normal, append_ads_insights_action_reaction_unique_actions, append_ads_insights_action_type_actions, append_ads_insights_action_type_action_values, append_ads_insights_action_type_cost_per_action_type, append_ads_insights_action_type_cost_per_unique_action_type, append_ads_insights_action_type_normal, append_ads_insights_action_type_unique_actions, append_ads_insights_action_video_sound_actions, append_ads_insights_action_video_sound_action_values, append_ads_insights_action_video_sound_normal, append_ads_insights_action_video_type_actions, append_ads_insights_action_video_type_action_values, append_ads_insights_action_video_type_normal, append_ads_insights_action_video_type_unique_actions, append_ads_insights_age_and_gender_actions, append_ads_insights_age_and_gender_action_values, append_ads_insights_age_and_gender_normal, append_ads_insights_age_and_gender_unique_actions, append_ads_insights_country_actions, append_ads_insights_country_action_values, append_ads_insights_country_normal, append_ads_insights_country_unique_actions, append_ads_insights_delivery_device_actions, append_ads_insights_delivery_device_action_values, append_ads_insights_delivery_device_cost_per_action_type, append_ads_insights_delivery_device_cost_per_unique_action_type, append_ads_insights_delivery_device_normal, append_ads_insights_delivery_device_unique_actions, append_ads_insights_delivery_platform_actions, append_ads_insights_delivery_platform_action_values, append_ads_insights_delivery_platform_and_device_platform_actions, append_ads_insights_delivery_platform_and_device_platform_normal, append_ads_insights_delivery_platform_cost_per_action_type, append_ads_insights_delivery_platform_cost_per_unique_action_type, append_ads_insights_delivery_platform_normal, append_ads_insights_delivery_platform_unique_actions, append_ads_insights_demographics_age_normal, append_ads_insights_demographics_country_normal, append_ads_insights_demographics_dma_region_normal, append_ads_insights_demographics_gender_normal, append_ads_insights_dma_normal, append_ads_insights_normal, append_ads_insights_platform_and_device_normal, append_ads_insights_region_normal, append_ad_sets, append_campaigns, append_clicks, append_conversion_data, append_images, append_roas, append_videos, append_video_2sec_video15_30sec_and_video_avg_details, append_video_actions, append_video_p25_to_p100_details,append_ads_recommendations,append_ads_non_json,append_ads_insights_video_p25_to_p100_details,append_ads_insights_video_actions,append_ads_insights_video_2sec_video15_30sec_and_video_avg_details,append_ads_insights_demographics_country_unique_actions,append_ads_insights_demographics_country_action_values,append_ads_insights_demographics_age_unique_actions,append_ads_insights_demographics_age_cost_per_action_type,append_ads_insights_demographics_age_actions,append_ads_insights_demographics_age_action_values,append_ads_excluded_audience,append_ads_insights_delivery_platform_and_device_platform_cost_per_action_type,append_ads_insights_conversion_data,append_ads_insights_demographics_country_actions,append_ads_insights_delivery_platform_and_device_platform_unique_actions,append_ad_creatives]
-    [append_activities, append_ads, append_ads_insights_action_carousel_card_conversion_values, append_ads_insights_action_carousel_card_cost_per_conversion, append_ads_insights_action_carousel_card_mobile_app_purchase_roas, append_ads_insights_action_carousel_card_non_json, append_ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr, append_ads_insights_action_carousel_card_video_play_actions, append_ads_insights_action_conversion_device_actions, append_ads_insights_action_conversion_device_action_values, append_ads_insights_action_conversion_device_cost_per_unique_action_type, append_ads_insights_action_conversion_device_normal, append_ads_insights_action_conversion_device_unique_actions, append_ads_insights_action_product_id_actions, append_ads_insights_action_product_id_action_values, append_ads_insights_action_product_id_cost_per_action_type, append_ads_insights_action_product_id_normal, append_ads_insights_action_product_id_purchase_roas, append_ads_insights_action_reaction_actions, append_ads_insights_action_reaction_action_values, append_ads_insights_action_reaction_conversion_values, append_ads_insights_action_reaction_normal, append_ads_insights_action_reaction_unique_actions, append_ads_insights_action_type_actions, append_ads_insights_action_type_action_values, append_ads_insights_action_type_cost_per_action_type, append_ads_insights_action_type_cost_per_unique_action_type, append_ads_insights_action_type_normal, append_ads_insights_action_type_unique_actions, append_ads_insights_action_video_sound_actions, append_ads_insights_action_video_sound_action_values, append_ads_insights_action_video_sound_normal, append_ads_insights_action_video_type_actions, append_ads_insights_action_video_type_action_values, append_ads_insights_action_video_type_normal, append_ads_insights_action_video_type_unique_actions, append_ads_insights_age_and_gender_actions, append_ads_insights_age_and_gender_action_values, append_ads_insights_age_and_gender_normal, append_ads_insights_age_and_gender_unique_actions, append_ads_insights_country_actions, append_ads_insights_country_action_values, append_ads_insights_country_normal, append_ads_insights_country_unique_actions, append_ads_insights_delivery_device_actions, append_ads_insights_delivery_device_action_values, append_ads_insights_delivery_device_cost_per_action_type, append_ads_insights_delivery_device_cost_per_unique_action_type, append_ads_insights_delivery_device_normal, append_ads_insights_delivery_device_unique_actions, append_ads_insights_delivery_platform_actions, append_ads_insights_delivery_platform_action_values, append_ads_insights_delivery_platform_and_device_platform_actions, append_ads_insights_delivery_platform_and_device_platform_normal, append_ads_insights_delivery_platform_cost_per_action_type, append_ads_insights_delivery_platform_cost_per_unique_action_type, append_ads_insights_delivery_platform_normal, append_ads_insights_delivery_platform_unique_actions, append_ads_insights_demographics_age_normal, append_ads_insights_demographics_country_normal, append_ads_insights_demographics_dma_region_normal, append_ads_insights_demographics_gender_normal, append_ads_insights_dma_normal, append_ads_insights_normal, append_ads_insights_platform_and_device_normal, append_ads_insights_region_normal, append_ad_sets, append_campaigns, append_clicks, append_conversion_data, append_images, append_roas, append_videos, append_video_2sec_video15_30sec_and_video_avg_details, append_video_actions, append_video_p25_to_p100_details,append_ads_recommendations,append_ads_non_json,append_ads_insights_video_p25_to_p100_details,append_ads_insights_video_actions,append_ads_insights_video_2sec_video15_30sec_and_video_avg_details,append_ads_insights_demographics_country_unique_actions,append_ads_insights_demographics_country_action_values,append_ads_insights_demographics_age_unique_actions,append_ads_insights_demographics_age_cost_per_action_type,append_ads_insights_demographics_age_actions,append_ads_insights_demographics_age_action_values,append_ads_excluded_audience,append_ads_insights_delivery_platform_and_device_platform_cost_per_action_type,append_ads_insights_conversion_data,append_ads_insights_demographics_country_actions,append_ads_insights_delivery_platform_and_device_platform_unique_actions,append_ad_creatives] >> finish_pipeline
+    start_pipeline >> [ append_activities,
+                        append_ads,
+                        append_ads_insights_action_carousel_card_conversion_values,
+                        append_ads_insights_action_carousel_card_cost_per_conversion,
+                        append_ads_insights_action_carousel_card_mobile_app_purchase_roas,
+                        append_ads_insights_action_carousel_card_non_json,
+                        append_ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr,
+                        append_ads_insights_action_carousel_card_video_play_actions,
+                        append_ads_insights_action_conversion_device_actions,
+                        append_ads_insights_action_conversion_device_action_values,
+                        append_ads_insights_action_conversion_device_cost_per_unique_action_type,
+                        append_ads_insights_action_conversion_device_normal,
+                        append_ads_insights_action_conversion_device_unique_actions,
+                        append_ads_insights_action_product_id_actions,
+                        append_ads_insights_action_product_id_action_values,
+                        append_ads_insights_action_product_id_cost_per_action_type,
+                        append_ads_insights_action_product_id_normal,
+                        append_ads_insights_action_product_id_purchase_roas,
+                        append_ads_insights_action_reaction_actions,
+                        append_ads_insights_action_reaction_action_values,
+                        append_ads_insights_action_reaction_conversion_values,
+                        append_ads_insights_action_reaction_normal,
+                        append_ads_insights_action_reaction_unique_actions,
+                        append_ads_insights_action_type_actions,
+                        append_ads_insights_action_type_action_values,
+                        append_ads_insights_action_type_cost_per_action_type,
+                        append_ads_insights_action_type_cost_per_unique_action_type,
+                        append_ads_insights_action_type_normal,
+                        append_ads_insights_action_type_unique_actions,
+                        append_ads_insights_action_video_sound_actions,
+                        append_ads_insights_action_video_sound_action_values,
+                        append_ads_insights_action_video_sound_normal,
+                        append_ads_insights_action_video_type_actions,
+                        append_ads_insights_action_video_type_action_values,
+                        append_ads_insights_action_video_type_normal,
+                        append_ads_insights_action_video_type_unique_actions,
+                        append_ads_insights_age_and_gender_actions,
+                        append_ads_insights_age_and_gender_action_values,
+                        append_ads_insights_age_and_gender_normal,
+                        append_ads_insights_age_and_gender_unique_actions,
+                        append_ads_insights_country_actions,
+                        append_ads_insights_country_action_values,
+                        append_ads_insights_country_normal,
+                        append_ads_insights_country_unique_actions,
+                        append_ads_insights_delivery_device_actions,
+                        append_ads_insights_delivery_device_action_values,
+                        append_ads_insights_delivery_device_cost_per_action_type,
+                        append_ads_insights_delivery_device_cost_per_unique_action_type,
+                        append_ads_insights_delivery_device_normal,
+                        append_ads_insights_delivery_device_unique_actions,
+                        append_ads_insights_delivery_platform_actions,
+                        append_ads_insights_delivery_platform_action_values,
+                        append_ads_insights_delivery_platform_and_device_platform_actions,
+                        append_ads_insights_delivery_platform_and_device_platform_normal,
+                        append_ads_insights_delivery_platform_cost_per_action_type,
+                        append_ads_insights_delivery_platform_cost_per_unique_action_type,
+                        append_ads_insights_delivery_platform_normal,
+                        append_ads_insights_delivery_platform_unique_actions,
+                        append_ads_insights_demographics_age_normal,
+                        append_ads_insights_demographics_country_normal,
+                        append_ads_insights_demographics_dma_region_normal,
+                        append_ads_insights_demographics_gender_normal,
+                        append_ads_insights_dma_normal,
+                        append_ads_insights_normal,
+                        append_ads_insights_platform_and_device_normal,
+                        append_ads_insights_region_normal,
+                        append_ad_sets,
+                        append_campaigns,
+                        append_clicks,
+                        append_conversion_data,
+                        append_images,
+                        append_roas,
+                        append_videos,
+                        append_video_2sec_video15_30sec_and_video_avg_details,
+                        append_video_actions,
+                        append_video_p25_to_p100_details,
+                        append_ads_recommendations,
+                        append_ads_non_json,
+                        append_ads_insights_video_p25_to_p100_details,
+                        append_ads_insights_video_actions,
+                        append_ads_insights_video_2sec_video15_30sec_and_video_avg_details,
+                        append_ads_insights_demographics_country_unique_actions,
+                        append_ads_insights_demographics_country_action_values,
+                        append_ads_insights_demographics_age_unique_actions,
+                        append_ads_insights_demographics_age_cost_per_action_type,
+                        append_ads_insights_demographics_age_actions,
+                        append_ads_insights_demographics_age_action_values,
+                        append_ads_excluded_audience,
+                        append_ads_insights_delivery_platform_and_device_platform_cost_per_action_type,
+                        append_ads_insights_conversion_data,
+                        append_ads_insights_demographics_country_actions,
+                        append_ads_insights_delivery_platform_and_device_platform_unique_actions,
+                        append_ad_creatives
+                      ]
+
+    [ append_activities,
+      append_ads,
+      append_ads_insights_action_carousel_card_conversion_values,
+      append_ads_insights_action_carousel_card_cost_per_conversion,
+      append_ads_insights_action_carousel_card_mobile_app_purchase_roas,
+      append_ads_insights_action_carousel_card_non_json,
+      append_ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr,
+      append_ads_insights_action_carousel_card_video_play_actions,
+      append_ads_insights_action_conversion_device_actions,
+      append_ads_insights_action_conversion_device_action_values,
+      append_ads_insights_action_conversion_device_cost_per_unique_action_type,
+      append_ads_insights_action_conversion_device_normal,
+      append_ads_insights_action_conversion_device_unique_actions,
+      append_ads_insights_action_product_id_actions,
+      append_ads_insights_action_product_id_action_values,
+      append_ads_insights_action_product_id_cost_per_action_type,
+      append_ads_insights_action_product_id_normal,
+      append_ads_insights_action_product_id_purchase_roas,
+      append_ads_insights_action_reaction_actions,
+      append_ads_insights_action_reaction_action_values,
+      append_ads_insights_action_reaction_conversion_values,
+      append_ads_insights_action_reaction_normal,
+      append_ads_insights_action_reaction_unique_actions,
+      append_ads_insights_action_type_actions,
+      append_ads_insights_action_type_action_values,
+      append_ads_insights_action_type_cost_per_action_type,
+      append_ads_insights_action_type_cost_per_unique_action_type,
+      append_ads_insights_action_type_normal,
+      append_ads_insights_action_type_unique_actions,
+      append_ads_insights_action_video_sound_actions,
+      append_ads_insights_action_video_sound_action_values,
+      append_ads_insights_action_video_sound_normal,
+      append_ads_insights_action_video_type_actions,
+      append_ads_insights_action_video_type_action_values,
+      append_ads_insights_action_video_type_normal,
+      append_ads_insights_action_video_type_unique_actions,
+      append_ads_insights_age_and_gender_actions,
+      append_ads_insights_age_and_gender_action_values,
+      append_ads_insights_age_and_gender_normal,
+      append_ads_insights_age_and_gender_unique_actions,
+      append_ads_insights_country_actions,
+      append_ads_insights_country_action_values,
+      append_ads_insights_country_normal,
+      append_ads_insights_country_unique_actions,
+      append_ads_insights_delivery_device_actions,
+      append_ads_insights_delivery_device_action_values,
+      append_ads_insights_delivery_device_cost_per_action_type,
+      append_ads_insights_delivery_device_cost_per_unique_action_type,
+      append_ads_insights_delivery_device_normal,
+      append_ads_insights_delivery_device_unique_actions,
+      append_ads_insights_delivery_platform_actions,
+      append_ads_insights_delivery_platform_action_values,
+      append_ads_insights_delivery_platform_and_device_platform_actions,
+      append_ads_insights_delivery_platform_and_device_platform_normal,
+      append_ads_insights_delivery_platform_cost_per_action_type,
+      append_ads_insights_delivery_platform_cost_per_unique_action_type,
+      append_ads_insights_delivery_platform_normal,
+      append_ads_insights_delivery_platform_unique_actions,
+      append_ads_insights_demographics_age_normal,
+      append_ads_insights_demographics_country_normal,
+      append_ads_insights_demographics_dma_region_normal,
+      append_ads_insights_demographics_gender_normal,
+      append_ads_insights_dma_normal,
+      append_ads_insights_normal,
+      append_ads_insights_platform_and_device_normal,
+      append_ads_insights_region_normal,
+      append_ad_sets,
+      append_campaigns,
+      append_clicks,
+      append_conversion_data,
+      append_images,
+      append_roas,
+      append_videos,
+      append_video_2sec_video15_30sec_and_video_avg_details,
+      append_video_actions,
+      append_video_p25_to_p100_details,
+      append_ads_recommendations,
+      append_ads_non_json,
+      append_ads_insights_video_p25_to_p100_details,
+      append_ads_insights_video_actions,
+      append_ads_insights_video_2sec_video15_30sec_and_video_avg_details,
+      append_ads_insights_demographics_country_unique_actions,
+      append_ads_insights_demographics_country_action_values,
+      append_ads_insights_demographics_age_unique_actions,
+      append_ads_insights_demographics_age_cost_per_action_type,
+      append_ads_insights_demographics_age_actions,
+      append_ads_insights_demographics_age_action_values,
+      append_ads_excluded_audience,
+      append_ads_insights_delivery_platform_and_device_platform_cost_per_action_type,
+      append_ads_insights_conversion_data,
+      append_ads_insights_demographics_country_actions,
+      append_ads_insights_delivery_platform_and_device_platform_unique_actions,
+      append_ad_creatives
+    ] >> sanity_check
+    
+    sanity_check >> run_python_task
+    run_python_task >> finish_pipeline   
+
+run_python_task = PythonOperator(
+    task_id='run_main_script',
+    python_callable=send_sanity_check_email,  # Call the function here
+)
+
+start_pipeline >> [append_all_orders_data_last_update_general,append_all_orders_data_order_date_general,append_merchant_cancelled_listings_data,append_merchant_listings_all_data,append_merchant_listings_data,append_merchant_listings_data_back_compat,append_merchant_listings_inactive_data,append_open_listings_data,append_orders,append_XML_BROWSE_TREE_DATA,append_SALES_AND_TRAFFIC_REPORT] >> sanity_check >> run_python_task 
