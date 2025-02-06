@@ -1,7 +1,3 @@
-
-select * from `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.Amazon_seller_Sanity_check`
-
-
 CREATE OR REPLACE TABLE `shopify-pubsub-project.Data_Warehouse_Amazon_Seller_Staging.Amazon_seller_Sanity_check` AS
 WITH Sources AS (
   SELECT 
