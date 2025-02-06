@@ -18,7 +18,13 @@ def send_sanity_check_email():
     # Handle NULL values to prevent errors
     df['Source_max_date'] = pd.to_datetime(df['Source_max_date'], errors='coerce')
     df['Dest_max_date'] = pd.to_datetime(df['Dest_max_date'], errors='coerce')
-    df['Latest_date'] = pd.to_datetime(df['Latest_date'], errors='coerce')
+    # Check if 'Latest_date' exists
+    if 'Latest_date' in df.columns:
+        df['Latest_date'] = pd.to_datetime(df['Latest_date'], errors='coerce')
+    else:
+        print("'Latest_date' column is missing!")
+    # You can handle the missing column, like filling with a default value or exiting.
+        df['Latest_date'] = pd.Timestamp.today()
 
     # Fill missing values with today's date
     df = df.fillna(pd.Timestamp.today())
