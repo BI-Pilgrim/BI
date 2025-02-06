@@ -54,8 +54,10 @@ def send_sanity_check_email():
 
 
 def send_email(sender_email, sender_password, recipient_email, subject, body, attachment_path=None):
-    """Function to send email with or without attachment"""
     try:
+        if body is None or body.strip() == '':
+            raise ValueError("Email body cannot be empty")
+        
         msg = MIMEMultipart()
         msg['From'] = sender_email
         msg['To'] = recipient_email
@@ -77,7 +79,6 @@ def send_email(sender_email, sender_password, recipient_email, subject, body, at
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
         server.quit()
-        print("Email Sent Successfully!")
         return True
 
     except Exception as e:
