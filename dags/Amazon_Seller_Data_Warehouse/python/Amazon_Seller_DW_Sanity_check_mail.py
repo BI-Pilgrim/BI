@@ -1,11 +1,12 @@
-
 import smtplib
 import pandas as pd
+import subprocess
 from google.cloud import bigquery
 from email.mime.base import MIMEBase
 import pandas_gbq as pgbq
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
 
 query = """
    SELECT 
