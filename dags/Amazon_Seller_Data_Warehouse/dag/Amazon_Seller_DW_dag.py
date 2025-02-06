@@ -2,6 +2,7 @@
 from datetime import timedelta
 from airflow import DAG
 import subprocess
+import sys
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python import PythonOperator
