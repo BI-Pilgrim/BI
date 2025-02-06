@@ -6,6 +6,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
+from airflow.models import Variable
 import os
 
 def send_sanity_check_email():
@@ -39,7 +40,7 @@ def send_sanity_check_email():
     # Email Configuration
     SENDER_EMAIL = "cloud@discoverpilgrim.com"
     RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
-    EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # Secure password handling
+    EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
     subject = "Amazon Seller DW Discrepancy !!!"
     
     # Send email based on filtered data
