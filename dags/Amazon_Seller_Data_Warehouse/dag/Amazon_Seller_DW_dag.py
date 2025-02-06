@@ -1,12 +1,18 @@
-
 # Import Functions
 from datetime import timedelta
 from airflow import DAG
 import subprocess
+import sys
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
+
+# Add the path where Amazon_Seller_DW_Sanity_check_mail.py is located
+sys.path.append('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/python')
+
+from Amazon_Seller_DW_Sanity_check_mail import send_sanity_check_email  # Import the function from the script
+
 
 # Define the start date in UTC 
 START_DATE = timezone.datetime(2025, 1, 13, 7, 55, 0, tzinfo=timezone.utc)  # Corresponds to 1.15 PM IST on 2025-01-02
@@ -277,28 +283,9 @@ with DAG(
 
     
 
-    def run_main_script():
-        script_path = '/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/python/Amazon_Seller_DW_Sanity_check_mail.py'
-        try:
-            # Use subprocess to run the Python script with the specified path
-            result = subprocess.run(
-                ['python', script_path],
-                check=True,
-                capture_output=True,
-                text=True
-            )
-            # print("Script output:", result.stdout)
-            # print("Script errors:", result.stderr)
-        except subprocess.CalledProcessError as e:
-            # print(f"Error occurred while running the script: {e}")
-            # print(f"Command output: {e.stdout}")
-            # print(f"Command errors: {e.stderr}")
-            raise
-
-# Define the PythonOperator to run the function
-    run_python_task = PythonOperator(
-        task_id='run_main_script',
-        python_callable=run_main_script,
-    )
+run_python_task = PythonOperator(
+    task_id='run_main_script',
+    python_callable=send_sanity_check_email,  # Call the function here
+)
 
 start_pipeline >> [append_all_orders_data_last_update_general,append_all_orders_data_order_date_general,append_merchant_cancelled_listings_data,append_merchant_listings_all_data,append_merchant_listings_data,append_merchant_listings_data_back_compat,append_merchant_listings_inactive_data,append_open_listings_data,append_orders,append_XML_BROWSE_TREE_DATA,append_SALES_AND_TRAFFIC_REPORT] >> sanity_check >> run_python_task 
