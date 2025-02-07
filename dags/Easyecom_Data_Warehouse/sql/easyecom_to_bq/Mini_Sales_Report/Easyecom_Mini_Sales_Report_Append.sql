@@ -1,7 +1,8 @@
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Mini_Sales_report` AS TARGET
 USING
 (
-select
+select distinct
+  rn,
   Client_Location,
   Seller_GST_Num,
   MP_Name,
@@ -108,20 +109,22 @@ select
   report_id,
   report_type,
   inventory_type,
-  -- ee_extracted_at
-FROM
+  ee_extracted_at
+from
 (
-SELECT
-*,
-ROW_NUMBER() OVER(PARTITION BY Order_Number, Suborder_No, report_id ORDER BY Order_Date desc) AS row_num
-FROM `shopify-pubsub-project.easycom.mini_sales_report`
-WHERE DATE(Order_Date) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+select distinct
+  *,
+  row_number() over(partition by Order_Number, Suborder_No,report_id,Seller_GST_Num,Manifest_ID,GRN_Batch_Codes order by ee_extracted_at DESC) as rn
+  FROM `shopify-pubsub-project.easycom.mini_sales_report`
 )
-WHERE row_num = 1
+where rn = 1
 ) AS SOURCE
 ON TARGET.Order_Number = SOURCE.Order_Number
-AND TARGET.Order_Number = SOURCE.Order_Number
-AND TARGET.Order_Number = SOURCE.Order_Number
+AND TARGET.Suborder_No = SOURCE.Suborder_No
+AND TARGET.report_id = SOURCE.report_id
+AND TARGET.Seller_GST_Num = SOURCE.Seller_GST_Num
+AND TARGET.Manifest_ID = SOURCE.Manifest_ID
+AND TARGET.GRN_Batch_Codes = SOURCE.GRN_Batch_Codes
 WHEN MATCHED AND TARGET.Order_Date < SOURCE.Order_Date
 THEN UPDATE SET
 TARGET.Client_Location = SOURCE.Client_Location,

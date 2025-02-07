@@ -8,7 +8,8 @@ PARTITION BY start_date
  AS
 
 
-select
+select distinct
+  rn,
   Client_Location,
   Seller_GST_Num,
   MP_Name,
@@ -120,9 +121,11 @@ from
 (
 select distinct
   *,
-  row_number() over(partition by Order_Number, Suborder_No, report_id order by ee_extracted_at DESC) as rn
+  row_number() over(partition by Order_Number, Suborder_No,report_id,Seller_GST_Num,Manifest_ID,GRN_Batch_Codes order by ee_extracted_at DESC) as rn
   FROM `shopify-pubsub-project.easycom.mini_sales_report`
 )
 where rn = 1
+-- where Order_Number = "`20250108_Ankita_01" and Suborder_No = "`20250108_Ankita_01" and report_id = '107543706'
+-- where Order_Number = "`MYNJ-HEVN180125-4_OR1" and Suborder_No = "`62111173736549725772941" and report_id = '107543706'
 
 
