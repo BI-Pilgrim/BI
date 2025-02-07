@@ -7,11 +7,14 @@ from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
-
+import os
+from fb_ads_warehouse.python.FB_DW_Sanity_Check_mail import send_sanity_check_email  # Import the function from the script
+LOCATION = "US"
+SQL_DIR = "../dags/fb_ads_warehouse/sql/fb_ads_to_bq"
 # Add the path where Amazon_Seller_DW_Sanity_check_mail.py is located
-sys.path.append('/home/airflow/gcs/dags/fb_ads_warehouse/python')
+# sys.path.append('/home/airflow/gcs/dags/fb_ads_warehouse/python')
 
-from FB_DW_Sanity_Check_mail import send_sanity_check_email  # Import the function from the script
+
 
 
 # Define the start date in UTC 
@@ -36,7 +39,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='FB_ADS',
+    dag_id='FB_DW_DAG',
     schedule_interval='30 23 * * *',  # Cron expression for 5 AM IST (11:30 PM UTC)
     default_args=default_args,
     catchup=False
@@ -44,11 +47,6 @@ with DAG(
     start_pipeline = DummyOperator(
         task_id='start_pipeline',
         dag=dag
-    )
-
-    # Start of the pipeline
-    start_pipeline = DummyOperator(
-        task_id='start_pipeline'
     )
 
     # activities Table Refresh - Append
@@ -1550,27 +1548,28 @@ with DAG(
         }
     )
 
-    # sanity_check Staging Table Refresh - Append
-    sanity_check_sql_path = "../dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql"
-    with open(sanity_check_sql_path, 'r') as file:
-        sql_query_94 = file.read()
+    # # sanity_check Staging Table Refresh - Append
+    # sanity_check_sql_path = "../dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql"
+    # with open(sanity_check_sql_path, 'r') as file:
+    #     sql_query_94 = file.read()
 
-    perform_sanity_check = BigQueryInsertJobOperator(
-        task_id='perform_sanity_check',
-        configuration={
-            "query": {
-                "query": sql_query_94,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # perform_sanity_check = BigQueryInsertJobOperator(
+    #     task_id='perform_sanity_check',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_94,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
   
 
 # Sanity check Table 
 
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
+    # with open('/home/airflow/gcs/dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
+    with open('../dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
         sql_query_95 = file.read()
 
     sanity_check = BigQueryInsertJobOperator(
@@ -1583,6 +1582,11 @@ with DAG(
             }
         }
     )   
+
+    run_python_task = PythonOperator(
+        task_id='run_main_script',
+        python_callable=send_sanity_check_email,  # Call the function here
+        )
 
     # End of the pipeline
     finish_pipeline = DummyOperator(
@@ -1778,14 +1782,7 @@ with DAG(
       append_ads_insights_demographics_country_actions,
       append_ads_insights_delivery_platform_and_device_platform_unique_actions,
       append_ad_creatives
-    ] >> sanity_check
+    ] >> sanity_check >> finish_pipeline
     
     sanity_check >> run_python_task
     run_python_task >> finish_pipeline   
-
-run_python_task = PythonOperator(
-    task_id='run_main_script',
-    python_callable=send_sanity_check_email,  # Call the function here
-)
-
-start_pipeline >> [append_all_orders_data_last_update_general,append_all_orders_data_order_date_general,append_merchant_cancelled_listings_data,append_merchant_listings_all_data,append_merchant_listings_data,append_merchant_listings_data_back_compat,append_merchant_listings_inactive_data,append_open_listings_data,append_orders,append_XML_BROWSE_TREE_DATA,append_SALES_AND_TRAFFIC_REPORT] >> sanity_check >> run_python_task 
