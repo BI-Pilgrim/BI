@@ -1,12 +1,18 @@
 create or replace table `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Sanity_check` as
 with Sources as
   (
+  --     select 
+  -- 'activities' as table_name,
+  -- 'activities' as source_table,
+  -- max(date(event_time)) as Source_max_date,
+  
+  -- count(distinct case when date(event_time) = (select max(date(event_time)) from `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.activities`) then concat(object_id, event_time, account_id) end ) as Source_pk_count
+  -- from `shopify-pubsub-project.pilgrim_bi_airbyte_facebook.activities`
 
-
-
-      select 
-  'Orders' as Source_table_name,
-  max(order_date) as Source_max_date,
+  select 
+  'Orders' as table_name,
+  'Orders' as source_table,
+  max(date(order_date)) as Source_max_date,
   count(distinct case when date(order_date) = (select max(date(order_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orders`) then invoice_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.orders`
 
@@ -14,39 +20,44 @@ with Sources as
 
 -- Since Orderitem table is derived from orders therefor count(distinct pk) of source and destination are same
   select 
-  'Order_item' as Source_table_name,
-  max(order_date) as Source_max_date,
- count(distinct case when date(order_date) = (select max(date(order_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`) then suborder_id end ) as Source_pk_count
+  'Order_item' as table_name,
+  'Orders' as source_table,
+  max(date(order_date)) as Source_max_date,
+  0 as Source_pk_count
   from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
 
  union all
 
   select 
-  'master_products' as Source_table_name,
-  max(created_at) as Source_max_date,
-  count(distinct case when date(created_at) = (select max(date(created_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Master_products`) then cp_id end) as Source_pk_count
+  'master_products' as table_name,
+  'master_products' as source_table,
+  max(date(created_at)) as Source_max_date,
+  count(distinct case when date(created_at) = (select max(date(created_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Master_products`) then cp_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.master_products`
 
   union all
 
   select 
-  'locations' as Source_table_name,
-  max(ee_extracted_at) as Source_max_date,
+  'locations' as table_name,
+  'locations' as source_table,
+  max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Locations`) then location_key end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.locations`
 
   union all
 
   select 
-  'inventory_snapshot' as Source_table_name,
-  max(entry_date) as Source_max_date,
+  'inventory_snapshot' as table_name,
+  'inventory_snapshot' as source_table,
+  max(date(entry_date)) as Source_max_date,
   count(distinct case when date(entry_date) = (select max(date(entry_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_Snapshot`) then id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.inventory_snapshot`
 
   union all
 
   select 
-  'inventory_aging_report' as Source_table_name,
+  'inventory_aging_report' as table_name,
+  'inventory_aging_report' as source_table,
   max(date(end_date)) as Source_max_date,
   count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_Aging_report`) then concat(sku,location) end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.inventory_aging_report`
@@ -54,7 +65,8 @@ with Sources as
   union all
 
   select 
-  'countries' as Source_table_name,
+  'countries' as table_name,
+  'countries' as source_table,
   max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Countries`) then country_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.countries`
@@ -62,23 +74,26 @@ with Sources as
   union all
 
   select 
-  'marketplace' as Source_table_name,
+  'marketplace' as table_name,
+  'marketplace' as source_table,
   max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Marketplace`) then marketplace_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.marketplace`
 
   union all
 
-  select 
-  'mini_sales_report' as Source_table_name,
-  max(date(start_date)) as Source_max_date,
-  count(distinct case when date(start_date) = (select max(date(start_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Mini_Sales_report`) then concat(Order_Number, Suborder_No, report_id) end ) as Source_pk_count
-  from `shopify-pubsub-project.easycom.mini_sales_report`  
+  -- select 
+  -- 'mini_sales_report' as table_name,
+  -- 'marketplace' as source_table,
+  -- max(date(start_date)) as Source_max_date,
+  -- count(distinct case when date(start_date) = (select max(date(start_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Mini_Sales_report`) then concat(Order_Number, Suborder_No, report_id) end ) as Source_pk_count
+  -- from `shopify-pubsub-project.easycom.mini_sales_report`  
 
-  union all
+  -- union all
 
   select 
-  'all_return_orders' as Source_table_name,
+  'all_return_orders' as table_name,
+  'all_return_orders' as source_table,
   max(date(order_date)) as Source_max_date,
   count(distinct case when date(order_date) = (select max(order_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Orders`) then order_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.all_return_orders`  
@@ -87,15 +102,17 @@ with Sources as
 
 -- Since All_Return_Order_items table is derived from All_Return_Order therefor count(distinct pk) of source and destination are same
   select 
-  'All_Return_Order_items' as Source_table_name,
-  max(order_date) as Source_max_date,
- count(distinct case when date(order_date) = (select max(order_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Orders`) then order_id end ) as Source_pk_count
+  'All_Return_Order_items' as table_name,
+  'all_return_orders' as source_table,
+  max(date(order_date)) as Source_max_date,
+  0 as Source_pk_count
   from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Orders`
 
   union all
 
   select 
-  'status_wise_stock_report' as Source_table_name,
+  'status_wise_stock_report' as table_name,
+  'status_wise_stock_report' as source_table,
   max(date(end_date)) as Source_max_date,
   count(distinct case when end_date = (select max(end_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report`) then concat(SKU, Company_Token) end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.status_wise_stock_report`  
@@ -104,7 +121,8 @@ with Sources as
   union all
 
   select 
-  'states' as Source_table_name,
+  'states' as table_name,
+  'states' as source_table,
   max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when ee_extracted_at = (select max(ee_extracted_at) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.States`) then state_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.states` 
@@ -112,16 +130,17 @@ with Sources as
 
   union all
 
-  select 
-  'order_status_metrics' as Source_table_name,
-  max(date(date)) as Source_max_date,
-  count(distinct case when date = (select max(date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.order_status_metrics`) then concat(date,status) end ) as Source_pk_count
-  from `shopify-pubsub-project.easycom.order_status_metrics`
+  -- select 
+  -- 'order_status_metrics' as table_name,
+  -- max(date(date)) as Source_max_date,
+  -- count(distinct case when date = (select max(date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.order_status_metrics`) then concat(date,status) end ) as Source_pk_count
+  -- from `shopify-pubsub-project.easycom.order_status_metrics`
 
-  union all
+  -- union all
 
   select 
-  'pending_returns_report' as Source_table_name,
+  'pending_returns_report' as table_name,
+  'pending_returns_report' as source_table,
   max(date(end_date)) as Source_max_date,
   count(distinct case when end_date = (select max(end_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Pending_Returns_report`) then concat(Order_Number, Order_Item_ID) end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.pending_returns_report`  
@@ -129,42 +148,47 @@ with Sources as
   union all
 
   select 
-  'purchase_orders' as Source_table_name,
+  'purchase_orders' as table_name,
+  'purchase_orders' as source_table,
   max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when ee_extracted_at = (select max(ee_extracted_at) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Purchase_Orders`) then concat(po_id, ee_extracted_at) end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.purchase_orders`
 
+  -- union all
+
+  -- select 
+  -- 'warehouse_metrics' as table_name,
+  -- 'warehouse_metrics' as source_table,
+  -- max(date(analysis_date)) as Source_max_date,
+  -- count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.warehouse_metrics`) then concat(location_key, warehouse_name) end ) as Source_pk_count
+  -- from `shopify-pubsub-project.easycom.warehouse_metrics`
+
+
   union all
 
   select 
-  'warehouse_metrics' as Source_table_name,
-  max(date(analysis_date)) as Source_max_date,
-  count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.warehouse_metrics`) then concat(location_key, warehouse_name) end ) as Source_pk_count
-  from `shopify-pubsub-project.easycom.warehouse_metrics`
-
-
-  union all
-
-  select 
-  'kits' as Source_table_name,
+  'kits' as table_name,
+  'kits' as source_table,
   max(date(add_date)) as Source_max_date,
   count(distinct case when date(add_date) = (select max(date(add_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Kits`) then product_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.kits`
 
 
+  -- union all
+
+  -- select 
+  -- 'shipping_status_metrics' as table_name,
+  -- 'shipping_status_metrics' as source_table,
+  -- max(date(analysis_date)) as Source_max_date,
+  -- count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.shipping_status_metrics`) then concat(analysis_date, status) end ) as Source_pk_count
+  -- from `shopify-pubsub-project.easycom.shipping_status_metrics`
+
+
   union all
 
   select 
-  'shipping_status_metrics' as Source_table_name,
-  max(date(analysis_date)) as Source_max_date,
-  count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.shipping_status_metrics`) then concat(analysis_date, status) end ) as Source_pk_count
-  from `shopify-pubsub-project.easycom.shipping_status_metrics`
-
-
-  union all
-
-  select 
-  'reports' as Source_table_name,
+  'reports' as table_name,
+  'reports' as source_table,
   max(date(created_on)) as Source_max_date,
   count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Reports`) then report_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.reports`
@@ -172,7 +196,8 @@ with Sources as
   union all
 
   select 
-  'pending_return_orders' as Source_table_name,
+  'pending_return_orders' as table_name,
+  'pending_return_orders' as source_table,
   max(date(import_date)) as Source_max_date,
   count(distinct case when date(import_date) = (select max(date(import_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.pending_return_orders`) then invoice_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.pending_return_orders`
@@ -181,7 +206,8 @@ with Sources as
   union all
 
   select 
-  'vendors' as Source_table_name,
+  'vendors' as table_name,
+  'vendors' as source_table,
   max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Vendors`) then vendor_c_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.vendors`
@@ -190,7 +216,8 @@ with Sources as
   union all
 
   select 
-  'inventory_view_by_bin_report' as Source_table_name,
+  'inventory_view_by_bin_report' as table_name,
+  'inventory_view_by_bin_report' as source_table,
   max(date(created_on)) as Source_max_date,
   count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.inventory_view_by_bin_report`) then SKU end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.inventory_view_by_bin_report`
@@ -199,25 +226,28 @@ with Sources as
   union all
 
   select 
-  'inventory_details' as Source_table_name,
+  'inventory_details' as table_name,
+  'inventory_details' as source_table,
   max(date(creation_date)) as Source_max_date,
   count(distinct case when date(creation_date) = (select max(date(creation_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_details`) then SKU end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.inventory_details`
 
 
+  -- union all
+
+  -- select 
+  -- 'daily_metrics' as table_name,
+  -- 'inventory_details' as source_table,
+  -- max(date(analysis_date)) as Source_max_date,
+  -- count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.daily_metrics`) then analysis_date end ) as Source_pk_count
+  -- from `shopify-pubsub-project.easycom.daily_metrics`
+
+
   union all
 
   select 
-  'daily_metrics' as Source_table_name,
-  max(date(analysis_date)) as Source_max_date,
-  count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.daily_metrics`) then analysis_date end ) as Source_pk_count
-  from `shopify-pubsub-project.easycom.daily_metrics`
-
-
-  union all
-
-  select 
-  'customers' as Source_table_name,
+  'customers' as table_name,
+  'customers' as source_table,
   max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Customers`) then c_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.customers`
@@ -226,7 +256,8 @@ with Sources as
   union all
 
   select 
-  'grn_details' as Source_table_name,
+  'grn_details' as table_name,
+  'grn_details' as source_table,
   max(date(grn_invoice_date)) as Source_max_date,
   count(distinct case when date(grn_invoice_date) = (select max(date(grn_invoice_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.grn_details`) then grn_id end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.grn_details`
@@ -235,7 +266,8 @@ with Sources as
   union all
 
   select 
-  'marketplace_listings' as Source_table_name,
+  'marketplace_listings' as table_name,
+  'marketplace_listings' as source_table,
   max(date(ee_extracted_at)) as Source_max_date,
   count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Marketplace_listings`) then concat(sku,site_uid) end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.marketplace_listings`
@@ -244,268 +276,307 @@ with Sources as
   union all
 
   select 
-  'grn_details_report' as Source_table_name,
+  'grn_details_report' as table_name,
+  'grn_details' as source_table,
   max(date(created_on)) as Source_max_date,
-  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.grn_details_report`) then concat(poNo, companyProductId, receivedQty) end ) as Source_pk_count
+  0 as Source_pk_count
   from `shopify-pubsub-project.easycom.grn_details_report`
 ),
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
-Destination as 
+Staging as 
 (
   select 
-  'Orders' as Dest_table_name,
-  max(order_date) as Dest_max_date,
-  count(distinct case when date(order_date) = (select max(date(order_date)) from `shopify-pubsub-project.easycom.orders`) then invoice_id end ) as Dest_pk_count
+  'Orders' as table_name,
+  max(date(order_date)) as Staging_max_date,
+  max(date(order_date)) as Latest_Valid_Date,
+  count(distinct case when order_date = (select max(order_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orders`) then invoice_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orders`
 
   union all
 
+--   select 
+--   'Order_item' as table_name,
+--   max(date(order_date)) as Staging_max_date,
+--   (SELECT MAX(date(order_date))  
+--   FROM `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
+--   WHERE order_id IS NOT NULL
+--    OR suborder_id IS NOT NULL
+--    OR invoice_id IS NOT NULL
+--   GROUP BY order_id, suborder_id, invoice_id
+-- ) as Latest_Valid_Date,
+--  count(distinct case when date(order_date) = (select max(date(order_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`) then suborder_id end ) as Staging_pk_count
+--   from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
+
+  -- union all
+
   select 
-  'Order_item' as Dest_table_name,
-  max(order_date) as Dest_max_date,
- count(distinct case when date(order_date) = (select max(date(order_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`) then suborder_id end ) as Dest_pk_count
-  from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
+  'master_products' as table_name,
+  max(date(created_at)) as Staging_max_date,
+  max(date(created_at)) as Latest_Valid_Date,
+  count(distinct case when date(created_at) = (select max(date(created_at)) from `shopify-pubsub-project.easycom.master_products`) then cp_id end) as Staging_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Master_products`
 
   union all
 
   select 
-  'master_products' as Dest_table_name,
-  max(created_at) as Dest_max_date,
-  count(distinct case when date(created_at) = (select max(date(created_at)) from `shopify-pubsub-project.easycom.master_products`) then cp_id end ) as Dest_pk_count
-  from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Master_products`
-
-  union all
-
-  select 
-  'locations' as Dest_table_name,
-  max(ee_extracted_at) as Dest_max_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.locations`) then location_key end ) as Dest_pk_count
+  'locations' as table_name,
+  max(date(ee_extracted_at)) as Staging_max_date,
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.locations`) then location_key end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Locations`
 
   union all
 
   select 
-  'inventory_snapshot' as Dest_table_name,
-  max(entry_date) as Dest_max_date,
-  count(distinct case when date(entry_date) = (select max(date(entry_date)) from `shopify-pubsub-project.easycom.inventory_snapshot`) then id end ) as Dest_pk_count
+  'inventory_snapshot' as table_name,
+  max(date(entry_date)) as Staging_max_date,
+  max(date(entry_date)) as Latest_Valid_Date,
+  count(distinct case when date(entry_date) = (select max(date(entry_date)) from `shopify-pubsub-project.easycom.inventory_snapshot`) then id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_Snapshot`
 
   union all
 
   select 
-  'inventory_aging_report' as Dest_table_name,
-  max(date(end_date)) as Dest_max_date,
-  count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.easycom.inventory_aging_report`) then concat(sku,location) end ) as Dest_pk_count
+  'inventory_aging_report' as table_name,
+  max(date(end_date)) as Staging_max_date,
+  max(date(end_date)) as Latest_Valid_Date,
+  count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.easycom.inventory_aging_report`) then concat(sku,location) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_Aging_report`
 
   union all
 
   select 
-  'countries' as Dest_table_name,
-  max(date(ee_extracted_at)) as Dest_max_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.countries`) then country_id end ) as Dest_pk_count
+  'countries' as table_name,
+  max(date(ee_extracted_at)) as Staging_max_date,
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.countries`) then country_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Countries`
 
   union all
 
   select 
-  'marketplace' as Dest_table_name,
-  max(date(ee_extracted_at)) as Dest_max_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.marketplace`) then marketplace_id end ) as Dest_pk_count
+  'marketplace' as table_name,
+  max(date(ee_extracted_at)) as Staging_max_date,
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.marketplace`) then marketplace_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Marketplace`
 
   union all
 
   select 
-  'mini_sales_report' as Dest_table_name,
-  max(date(start_date)) as Dest_max_date,
-  count(distinct case when date(start_date) = (select max(date(start_date)) from `shopify-pubsub-project.easycom.mini_sales_report`) then concat(Order_Number, Suborder_No, report_id) end ) as Dest_pk_count
+  'mini_sales_report' as table_name,
+  max(date(start_date)) as Staging_max_date,
+  max(date(start_date)) as Latest_Valid_Date,
+  count(distinct case when date(start_date) = (select max(date(start_date)) from `shopify-pubsub-project.easycom.mini_sales_report`) then concat(Order_Number, Suborder_No, report_id) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Mini_Sales_report`
 
   union all
 
   select 
-  'all_return_orders' as Dest_table_name,
-  max(date(order_date)) as Dest_max_date,
-  count(distinct case when date(order_date) = (select max(order_date) from `shopify-pubsub-project.easycom.all_return_orders`) then order_id end ) as Dest_pk_count
+  'all_return_orders' as table_name,
+  max(date(order_date)) as Staging_max_date,
+  max(date(order_date)) as Latest_Valid_Date,
+  count(distinct case when date(order_date) = (select max(order_date) from `shopify-pubsub-project.easycom.all_return_orders`) then order_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Orders`
 
   union all
 
   select 
-  'All_Return_Order_items' as Dest_table_name,
-  max(order_date) as Dest_max_date,
- count(distinct case when date(order_date) = (select max(order_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Order_items`) then order_id end ) as Dest_pk_count
+  'All_Return_Order_items' as table_name,
+  max(date(order_date)) as Staging_max_date,
+  (SELECT MAX(DATE(order_date))  
+  FROM `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
+  WHERE order_id IS NOT NULL
+  ) as Latest_Valid_Date,
+ count(distinct case when date(order_date) = (select max(order_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Order_items`) then order_id end ) as Staging_pk_count
   from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.All_Return_Order_items`
 
   union all
 
   select 
-  'status_wise_stock_report' as Dest_table_name,
-  max(date(end_date)) as Dest_max_date,
-  count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.easycom.status_wise_stock_report`) then concat(SKU, Company_Token) end ) as Dest_pk_count
+  'status_wise_stock_report' as table_name,
+  max(date(end_date)) as Staging_max_date,
+  max(date(end_date)) as Latest_Valid_Date,
+  count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.easycom.status_wise_stock_report`) then concat(SKU, Company_Token) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report`
 
   union all
 
   select 
-  'states' as Dest_table_name,
-  max(date(ee_extracted_at)) as Dest_max_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.states`) then state_id end ) as Dest_pk_count
+  'states' as table_name,
+  max(date(ee_extracted_at)) as Staging_max_date,
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.states`) then state_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.States`  
 
+  -- union all
+
+  -- select 
+  -- 'order_status_metrics' as table_name,
+  -- max(date(date)) as Staging_max_date,
+  -- count(distinct case when date(date) = (select max(date(date)) from `shopify-pubsub-project.easycom.order_status_metrics`) then concat(date,status) end ) as Staging_pk_count
+  -- from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.order_status_metrics` 
+
   union all
 
   select 
-  'order_status_metrics' as Dest_table_name,
-  max(date(date)) as Dest_max_date,
-  count(distinct case when date(date) = (select max(date(date)) from `shopify-pubsub-project.easycom.order_status_metrics`) then concat(date,status) end ) as Dest_pk_count
-  from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.order_status_metrics` 
-
-  union all
-
-  select 
-  'pending_returns_report' as Dest_table_name,
-  max(date(end_date)) as Dest_max_date,
-  count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.easycom.pending_returns_report`) then concat(Order_Number, Order_Item_ID) end ) as Dest_pk_count
+  'pending_returns_report' as table_name,
+  max(date(end_date)) as Staging_max_date,
+  max(date(end_date)) as Latest_Valid_Date,
+  count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.easycom.pending_returns_report`) then concat(Order_Number, Order_Item_ID) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Pending_Returns_report`  
 
   union all
 
   select 
-  'purchase_orders' as Dest_table_name,
-  max(date(ee_extracted_at)) as Dest_max_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.purchase_orders`) then concat(po_id,ee_extracted_at) end ) as Dest_pk_count
+  'purchase_orders' as table_name,
+  max(date(ee_extracted_at)) as Staging_max_date,
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.purchase_orders`) then concat(po_id,ee_extracted_at) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Purchase_Orders` 
 
 
+  -- union all
+
+  -- select 
+  -- 'warehouse_metrics' as table_name,
+  -- max(date(analysis_date)) as Staging_max_date,
+  -- count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.easycom.warehouse_metrics`) then concat(location_key, warehouse_name) end ) as Staging_pk_count
+  -- from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.warehouse_metrics`
+
+
   union all
 
   select 
-  'warehouse_metrics' as Dest_table_name,
-  max(date(analysis_date)) as Dest_max_date,
-  count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.easycom.warehouse_metrics`) then concat(location_key, warehouse_name) end ) as Dest_pk_count
-  from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.warehouse_metrics`
-
-
-  union all
-
-  select 
-  'kits' as Dest_table_name,
-  max(date(add_date)) as Dest_max_date,
-  count(distinct case when date(add_date) = (select max(date(add_date)) from `shopify-pubsub-project.easycom.kits`) then product_id end ) as Dest_pk_count
+  'kits' as table_name,
+  max(date(add_date)) as Staging_max_date,
+  max(add_date) as Latest_Valid_Date,
+  count(distinct case when date(add_date) = (select max(date(add_date)) from `shopify-pubsub-project.easycom.kits`) then product_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Kits` 
 
 
+  -- union all
+
+  -- select 
+  -- 'shipping_status_metrics' as table_name,
+  -- max(date(analysis_date)) as Staging_max_date,
+  -- count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.easycom.shipping_status_metrics`) then concat(analysis_date, status) end ) as Staging_pk_count
+  -- from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.shipping_status_metrics`
+
+
   union all
 
   select 
-  'shipping_status_metrics' as Dest_table_name,
-  max(date(analysis_date)) as Dest_max_date,
-  count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.easycom.shipping_status_metrics`) then concat(analysis_date, status) end ) as Dest_pk_count
-  from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.shipping_status_metrics`
-
-
-  union all
-
-  select 
-  'reports' as Dest_table_name,
-  max(date(created_on)) as Dest_max_date,
-  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.easycom.reports`) then report_id end ) as Dest_pk_count
+  'reports' as table_name,
+  max(date(created_on)) as Staging_max_date,
+  max(date(created_on)) as Latest_Valid_Date,
+  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.easycom.reports`) then report_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Reports` 
 
 
   union all
 
   select 
-  'pending_return_orders' as Dest_table_name,
+  'pending_return_orders' as table_name,
   max(date(import_date)) as import_date,
-  count(distinct case when date(import_date) = (select max(date(import_date)) from `shopify-pubsub-project.easycom.pending_return_orders`) then invoice_id end ) as Dest_pk_count
+  max(import_date) as Latest_Valid_Date,
+  count(distinct case when date(import_date) = (select max(date(import_date)) from `shopify-pubsub-project.easycom.pending_return_orders`) then invoice_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.pending_return_orders` 
 
 
   union all
 
   select 
-  'vendors' as Dest_table_name,
+  'vendors' as table_name,
   max(date(ee_extracted_at)) as import_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.vendors`) then vendor_c_id end ) as Dest_pk_count
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.vendors`) then vendor_c_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Vendors` 
 
 
   union all
 
   select 
-  'inventory_view_by_bin_report' as Dest_table_name,
+  'inventory_view_by_bin_report' as table_name,
   max(date(created_on)) as import_date,
-  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.easycom.inventory_view_by_bin_report`) then SKU end ) as Dest_pk_count
+  max(date(created_on)) as Latest_Valid_Date,
+  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.easycom.inventory_view_by_bin_report`) then SKU end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.inventory_view_by_bin_report` 
 
 
   union all
 
   select 
-  'inventory_details' as Dest_table_name,
+  'inventory_details' as table_name,
   max(date(creation_date)) as import_date,
-  count(distinct case when date(creation_date) = (select max(date(creation_date)) from `shopify-pubsub-project.easycom.inventory_details`) then concat(product_id,company_product_id) end ) as Dest_pk_count
+  max(date(creation_date)) as Latest_Valid_Date,
+  count(distinct case when date(creation_date) = (select max(date(creation_date)) from `shopify-pubsub-project.easycom.inventory_details`) then concat(product_id,company_product_id) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_details`
 
 
+  -- union all
+
+  -- select 
+  -- 'daily_metrics' as table_name,
+  -- max(date(analysis_date)) as import_date,
+  -- count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.easycom.daily_metrics`) then analysis_date end ) as Staging_pk_count
+  -- from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.daily_metrics`
+
+
   union all
 
   select 
-  'daily_metrics' as Dest_table_name,
-  max(date(analysis_date)) as import_date,
-  count(distinct case when date(analysis_date) = (select max(date(analysis_date)) from `shopify-pubsub-project.easycom.daily_metrics`) then analysis_date end ) as Dest_pk_count
-  from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.daily_metrics`
-
-
-  union all
-
-  select 
-  'customers' as Dest_table_name,
+  'customers' as table_name,
   max(date(ee_extracted_at)) as import_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.customers`) then c_id end ) as Dest_pk_count
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.customers`) then c_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Customers`
 
 
   union all
 
   select 
-  'grn_details' as Dest_table_name,
+  'grn_details' as table_name,
   max(date(grn_created_at)) as import_date,
-  count(distinct case when date(grn_created_at) = (select max(date(grn_created_at)) from `shopify-pubsub-project.easycom.grn_details`) then grn_id end ) as Dest_pk_count
+  max(date(grn_created_at)) as Latest_Valid_Date,
+  count(distinct case when date(grn_created_at) = (select max(date(grn_created_at)) from `shopify-pubsub-project.easycom.grn_details`) then grn_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.grn_details`
 
 
   union all
 
   select 
-  'marketplace_listings' as Dest_table_name,
+  'marketplace_listings' as table_name,
   max(date(ee_extracted_at)) as import_date,
-  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.marketplace_listings`) then concat(sku,site_uid) end ) as Dest_pk_count
+  max(date(ee_extracted_at)) as Latest_Valid_Date,
+  count(distinct case when date(ee_extracted_at) = (select max(date(ee_extracted_at)) from `shopify-pubsub-project.easycom.marketplace_listings`) then concat(sku,site_uid) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Marketplace_listings`
 
 
   union all
 
   select 
-  'grn_details_report' as Dest_table_name,
+  'grn_details_report' as table_name,
   max(date(created_on)) as import_date,
-  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.easycom.grn_details_report`) then concat(poNo, companyProductId, receivedQty) end ) as Dest_pk_count
+  max(date(created_on)) as Latest_Valid_Date,
+  0 as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.grn_details_report`
 )
 
 
-  select 
-    S.Source_table_name,
-    Date(S.Source_max_date) as Source_max_date,
-    Date(D.Dest_max_date) as Dest_max_date,
+  select
+    So.table_name,
+    So.source_table,
+    Date(So.Source_max_date) as Source_max_date,
+    Date(St.Staging_max_date) as Staging_max_date,
+    Latest_Valid_Date,
     Current_date() as Date1,
-    S.Source_pk_count,
-    D.Dest_pk_count,
+    So.Source_pk_count,
+    St.Staging_pk_count,
 
-  from Sources as S
-  left join Destination as D
-  on S.Source_table_name = D.Dest_table_name
+  from Sources as So
+  left join Staging as St
+  on So.table_name = St.table_name
+  -- where Source_max_date < Latest_Valid_Date
+  order by table_name
