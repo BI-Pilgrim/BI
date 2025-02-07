@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
 from airflow.models import Variable
+from airflow.utils.dates import timezone
 
 def send_sanity_check_email():
     """Fetches sanity check data from BigQuery and sends an email if discrepancies are found."""
