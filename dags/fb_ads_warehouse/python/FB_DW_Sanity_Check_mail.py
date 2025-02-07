@@ -17,20 +17,21 @@ def send_sanity_check_email():
        SELECT * FROM `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.Sanity_check`
     """
     df = pgbq.read_gbq(query, project_id="shopify-pubsub-project")
+    df = df.fillna({col: 0 for col in df.select_dtypes(include=['number']).columns})
 
-    # Handle NULL values to prevent errors
-    df['Source_max_date'] = pd.to_datetime(df['Source_max_date'], errors='coerce')
-    df['Staging_max_date'] = pd.to_datetime(df['Staging_max_date'], errors='coerce')
-    # Check if 'Latest_date' exists
-    if 'Latest_date' in df.columns:
-        df['Latest_date'] = pd.to_datetime(df['Latest_date'], errors='coerce')
-    else:
-    # You can handle the missing column, like filling with a default value or exiting.
-        df['Latest_date'] = pd.Timestamp.today()
+    # # Handle NULL values to prevent errors
+    # df['Source_max_date'] = pd.to_datetime(df['Source_max_date'], errors='coerce')
+    # df['Staging_max_date'] = pd.to_datetime(df['Staging_max_date'], errors='coerce')
+    # # Check if 'Latest_date' exists
+    # if 'Latest_date' in df.columns:
+    #     df['Latest_date'] = pd.to_datetime(df['Latest_date'], errors='coerce')
+    # else:
+    # # You can handle the missing column, like filling with a default value or exiting.
+    #     df['Latest_date'] = pd.Timestamp.today()
 
-    # Fill missing values with today's date
-    df = df.fillna(pd.Timestamp.today())
-    df['Date1_minus_3'] = df['Date1'] - timedelta(days=3)
+    # # Fill missing values with today's date
+    # df = df.fillna(pd.Timestamp.today())
+    # df['Date1_minus_3'] = df['Date1'] - timedelta(days=3)
 
     # Apply filtering logic
     filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) & (df['Staging_max_date'] != df['Latest_Valid_Date']) |
