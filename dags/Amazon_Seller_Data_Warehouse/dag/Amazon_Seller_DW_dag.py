@@ -5,6 +5,7 @@ from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from airflow.utils.dates import timezone 
 
 # Import the function from the external script correctly
 import sys
