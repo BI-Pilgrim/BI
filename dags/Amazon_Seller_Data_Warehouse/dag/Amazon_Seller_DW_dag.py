@@ -1,6 +1,11 @@
 # Import Functions
 from datetime import timedelta
 from airflow import DAG
+from airflow.utils.dates import days_ago, timezone
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+
 # Import the function from the external script correctly
 import sys
 sys.path.append('/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/python')  # Add the correct path
@@ -76,6 +81,12 @@ with DAG(
     sanity_check = create_bigquery_task(
         "sanity_check",
         "/home/airflow/gcs/dags/Amazon_Seller_Data_Warehouse/sql/Amazon_Seller_DW_Sanity_check.sql"
+    )
+
+    # Define PythonOperator to run the function from external script
+    run_python_task = PythonOperator(
+        task_id='run_main_script',
+        python_callable=send_sanity_check_email  # Only executes when DAG runs
     )
 
     # Set dependencies for DAG execution
