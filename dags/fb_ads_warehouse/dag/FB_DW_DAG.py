@@ -10,7 +10,8 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOpera
 import os
 from fb_ads_warehouse.python.FB_DW_Sanity_Check_mail import send_sanity_check_email  # Import the function from the script
 LOCATION = "US"
-SQL_DIR = "../dags/fb_ads_warehouse/sql/fb_ads_to_bq"
+# SQL_DIR = "../dags/fb_ads_warehouse/sql/fb_ads_to_bq"
+SQL_DIR = "/home/airflow/gcs/dags/fb_ads_warehouse/sql/fb_ads_to_bq"
 # Add the path where Amazon_Seller_DW_Sanity_check_mail.py is located
 # sys.path.append('/home/airflow/gcs/dags/fb_ads_warehouse/python')
 
