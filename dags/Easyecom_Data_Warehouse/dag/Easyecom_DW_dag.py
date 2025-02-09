@@ -232,21 +232,21 @@ with DAG(
         }
     )
 
-    # Mini_Sales_Report Staging Table Refresh - Append
-    Mini_Sales_Report_sql_path = os.path.join(SQL_DIR, "Mini_Sales_Report/Easyecom_Mini_Sales_Report_Append.sql")
-    with open(Mini_Sales_Report_sql_path, 'r') as file:
-        sql_query_13 = file.read()
+    # # Mini_Sales_Report Staging Table Refresh - Append
+    # Mini_Sales_Report_sql_path = os.path.join(SQL_DIR, "Mini_Sales_Report/Easyecom_Mini_Sales_Report_Append.sql")
+    # with open(Mini_Sales_Report_sql_path, 'r') as file:
+    #     sql_query_13 = file.read()
 
-    Append_Mini_Sales_Report = BigQueryInsertJobOperator(
-        task_id='Append_Mini_Sales_Report',
-        configuration={
-            "query": {
-                "query": sql_query_13,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_Mini_Sales_Report = BigQueryInsertJobOperator(
+    #     task_id='Append_Mini_Sales_Report',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_13,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # Order_items Staging Table Refresh - Append
     Order_items_sql_path = os.path.join(SQL_DIR, "Order_items/Easyecom_Order_items_Append.sql")
@@ -425,21 +425,21 @@ with DAG(
         }
     )
 
-    # daily_metrics Staging Table Refresh - Append
-    daily_metrics_sql_path = os.path.join(SQL_DIR, "daily_metrics/daily_metrics_Append.sql")
-    with open(daily_metrics_sql_path, 'r') as file:
-        sql_query_25 = file.read()
+    # # daily_metrics Staging Table Refresh - Append
+    # daily_metrics_sql_path = os.path.join(SQL_DIR, "daily_metrics/daily_metrics_Append.sql")
+    # with open(daily_metrics_sql_path, 'r') as file:
+    #     sql_query_25 = file.read()
 
-    Append_daily_metrics = BigQueryInsertJobOperator(
-        task_id='Append_daily_metrics',
-        configuration={
-            "query": {
-                "query": sql_query_25,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_daily_metrics = BigQueryInsertJobOperator(
+    #     task_id='Append_daily_metrics',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_25,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # grn_details Staging Table Refresh - Append
     grn_details_sql_path = os.path.join(SQL_DIR, "grn_details/grn_details_Append.sql")
@@ -489,21 +489,21 @@ with DAG(
         }
     )
 
-    # order_status_metrics Staging Table Refresh - Append
-    order_status_metrics_sql_path = os.path.join(SQL_DIR, "order_status_metrics/order_status_metrics_Append.sql")
-    with open(order_status_metrics_sql_path, 'r') as file:
-        sql_query_29 = file.read()
+    # # order_status_metrics Staging Table Refresh - Append
+    # order_status_metrics_sql_path = os.path.join(SQL_DIR, "order_status_metrics/order_status_metrics_Append.sql")
+    # with open(order_status_metrics_sql_path, 'r') as file:
+    #     sql_query_29 = file.read()
 
-    Append_order_status_metrics = BigQueryInsertJobOperator(
-        task_id='Append_order_status_metrics',
-        configuration={
-            "query": {
-                "query": sql_query_29,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_order_status_metrics = BigQueryInsertJobOperator(
+    #     task_id='Append_order_status_metrics',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_29,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # pending_return_orders Staging Table Refresh - Append
     pending_return_orders_sql_path = os.path.join(SQL_DIR, "pending_return_orders/pending_return_orders_Append.sql")
@@ -521,37 +521,37 @@ with DAG(
         }
     )
 
-    # shipping_status_metrics Staging Table Refresh - Append
-    shipping_status_metrics_sql_path = os.path.join(SQL_DIR, "shipping_status_metrics/shipping_status_metrics_Append.sql")
-    with open(shipping_status_metrics_sql_path, 'r') as file:
-        sql_query_31 = file.read()
+    # # shipping_status_metrics Staging Table Refresh - Append
+    # shipping_status_metrics_sql_path = os.path.join(SQL_DIR, "shipping_status_metrics/shipping_status_metrics_Append.sql")
+    # with open(shipping_status_metrics_sql_path, 'r') as file:
+    #     sql_query_31 = file.read()
 
-    Append_shipping_status_metrics = BigQueryInsertJobOperator(
-        task_id='Append_shipping_status_metrics',
-        configuration={
-            "query": {
-                "query": sql_query_31,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_shipping_status_metrics = BigQueryInsertJobOperator(
+    #     task_id='Append_shipping_status_metrics',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_31,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
-    # warehouse_metrics Staging Table Refresh - Append
-    warehouse_metrics_sql_path = os.path.join(SQL_DIR, "warehouse_metrics/warehouse_metrics_Append.sql")
-    with open(warehouse_metrics_sql_path, 'r') as file:
-        sql_query_32 = file.read()
+    # # warehouse_metrics Staging Table Refresh - Append
+    # warehouse_metrics_sql_path = os.path.join(SQL_DIR, "warehouse_metrics/warehouse_metrics_Append.sql")
+    # with open(warehouse_metrics_sql_path, 'r') as file:
+    #     sql_query_32 = file.read()
 
-    Append_warehouse_metrics = BigQueryInsertJobOperator(
-        task_id='Append_warehouse_metrics',
-        configuration={
-            "query": {
-                "query": sql_query_32,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_warehouse_metrics = BigQueryInsertJobOperator(
+    #     task_id='Append_warehouse_metrics',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_32,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # Tax_report_new Staging Table Refresh - Append
     Tax_report_new_sql_path = os.path.join(SQL_DIR, "Tax_report_new/Tax_report_new_append.sql")
@@ -644,17 +644,13 @@ with DAG(
         Append_Return_report,
         Append_States,
         Append_Vendors,
-        Append_Mini_Sales_Report,
+        #Append_Mini_Sales_Report,
         Append_Tax_report_new,
         Append_Status_Wise_Stock_report,
-        Append_daily_metrics,
         Append_grn_details,
         Append_inventory_view_by_bin_report,
         Append_Kits,
-        Append_order_status_metrics,
         Append_pending_return_orders,
-        Append_shipping_status_metrics,
-        Append_warehouse_metrics,
     ]
 
     # Ensure Append_Order_items runs after Append_Orders
@@ -685,16 +681,12 @@ with DAG(
         Append_Vendors,
         Append_Status_Wise_Stock_report,
         Append_All_Return_Order_items,
-        Append_daily_metrics,
         Append_grn_details,
         Append_inventory_view_by_bin_report,
         Append_Kits,
-        Append_Mini_Sales_Report,
+        #Append_Mini_Sales_Report,
         Append_Tax_report_new,
-        Append_order_status_metrics,
         Append_pending_return_orders,
-        Append_shipping_status_metrics,
-        Append_warehouse_metrics,
     ] >> DW_Sanity_check
 
     DW_Sanity_check >> run_python_task

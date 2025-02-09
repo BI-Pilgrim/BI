@@ -26,7 +26,7 @@ class DispatchTimingAnalyzer:
             
             # Initialize BigQuery connection similar to get_orders.py
             self.project_id = "shopify-pubsub-project"
-            self.dataset_id = "easycom"
+            self.dataset_id = "Easyecom_data_metrics"
             
             # Get credentials from environment similar to get_orders
             # credentials_info = self.get_google_credentials_info()
