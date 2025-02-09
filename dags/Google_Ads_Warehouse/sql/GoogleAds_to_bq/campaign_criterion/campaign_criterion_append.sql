@@ -15,18 +15,14 @@ change_status_last_change_date_time,
 deleted_at,
 from
 (
-SELECT
-  *,
-  ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY _airbyte_extracted_at DESC) AS row_num
-FROM
-shopify-pubsub-project.pilgrim_bi_google_ads.campaign_criterion
-where
-DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+select *,
+row_number() over(partition by campaign_criterion_resource_name order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.campaign_criterion
 )
-WHERE row_num = 1
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
 AS SOURCE
-on target.campaign_id = source.campaign_id
+on target.campaign_criterion_resource_name = source.campaign_criterion_resource_name
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at
 then update set
 target._airbyte_extracted_at = source._airbyte_extracted_at,
@@ -68,4 +64,4 @@ source.campaign_criterion_youtube_video_video_id,
 source.campaign_id,
 source.change_status_last_change_date_time,
 source.deleted_at
-);
+)

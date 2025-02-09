@@ -23,4 +23,9 @@ ad_group_id,
 change_status_last_change_date_time,
 deleted_at,
 FROM
-  shopify-pubsub-project.pilgrim_bi_google_ads.ad_listing_group_criterion
+(
+select *,
+row_number() over(partition by ad_group_criterion_resource_name order by _airbyte_extracted_at) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.ad_listing_group_criterion
+)
+where rn = 1

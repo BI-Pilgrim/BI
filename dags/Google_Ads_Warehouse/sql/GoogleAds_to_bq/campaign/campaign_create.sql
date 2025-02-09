@@ -101,4 +101,9 @@ REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(campaign_targeting_setting_target_restriction
 -- Extract value for bid_only from JSON array campaign_targeting_setting_target_restrictions
 REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(campaign_targeting_setting_target_restrictions, '$[0]'),r'bid_only:\s*(\w+)') AS campaign_targetting_bid_only,
 FROM
-  shopify-pubsub-project.pilgrim_bi_google_ads.campaign
+(
+select *,
+row_number() over(partition by campaign_id,segments_date,segments_hour,segments_ad_network_type order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.campaign
+)
+where rn = 1

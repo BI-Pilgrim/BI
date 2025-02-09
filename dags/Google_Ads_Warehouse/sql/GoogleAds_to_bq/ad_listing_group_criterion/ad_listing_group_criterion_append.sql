@@ -23,19 +23,14 @@ ad_group_id,
 change_status_last_change_date_time,
 deleted_at,
 FROM
-  (
-    SELECT
-      *,
-      ROW_NUMBER() OVER(PARTITION BY ad_group_id ORDER BY ad_group_id DESC) AS ROW_NUM
-    FROM
-      shopify-pubsub-project.pilgrim_bi_google_ads.ad_listing_group_criterion
-    WHERE
-      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-  )
-  WHERE
-    ROW_NUM = 1
+(
+select *,
+row_number() over(partition by ad_group_criterion_resource_name order by _airbyte_extracted_at) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.ad_listing_group_criterion
+)
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS SOURCE
-ON TARGET.ad_group_id = SOURCE.ad_group_id
+ON TARGET.ad_group_criterion_resource_name = SOURCE.ad_group_criterion_resource_name
 WHEN
   MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at
 THEN

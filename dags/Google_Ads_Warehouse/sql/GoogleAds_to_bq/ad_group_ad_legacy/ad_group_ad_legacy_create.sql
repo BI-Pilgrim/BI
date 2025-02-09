@@ -69,8 +69,14 @@ ad_group_ad_ad_device_preference,
 ad_group_ad_ad_legacy_responsive_display_ad_format_setting,
 ad_group_ad_ad_system_managed_resource_source,
 ad_group_ad_ad_final_urls,
+segments_ad_network_type,
 JSON_EXTRACT_SCALAR(ad_group_ad_ad_final_urls, '$[0]') AS ad_final_url,
 REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(ad_group_ad_ad_responsive_display_ad_marketing_images, '$[0]'),r'customersd+assetsd+') AS extracted_marketing_images,
 REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(ad_group_ad_ad_responsive_display_ad_marketing_images, '$[0]'),r'customersd+assetsd+') AS extracted_sq_logo_images,
 FROM
-  shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad_legacy
+(
+select *,
+row_number() over(partition by ad_group_ad_ad_id,segments_date,segments_ad_network_type order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad_legacy
+)
+where rn = 1

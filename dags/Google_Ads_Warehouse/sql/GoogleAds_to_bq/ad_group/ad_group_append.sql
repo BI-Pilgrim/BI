@@ -1,47 +1,44 @@
 merge into `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group` as target
 using
 (
-  select
-    _airbyte_extracted_at,
-    ad_group_optimized_targeting_enabled,
-    ad_group_cpc_bid_micros,
-    ad_group_cpm_bid_micros,
-    ad_group_cpv_bid_micros,
-    ad_group_effective_target_cpa_micros,
-    ad_group_id,
-    ad_group_percent_cpc_bid_micros,
-    ad_group_target_cpa_micros,
-    ad_group_target_cpm_micros,
-    campaign_id,
-    metrics_cost_micros,
-    ad_group_targeting_setting_target_restrictions,
-    ad_group_effective_target_roas,
-    ad_group_target_roas,
-    ad_group_ad_rotation_mode,
-    ad_group_base_ad_group,
-    ad_group_campaign,
-    ad_group_display_custom_bid_dimension,
-    ad_group_effective_target_cpa_source,
-    ad_group_effective_target_roas_source,
-    ad_group_final_url_suffix,
-    ad_group_name,
-    ad_group_resource_name,
-    ad_group_status,
-    ad_group_type
-  from
-  (
-    select
-      *,
-      ROW_NUMBER() OVER (PARTITION BY ad_group_id ORDER BY _airbyte_extracted_at DESC) AS rn
-    from
-      shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
-    where
-      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-  )
-  where
-    rn = 1
+select
+  _airbyte_extracted_at,
+  ad_group_optimized_targeting_enabled,
+  ad_group_cpc_bid_micros,
+  ad_group_cpm_bid_micros,
+  ad_group_cpv_bid_micros,
+  ad_group_effective_target_cpa_micros,
+  ad_group_id,
+  ad_group_name,
+  segments_date,
+  ad_group_percent_cpc_bid_micros,
+  ad_group_target_cpa_micros,
+  ad_group_target_cpm_micros,
+  campaign_id,
+  metrics_cost_micros,
+  ad_group_targeting_setting_target_restrictions,
+  ad_group_effective_target_roas,
+  ad_group_target_roas,
+  ad_group_ad_rotation_mode,
+  ad_group_base_ad_group,
+  ad_group_campaign,
+  ad_group_display_custom_bid_dimension,
+  ad_group_effective_target_cpa_source,
+  ad_group_effective_target_roas_source,
+  ad_group_final_url_suffix,
+  ad_group_resource_name,
+  ad_group_status,
+  ad_group_type
+from
+(
+  select *,
+  row_number() over(partition by ad_group_id,segments_date order by _airbyte_extracted_at desc) as rn
+  from shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
+)
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) as source
 on target.ad_group_id = source.ad_group_id
+and target.segments_date = source.segments_date
 when matched and target._airbyte_extracted_at < source._airbyte_extracted_at
 then update set
   target._airbyte_extracted_at = source._airbyte_extracted_at,

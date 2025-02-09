@@ -4,10 +4,14 @@ AS
 SELECT
   ad_group_ad_ad_id,
   ad_group_id,
+  segments_date,
   _airbyte_extracted_at,
-
-  -- ad_group_ad_ad_app_ad_images,
   REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(xy, '$'),r'customers/\d+/assets/\d+') AS ad_group_ad_ad_app_ad_img,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`,
+(
+  select *,
+  row_number() over(partition by ad_group_ad_ad_id,segments_date,REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(xy, '$'), r'text: \"([^\"]+)\"') order by _airbyte_extracted_at desc) as rn,
+  from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`,
   unnest(json_extract_array(ad_group_ad_ad_app_ad_images)) as xy
+)
+where rn = 1 and REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(xy, '$'),r'customers/\d+/assets/\d+') is not null
