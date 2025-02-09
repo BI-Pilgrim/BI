@@ -149,8 +149,8 @@ class easyEComOrdersAPI(EasyComApiConnector):
             end_date = (datetime.now() - timedelta(days=1))
             start_date = end_date - timedelta(days=1)
 
-        start_date = start_date.strftime("%Y-%m-%d 00:00:00")
-        end_date = end_date.strftime("%Y-%m-%d 00:00:00")
+        start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+        end_date = end_date.strftime("%Y-%m-%d %H:%M:%S")
         table_data = self.get_data(start_date, end_date)
         if not table_data:
             print(f"No {self.name} data found for Easy eCom")
@@ -183,6 +183,8 @@ class easyEComOrdersAPI(EasyComApiConnector):
                 max_count += 1
                 # print(f"Making request {max_count} for {self.name}")
                 response_data = self.send_get_request(next_url, params={"start_date": start_date, "end_date": end_date, "limit": 250})
+                # import pdb; pdb.set_trace()
+                if(response_data.get("message")=="No Data Found"): return table_data
                 data = response_data.get("data", []).get("orders", [])
                 
                 table_data.extend(data)

@@ -60,13 +60,14 @@ class easyEComInventorySnapshotDetailsAPI(EasyComApiConnector):
             transformed_data.append(transformed_record)
         return transformed_data
 
-    def sync_data(self):
+    def sync_data(self, start_datetime=None, end_datetime=None):
         """Sync data from the API to BigQuery."""
-        start_datetime = (datetime.now() - timedelta(days=1))
-        end_datetime = start_datetime
+        if not start_datetime or not end_datetime:
+            start_datetime = (datetime.now() - timedelta(days=1))
+            end_datetime = start_datetime
         
-        start_datetime = start_datetime.strftime("%Y-%m-%d 00:00:00")
-        end_datetime = end_datetime.strftime("%Y-%m-%d 23:59:59")
+        start_datetime = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        end_datetime = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
         table_data = self.get_data(start_datetime, end_datetime)
         if not table_data:
