@@ -11,4 +11,9 @@ SELECT
   label_name,
   label_resource_name
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad_label`;
+(
+  select *,
+  row_number() over(partition by ad_group_ad_ad_id,label_id order by _airbyte_extracted_at desc) as rn,
+  from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad_label`
+)
+where rn = 1

@@ -101,19 +101,17 @@ REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(campaign_targeting_setting_target_restriction
 -- Extract value for bid_only from JSON array campaign_targeting_setting_target_restrictions
 REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(campaign_targeting_setting_target_restrictions, '$[0]'),r'bid_only:\s*(\w+)') AS campaign_targetting_bid_only,
 FROM
-  (
-    SELECT
-      *,
-      ROW_NUMBER() OVER(PARTITION BY campaign_id ORDER BY campaign_id DESC) AS ROW_NUM
-    FROM
-      shopify-pubsub-project.pilgrim_bi_google_ads.campaign
-    WHERE
-      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-  )
-  WHERE
-    ROW_NUM = 1
+(
+select *,
+row_number() over(partition by campaign_id,segments_date,segments_hour,segments_ad_network_type order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.campaign
+)
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS SOURCE
 ON TARGET.campaign_id = SOURCE.campaign_id
+and TARGET.segments_date = SOURCE.segments_date
+and TARGET.segments_hour = SOURCE.segments_hour
+and TARGET.segments_ad_network_type = SOURCE.segments_ad_network_type
 WHEN
   MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at
 THEN

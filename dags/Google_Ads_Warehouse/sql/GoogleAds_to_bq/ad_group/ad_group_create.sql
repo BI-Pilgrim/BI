@@ -9,6 +9,8 @@ select
   ad_group_cpv_bid_micros,
   ad_group_effective_target_cpa_micros,
   ad_group_id,
+  ad_group_name,
+  rn,
   ad_group_percent_cpc_bid_micros,
   ad_group_target_cpa_micros,
   ad_group_target_cpm_micros,
@@ -24,9 +26,13 @@ select
   ad_group_effective_target_cpa_source,
   ad_group_effective_target_roas_source,
   ad_group_final_url_suffix,
-  ad_group_name,
   ad_group_resource_name,
   ad_group_status,
   ad_group_type
 from
-  shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
+(
+  select *,
+  row_number() over(partition by ad_group_id,segments_date order by _airbyte_extracted_at desc) as rn
+  from shopify-pubsub-project.pilgrim_bi_google_ads.ad_group
+)
+where rn = 1

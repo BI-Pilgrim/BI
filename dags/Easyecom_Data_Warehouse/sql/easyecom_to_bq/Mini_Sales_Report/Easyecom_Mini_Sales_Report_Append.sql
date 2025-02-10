@@ -2,7 +2,6 @@ MERGE INTO `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Mini_Sales_re
 USING
 (
 select distinct
-  rn,
   Client_Location,
   Seller_GST_Num,
   MP_Name,
@@ -117,7 +116,7 @@ select distinct
   row_number() over(partition by Order_Number, Suborder_No,report_id,Seller_GST_Num,Manifest_ID,GRN_Batch_Codes order by ee_extracted_at DESC) as rn
   FROM `shopify-pubsub-project.easycom.mini_sales_report`
 )
-where rn = 1
+where rn = 1 and date(ee_extracted_at) >= date_sub(current_date("Asia/Kolkata"), INTERVAL 10 day)
 ) AS SOURCE
 ON TARGET.Order_Number = SOURCE.Order_Number
 AND TARGET.Suborder_No = SOURCE.Suborder_No

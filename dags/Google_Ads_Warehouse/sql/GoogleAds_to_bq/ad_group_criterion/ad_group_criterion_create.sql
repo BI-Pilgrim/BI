@@ -54,4 +54,9 @@ JSON_EXTRACT_SCALAR(ad_group_criterion_disapproval_reasons, '$[0]') AS criterion
 JSON_EXTRACT_SCALAR(ad_group_criterion_final_urls, '$[0]') AS criterion_final_urls,
 JSON_EXTRACT_SCALAR(ad_group_criterion_labels, '$[0]') AS criterion_labels,
 FROM
-  shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_criterion
+(
+select *,
+row_number() over(partition by ad_group_criterion_resource_name order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_criterion
+)
+where rn = 1

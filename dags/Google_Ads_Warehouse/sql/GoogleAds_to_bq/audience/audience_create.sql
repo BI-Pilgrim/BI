@@ -11,4 +11,9 @@ SELECT
   audience_status,
   customer_id,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.audience`
+(
+select *,
+row_number() over(partition by audience_id order by _airbyte_extracted_at desc) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.audience`
+)
+where rn = 1

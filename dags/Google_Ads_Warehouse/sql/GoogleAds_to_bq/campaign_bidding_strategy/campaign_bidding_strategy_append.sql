@@ -1,7 +1,7 @@
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.campaign_bidding_strategy` as TARGET
 USING
 (
-  SELECT
+SELECT
   _airbyte_extracted_at,
   bidding_strategy_aligned_campaign_budget_id,
   bidding_strategy_campaign_count,
@@ -34,21 +34,16 @@ USING
   campaign_id,
   customer_id,
   segments_date,
-
-  FROM
-  (
-    SELECT
-      *,
-      ROW_NUMBER() OVER(PARTITION BY campaign_id ORDER BY campaign_id DESC) AS ROW_NUM
-    FROM
-     `shopify-pubsub-project.pilgrim_bi_google_ads.campaign_bidding_strategy`
-    WHERE
-      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-  )
-  WHERE
-    ROW_NUM = 1
+FROM
+(
+select *,
+row_number() over(partition by campaign_id,segments_date order by _airbyte_extracted_at desc) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.campaign_bidding_strategy`
+)
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS SOURCE
 ON TARGET.campaign_id = SOURCE.campaign_id
+and TARGET.segments_date = SOURCE.segments_date
 WHEN MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at
 THEN UPDATE SET
   TARGET._airbyte_extracted_at = SOURCE._airbyte_extracted_at,

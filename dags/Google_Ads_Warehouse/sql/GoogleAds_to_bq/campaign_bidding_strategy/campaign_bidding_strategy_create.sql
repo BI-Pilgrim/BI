@@ -35,4 +35,9 @@ SELECT
   customer_id,
   segments_date,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.campaign_bidding_strategy`
+(
+select *,
+row_number() over(partition by campaign_id,segments_date order by _airbyte_extracted_at desc) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.campaign_bidding_strategy`
+)
+where rn = 1

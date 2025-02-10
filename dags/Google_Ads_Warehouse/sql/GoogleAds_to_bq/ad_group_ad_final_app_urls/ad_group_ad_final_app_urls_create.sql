@@ -4,11 +4,17 @@ AS
 SELECT
   ad_group_ad_ad_id,
   ad_group_id,
+  segments_date,
   _airbyte_extracted_at,
-
-  -- ad_group_ad_ad_final_app_urls,
   REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(url_data, '$'), r'os_type:\s*(\w+)') AS operating_sys,
   REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(url_data, '$'), r'url:\s*\"([^\"]+)\"') AS url
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`,
-  UNNEST(JSON_EXTRACT_ARRAY(ad_group_ad_ad_final_app_urls)) AS url_data
+(
+select
+*,
+row_number() over(partition by ad_group_ad_ad_id,segments_date,REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(url_data, '$'), r'url:\s*\"([^\"]+)\"') order by _airbyte_extracted_at desc) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`,
+UNNEST(JSON_EXTRACT_ARRAY(ad_group_ad_ad_final_app_urls)) AS url_data
+)
+where rn = 1 and REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(url_data, '$'), r'os_type:\s*(\w+)') is not null
+and REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(url_data, '$'), r'url:\s*\"([^\"]+)\"') is not null

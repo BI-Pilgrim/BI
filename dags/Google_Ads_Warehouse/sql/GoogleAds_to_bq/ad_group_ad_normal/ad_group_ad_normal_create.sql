@@ -13,6 +13,7 @@ SELECT
   ad_group_ad_ad_image_ad_preview_pixel_height,
   ad_group_ad_ad_image_ad_preview_pixel_width,
   ad_group_id,
+  segments_date,
   ad_group_ad_ad_app_ad_mandatory_ad_text,
   ad_group_ad_ad_call_ad_conversion_reporting_state,
   ad_group_ad_ad_display_upload_ad_display_upload_product_type,
@@ -41,4 +42,9 @@ SELECT
   ad_group_ad_status,
   _airbyte_extracted_at,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`
+(
+select *,
+row_number() over(partition by ad_group_ad_ad_id,segments_date order by _airbyte_extracted_at desc) rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`
+)
+where rn = 1

@@ -10,4 +10,9 @@ SELECT
   ad_group_id,
   label_id,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_criterion_label`
+(
+select *,
+row_number() over(partition by ad_group_id,ad_group_criterion_criterion_id order by _airbyte_extracted_at desc) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_criterion_label`
+)
+where rn = 1

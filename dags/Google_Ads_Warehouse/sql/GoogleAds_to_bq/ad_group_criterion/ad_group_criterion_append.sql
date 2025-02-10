@@ -54,19 +54,15 @@ JSON_EXTRACT_SCALAR(ad_group_criterion_disapproval_reasons, '$[0]') AS criterion
 JSON_EXTRACT_SCALAR(ad_group_criterion_final_urls, '$[0]') AS criterion_final_urls,
 JSON_EXTRACT_SCALAR(ad_group_criterion_labels, '$[0]') AS criterion_labels,
 FROM
-  (
-    SELECT
-      *,
-      ROW_NUMBER() OVER(PARTITION BY ad_group_id ORDER BY ad_group_id DESC) AS ROW_NUM
-    FROM
-      `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_criterion`
-    WHERE
-      DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
-  )
-  WHERE
-    ROW_NUM = 1
+(
+select *,
+row_number() over(partition by ad_group_criterion_resource_name order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_criterion
+)
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS SOURCE
 ON TARGET.ad_group_id = SOURCE.ad_group_id
+and TARGET.ad_group_id = SOURCE.ad_group_id
 WHEN
   MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at
 THEN

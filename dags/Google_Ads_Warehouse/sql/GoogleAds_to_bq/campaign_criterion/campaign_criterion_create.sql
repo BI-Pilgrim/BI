@@ -1,4 +1,3 @@
-CREATE:
 create or replace table `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.campaign_criterion`
 partition by date_trunc(_airbyte_extracted_at, day)
 As
@@ -15,4 +14,9 @@ campaign_id,
 change_status_last_change_date_time,
 deleted_at,
 from
-shopify-pubsub-project.pilgrim_bi_google_ads.campaign_criterion
+(
+select *,
+row_number() over(partition by campaign_criterion_resource_name order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.campaign_criterion
+)
+where rn = 1
