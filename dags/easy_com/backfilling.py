@@ -4,6 +4,9 @@
 import sys, os
 sys.path.append(os.getcwd())
 
+from easy_com.countries.get_countries import easyEComCountriesAPI
+from easy_com.vendors.get_vendors import easyEComVendorsAPI
+
 from datetime import datetime, timedelta
 import pickle
 import calendar
@@ -37,6 +40,14 @@ def ranges(start_date:datetime, end_date:datetime, nhours:int):
         period_end = min(period_start + delta, end_date)
     return ret_ranges
 
+def ranges2(start_date:datetime, end_date:datetime, nhours:int):
+    delta = timedelta(hours=nhours-1)
+    period_start = end_date - delta
+    period_end = end_date
+    while(start_date<period_end):
+        yield (period_start, period_end)
+        period_end = period_start  # + timedelta(hours=1)
+        period_start = max(period_start - delta, start_date)
 
 def back_fill_orders(start_date, end_date):
 
@@ -76,6 +87,39 @@ def backfill_purchase_orders(start_date, end_date):
 
         with open("eecom_purchase_orders_prev_run_range.pkl", "wb") as f:
             pickle.dump((start_date, end_date), f)
+
+
+def back_fill_any(filler_class, start_date, end_date):
+
+    print(start_date, end_date)
+    # sync it in chunks of 6 days make sure teh end date should not cross the end of month
+    data = None
+    last_ran_pair = None
+    
+    prev_run_range_pkl = f"{filler_class.__name__}_prev_run_range.pkl"
+    
+    if(os.path.exists(prev_run_range_pkl)):
+        with open(prev_run_range_pkl, "rb") as f:
+            last_ran_pair = pickle.load(f)
+        
+    # if(last_ran_pair): print(last_ran_pair, start_date, start_date < last_ran_pair[0])
+    if last_ran_pair is None or start_date < last_ran_pair[0]: 
+        
+        data = filler_class().sync_data(start_date, end_date)
+        if (data and data == "No data found") or not data:
+            print("No data found between the dates {} to {}".format(start_date, end_date))
+        
+        with open(prev_run_range_pkl, "wb") as f:
+            pickle.dump((start_date, end_date), f)
+    else:
+        print("Skipping between the dates {} to {}".format(start_date, end_date))
+        
+def run_range(filler_class, start_date, end_date, nhours):
+    run_ranges = ranges2(start_date, end_date, nhours)
+    # print(list(run_ranges))
+    for range_ in run_ranges:
+        print(range_)
+        back_fill_any(filler_class, range_[0], range_[1])
 
 # if __name__ == "__main__":
 #     from tqdm import tqdm
@@ -118,7 +162,7 @@ def backfill_purchase_orders(start_date, end_date):
 if __name__ == "__main__":
     
     from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
-    # TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
+    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
     TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
     
     # while True:nstart)))
@@ -126,23 +170,27 @@ if __name__ == "__main__":
     # from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
     # MiniSalesReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.tax_report import TaxReportParserAPI
-    # TaxReportParserAPI().sync_data()
+    from easy_com.reports.parsers.tax_report import TaxReportParserAPI
+    TaxReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
-    # ReturnsReportParserAPI().sync_data()
+    from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
+    ReturnsReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
-    # PendingReturnsReportParserAPI().sync_data()
+    from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
+    PendingReturnsReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
-    # GRNDetailsReportParserAPI().sync_data()
+    from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
+    GRNDetailsReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
-    # StatusWiseStockReportParserAPI().sync_data()
+    from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
+    StatusWiseStockReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
-    # InventoryAgingReportParserAPI().sync_data()
+    from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
+    InventoryAgingReportParserAPI().sync_data()
 
-    # from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI
-    # InventoryViewByBinReportParserAPI().sync_data()
+    from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI
+    InventoryViewByBinReportParserAPI().sync_data()
+
+
+    # easyEComCountriesAPI().sync()
+    # easyEComVendorsAPI().sync()
