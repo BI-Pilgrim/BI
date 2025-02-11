@@ -113,8 +113,8 @@ with Sources as
   select 
   'status_wise_stock_report' as table_name,
   'status_wise_stock_report' as source_table,
-  max(date(end_date)) as Source_max_date,
-  count(distinct case when end_date = (select max(end_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report`) then concat(SKU, Company_Token) end ) as Source_pk_count
+  max(date(created_on)) as Source_max_date,
+  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report`) then concat(SKU, Company_Token) end ) as Source_pk_count
   from `shopify-pubsub-project.easycom.status_wise_stock_report`  
 
 
@@ -290,25 +290,24 @@ Staging as
   'Orders' as table_name,
   max(date(order_date)) as Staging_max_date,
   max(date(order_date)) as Latest_Valid_Date,
-  count(distinct case when order_date = (select max(order_date) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orders`) then invoice_id end ) as Staging_pk_count
+  count(distinct case when date(order_date) = (select max(date(order_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orders`) then invoice_id end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orders`
 
   union all
 
---   select 
---   'Order_item' as table_name,
---   max(date(order_date)) as Staging_max_date,
---   (SELECT MAX(date(order_date))  
---   FROM `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
---   WHERE order_id IS NOT NULL
---    OR suborder_id IS NOT NULL
---    OR invoice_id IS NOT NULL
---   GROUP BY order_id, suborder_id, invoice_id
--- ) as Latest_Valid_Date,
---  count(distinct case when date(order_date) = (select max(date(order_date)) from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`) then suborder_id end ) as Staging_pk_count
---   from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
+  select 
+  'Order_item' as table_name,
+  max(date(order_date)) as Staging_max_date,
+  (SELECT MAX(date(order_date)) as max_valid_date
+  FROM `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
+  WHERE order_id IS NOT NULL
+   and suborder_id IS NOT NULL
+   and invoice_id IS NOT NULL
+) as Latest_Valid_Date,
+  0 as Staging_pk_count
+  from `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Orderitem`
 
-  -- union all
+  union all
 
   select 
   'master_products' as table_name,
@@ -396,9 +395,9 @@ Staging as
 
   select 
   'status_wise_stock_report' as table_name,
-  max(date(end_date)) as Staging_max_date,
-  max(date(end_date)) as Latest_Valid_Date,
-  count(distinct case when date(end_date) = (select max(date(end_date)) from `shopify-pubsub-project.easycom.status_wise_stock_report`) then concat(SKU, Company_Token) end ) as Staging_pk_count
+  max(date(created_on)) as Staging_max_date,
+  max(date(created_on)) as Latest_Valid_Date,
+  count(distinct case when date(created_on) = (select max(date(created_on)) from `shopify-pubsub-project.easycom.status_wise_stock_report`) then concat(SKU, Company_Token) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Status_Wise_Stock_report`
 
   union all
