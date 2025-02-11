@@ -47,7 +47,7 @@ select *,
 row_number() over(partition by ad_group_ad_ad_id,segments_date order by _airbyte_extracted_at desc) rn
 from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`
 )
-where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 30 DAY)
 ) AS SOURCE
 ON TARGET.ad_group_ad_ad_id = SOURCE.ad_group_ad_ad_id
 and TARGET.segments_date = SOURCE.segments_date
@@ -64,6 +64,7 @@ THEN UPDATE SET
   TARGET.ad_group_ad_ad_image_ad_preview_pixel_height = SOURCE.ad_group_ad_ad_image_ad_preview_pixel_height,
   TARGET.ad_group_ad_ad_image_ad_preview_pixel_width = SOURCE.ad_group_ad_ad_image_ad_preview_pixel_width,
   TARGET.ad_group_id = SOURCE.ad_group_id,
+  TARGET.segments_date = SOURCE.segments_date,
   TARGET.ad_group_ad_ad_app_ad_mandatory_ad_text = SOURCE.ad_group_ad_ad_app_ad_mandatory_ad_text,
   TARGET.ad_group_ad_ad_call_ad_conversion_reporting_state = SOURCE.ad_group_ad_ad_call_ad_conversion_reporting_state,
   TARGET.ad_group_ad_ad_display_upload_ad_display_upload_product_type = SOURCE.ad_group_ad_ad_display_upload_ad_display_upload_product_type,
@@ -105,6 +106,7 @@ THEN INSERT
   ad_group_ad_ad_image_ad_preview_pixel_height,
   ad_group_ad_ad_image_ad_preview_pixel_width,
   ad_group_id,
+  segments_date,
   ad_group_ad_ad_app_ad_mandatory_ad_text,
   ad_group_ad_ad_call_ad_conversion_reporting_state,
   ad_group_ad_ad_display_upload_ad_display_upload_product_type,
@@ -146,6 +148,7 @@ VALUES
   SOURCE.ad_group_ad_ad_image_ad_preview_pixel_height,
   SOURCE.ad_group_ad_ad_image_ad_preview_pixel_width,
   SOURCE.ad_group_id,
+  SOURCE.segments_date,
   SOURCE.ad_group_ad_ad_app_ad_mandatory_ad_text,
   SOURCE.ad_group_ad_ad_call_ad_conversion_reporting_state,
   SOURCE.ad_group_ad_ad_display_upload_ad_display_upload_product_type,

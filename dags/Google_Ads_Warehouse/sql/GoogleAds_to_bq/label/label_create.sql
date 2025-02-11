@@ -11,4 +11,9 @@ SELECT
   label_text_label_background_color,
   label_text_label_description,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.label`
+(
+select *,
+row_number() over(partition by label_id order by _airbyte_extracted_at) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.label`
+)
+where rn = 1

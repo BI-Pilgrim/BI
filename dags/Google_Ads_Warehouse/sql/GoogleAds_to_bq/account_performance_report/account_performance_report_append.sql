@@ -71,7 +71,7 @@ select
 row_number() over(partition by customer_id,segments_date,segments_device,segments_ad_network_type order by _airbyte_extracted_at) as rn
 from shopify-pubsub-project.pilgrim_bi_google_ads.account_performance_report
 )
-where rn > 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)-- Keep only the most recent row per customer_id and segments_date
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)-- Keep only the most recent row per customer_id and segments_date
 ) AS SOURCE
 ON
   TARGET.customer_id = SOURCE.customer_id

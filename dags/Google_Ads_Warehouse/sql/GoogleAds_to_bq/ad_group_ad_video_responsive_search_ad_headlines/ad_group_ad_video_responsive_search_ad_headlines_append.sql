@@ -14,7 +14,7 @@ row_number() over(partition by ad_group_ad_ad_id,segments_date,REGEXP_EXTRACT(JS
 from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`,
 UNNEST(JSON_EXTRACT_ARRAY(ad_group_ad_ad_responsive_search_ad_headlines)) AS ABC
 )
-where rn = 1 and REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(ABC, '$'), r'text: \"([^\"]+)\"') is not null and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS SOURCE
 ON TARGET.ad_group_ad_ad_id = SOURCE.ad_group_ad_ad_id
 and TARGET.segments_date = SOURCE.segments_date
