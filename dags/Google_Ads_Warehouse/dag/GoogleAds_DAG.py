@@ -1,10 +1,20 @@
 # Import Functions
+# Import Functions
 from datetime import timedelta
 from airflow import DAG
-from airflow.utils.dates import timezone
+import subprocess
+import sys
+from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 import os
+from Google_Ads_Warehouse.dag.GoogleAds_DAG import send_sanity_check_email  # Import the function from the script
+LOCATION = "US"
+# SQL_DIR = "../dags/fb_ads_warehouse/sql/fb_ads_to_bq"
+# SQL_DIR = "/home/airflow/gcs/dags/fb_ads_warehouse/sql/fb_ads_to_bq"
+# Add the path where Amazon_Seller_DW_Sanity_check_mail.py is located
+# sys.path.append('/home/airflow/gcs/dags/fb_ads_warehouse/python')
 
 # Define default arguments for the DAG
 default_args = {
@@ -19,6 +29,7 @@ default_args = {
 # Define constants
 LOCATION = "US"  # Replace with your BigQuery dataset location (e.g., "US", "EU")
 SQL_DIR = "/home/airflow/gcs/dags/Google_Ads_Warehouse/sql/GoogleAds_to_bq"  # Adjust this path if necessary
+# SQL_DIR = "../dags/Google_Ads_Warehouse/sql/GoogleAds_to_bq"  # Adjust this path if necessary
 
 # Define the DAG
 with DAG(
@@ -36,7 +47,7 @@ with DAG(
     )
 
     # account_performance_report Table Refresh - Append
-    account_performance_report_sql_path = os.path.join(SQL_DIR, "account_performance_report/account_performance_report_append.sql")
+    account_performance_report_sql_path = os.path.join(SQL_DIR, "account_performance_report/account_performance_report_create.sql")
     with open(account_performance_report_sql_path, 'r') as file:
         sql_query_1 = file.read()
 
@@ -308,7 +319,7 @@ with DAG(
     )
 
     # ad_group_ad_video_responsive_ad_headlines Staging Table Refresh - Append
-    ad_group_ad_video_responsive_ad_headlines_sql_path = os.path.join(SQL_DIR, "ad_group_ad_video_responsive_ad_headlines/ad_group_ad_video_responsive_ad_headlines_append.sql")
+    ad_group_ad_video_responsive_ad_headlines_sql_path = os.path.join(SQL_DIR, "ad_group_ad_video_responsive_ad_headlines/ad_group_ad_video_responsive_ad_headlines_create.sql")
     with open(ad_group_ad_video_responsive_ad_headlines_sql_path, 'r') as file:
         sql_query_18 = file.read()
 
@@ -674,6 +685,26 @@ with DAG(
             "location": LOCATION,
         }
     )
+    # Load SQL query from file
+    with open('/home/airflow/gcs/dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
+    # with open('../dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
+        sql_query_41 = file.read()
+
+    sanity_check = BigQueryInsertJobOperator(
+        task_id='sanity_check',
+        configuration={
+            "query": {
+                "query": sql_query_41,
+                "useLegacySql": False,
+                "location": LOCATION,
+            }
+        }
+    ) 
+
+    run_python_task = PythonOperator(
+    task_id='run_main_script',
+    python_callable=send_sanity_check_email,  # Call the function here
+    )
 
     # End of the pipeline
     finish_pipeline = DummyOperator(
@@ -681,6 +712,89 @@ with DAG(
     )
 
     # Task Orchestration
-    start_pipeline >> [append_account_performance_report, append_ad_group, append_ad_group_ad_App_ad_desc, append_ad_group_ad_App_ad_head, append_ad_group_ad_App_ad_img, append_ad_group_ad_App_ad_yt_vids, append_ad_group_ad_App_eng_ad_head, append_ad_group_ad_App_eng_ad_vids, append_ad_group_ad_final_app_urls, append_ad_group_ad_label, append_ad_group_ad_legacy, append_ad_group_ad_normal, append_ad_group_ad_respnsive_display_ad_head, append_ad_group_ad_rresponsive_ad_long_head, append_ad_group_ad_search_ad_desc, append_ad_group_ad_url_custom_parameters, append_ad_group_ad_video_responsive_ad_descriptions, append_ad_group_ad_video_responsive_ad_headlines, append_ad_group_ad_video_responsive_search_ad_headlines, append_ad_group_ad_vid_resp_ad_call_to_actions, append_ad_group_bidding_strategy, append_ad_group_criterion, append_ad_group_criterion_label, append_ad_group_label, append_ad_listing_group_criterion, append_audience, append_campaign, append_campaign_bidding_strategy, append_campaign_budget, append_campaign_criterion, append_campaign_label, append_click_view, append_customer, append_display_keyword_view, append_geographic_view, append_keyword_view, append_label, append_shopping_performance_view, append_user_interest, append_user_location_view]
+    start_pipeline >> [
+                        append_account_performance_report,
+                        append_ad_group,
+                        append_ad_group_ad_App_ad_desc,
+                        append_ad_group_ad_App_ad_head,
+                        append_ad_group_ad_App_ad_img,
+                        append_ad_group_ad_App_ad_yt_vids,
+                        append_ad_group_ad_App_eng_ad_head,
+                        append_ad_group_ad_App_eng_ad_vids,
+                        append_ad_group_ad_final_app_urls,
+                        append_ad_group_ad_label,
+                        append_ad_group_ad_legacy,
+                        append_ad_group_ad_normal,
+                        append_ad_group_ad_respnsive_display_ad_head,
+                        append_ad_group_ad_rresponsive_ad_long_head,
+                        append_ad_group_ad_search_ad_desc,
+                        append_ad_group_ad_url_custom_parameters,
+                        append_ad_group_ad_video_responsive_ad_descriptions,
+                        append_ad_group_ad_video_responsive_ad_headlines,
+                        append_ad_group_ad_video_responsive_search_ad_headlines,
+                        append_ad_group_ad_vid_resp_ad_call_to_actions,
+                        append_ad_group_bidding_strategy,
+                        append_ad_group_criterion,
+                        append_ad_group_criterion_label,
+                        append_ad_group_label,
+                        append_ad_listing_group_criterion,
+                        append_audience,
+                        append_campaign,
+                        append_campaign_bidding_strategy,
+                        append_campaign_budget,
+                        append_campaign_criterion,
+                        append_campaign_label,
+                        append_click_view,
+                        append_customer,
+                        append_display_keyword_view,
+                        append_geographic_view,
+                        append_keyword_view,
+                        append_label,
+                        append_shopping_performance_view,
+                        append_user_interest,
+                        append_user_location_view
+                      ]
 
-[append_account_performance_report, append_ad_group, append_ad_group_ad_App_ad_desc, append_ad_group_ad_App_ad_head, append_ad_group_ad_App_ad_img, append_ad_group_ad_App_ad_yt_vids, append_ad_group_ad_App_eng_ad_head, append_ad_group_ad_App_eng_ad_vids, append_ad_group_ad_final_app_urls, append_ad_group_ad_label, append_ad_group_ad_legacy, append_ad_group_ad_normal, append_ad_group_ad_respnsive_display_ad_head, append_ad_group_ad_rresponsive_ad_long_head, append_ad_group_ad_search_ad_desc, append_ad_group_ad_url_custom_parameters, append_ad_group_ad_video_responsive_ad_descriptions, append_ad_group_ad_video_responsive_ad_headlines, append_ad_group_ad_video_responsive_search_ad_headlines, append_ad_group_ad_vid_resp_ad_call_to_actions, append_ad_group_bidding_strategy, append_ad_group_criterion, append_ad_group_criterion_label, append_ad_group_label, append_ad_listing_group_criterion, append_audience, append_campaign, append_campaign_bidding_strategy, append_campaign_budget, append_campaign_criterion, append_campaign_label, append_click_view, append_customer, append_display_keyword_view, append_geographic_view, append_keyword_view, append_label, append_shopping_performance_view, append_user_interest, append_user_location_view] >> finish_pipeline
+
+    [
+        append_account_performance_report,
+        append_ad_group,
+        append_ad_group_ad_App_ad_desc,
+        append_ad_group_ad_App_ad_head,
+        append_ad_group_ad_App_ad_img,
+        append_ad_group_ad_App_ad_yt_vids,
+        append_ad_group_ad_App_eng_ad_head,
+        append_ad_group_ad_App_eng_ad_vids,
+        append_ad_group_ad_final_app_urls,
+        append_ad_group_ad_label,
+        append_ad_group_ad_legacy,
+        append_ad_group_ad_normal,
+        append_ad_group_ad_respnsive_display_ad_head,
+        append_ad_group_ad_rresponsive_ad_long_head,
+        append_ad_group_ad_search_ad_desc,
+        append_ad_group_ad_url_custom_parameters,
+        append_ad_group_ad_video_responsive_ad_descriptions,
+        append_ad_group_ad_video_responsive_ad_headlines,
+        append_ad_group_ad_video_responsive_search_ad_headlines,
+        append_ad_group_ad_vid_resp_ad_call_to_actions,
+        append_ad_group_bidding_strategy,
+        append_ad_group_criterion,
+        append_ad_group_criterion_label,
+        append_ad_group_label,
+        append_ad_listing_group_criterion,
+        append_audience,
+        append_campaign,
+        append_campaign_bidding_strategy,
+        append_campaign_budget,
+        append_campaign_criterion,
+        append_campaign_label,
+        append_click_view,
+        append_customer,
+        append_display_keyword_view,
+        append_geographic_view,
+        append_keyword_view,
+        append_label,
+        append_shopping_performance_view,
+        append_user_interest,
+        append_user_location_view
+    ] >> sanity_check 

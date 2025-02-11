@@ -1,64 +1,61 @@
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.user_location_view` AS TARGET
 USING
 (
-  select
-  _airbyte_extracted_at,
-  ad_group_base_ad_group,
-  ad_group_name,
-  ad_group_status,
-  campaign_base_campaign,
-  campaign_id,
-  campaign_name,
-  campaign_status,
-  customer_id,
-  metrics_all_conversions,
-  metrics_all_conversions_from_interactions_rate,
-  metrics_all_conversions_value,
-  metrics_average_cost,
-  metrics_average_cpc,
-  metrics_average_cpm,
-  metrics_average_cpv,
-  metrics_clicks,
-  metrics_conversions,
-  metrics_conversions_from_interactions_rate,
-  metrics_conversions_value,
-  metrics_cost_micros,
-  metrics_cost_per_all_conversions,
-  metrics_cost_per_conversion,
-  metrics_cross_device_conversions,
-  metrics_ctr,
-  metrics_impressions,
-  metrics_interaction_rate,
-  metrics_interactions,
-  metrics_value_per_all_conversions,
-  metrics_value_per_conversion,
-  metrics_video_view_rate,
-  metrics_video_views,
-  metrics_view_through_conversions,
-  segments_ad_network_type,
-  segments_date,
-  segments_day_of_week,
-  segments_month,
-  segments_quarter,
-  segments_week,
-  segments_year,
-  user_location_view_country_criterion_id,
-  user_location_view_resource_name,
-  user_location_view_targeting_location,
-from
+SELECT
+_airbyte_extracted_at,
+ad_group_base_ad_group,
+ad_group_name,
+ad_group_status,
+campaign_base_campaign,
+campaign_id,
+campaign_name,
+campaign_status,
+customer_id,
+metrics_all_conversions,
+metrics_all_conversions_from_interactions_rate,
+metrics_all_conversions_value,
+metrics_average_cost,
+metrics_average_cpc,
+metrics_average_cpm,
+metrics_average_cpv,
+metrics_clicks,
+metrics_conversions,
+metrics_conversions_from_interactions_rate,
+metrics_conversions_value,
+metrics_cost_micros,
+metrics_cost_per_all_conversions,
+metrics_cost_per_conversion,
+metrics_cross_device_conversions,
+metrics_ctr,
+metrics_impressions,
+metrics_interaction_rate,
+metrics_interactions,
+metrics_value_per_all_conversions,
+metrics_value_per_conversion,
+metrics_video_view_rate,
+metrics_video_views,
+metrics_view_through_conversions,
+segments_ad_network_type,
+segments_date,
+segments_day_of_week,
+segments_month,
+segments_quarter,
+segments_week,
+segments_year,
+user_location_view_country_criterion_id,
+user_location_view_resource_name,
+user_location_view_targeting_location,
+FROM
 (
-  select
-  *,
-  ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY _airbyte_extracted_at DESC) AS row_num
-  FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.user_location_view`
-  where
-  DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+select *,
+row_number() over(partition by segments_date,segments_ad_network_type,user_location_view_resource_name order by _airbyte_extracted_at desc) as rn
+from shopify-pubsub-project.pilgrim_bi_google_ads.user_location_view
 )
-where row_num =  1 -- Keep only the most recent row per label_id
+where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) as SOURCE
-ON
-  target.campaign_id = source.campaign_id
+ON target.segments_date = source.segments_date
+and target.segments_ad_network_type = source.segments_ad_network_type
+and target.user_location_view_resource_name = source.user_location_view_resource_name
 when
   MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at
 then

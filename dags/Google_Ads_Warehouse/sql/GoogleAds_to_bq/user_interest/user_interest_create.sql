@@ -10,4 +10,9 @@ SELECT
   user_interest_user_interest_id,
   user_interest_user_interest_parent,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.user_interest`
+(
+select *,
+row_number() over(partition by user_interest_resource_name order by _airbyte_extracted_at desc) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.user_interest`
+)
+where rn = 1

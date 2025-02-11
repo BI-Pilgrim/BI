@@ -61,8 +61,7 @@ from shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_criterion
 )
 where rn = 1 and DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS SOURCE
-ON TARGET.ad_group_id = SOURCE.ad_group_id
-and TARGET.ad_group_id = SOURCE.ad_group_id
+ON TARGET.ad_group_criterion_resource_name = SOURCE.ad_group_criterion_resource_name
 WHEN
   MATCHED AND SOURCE._airbyte_extracted_at > TARGET._airbyte_extracted_at
 THEN

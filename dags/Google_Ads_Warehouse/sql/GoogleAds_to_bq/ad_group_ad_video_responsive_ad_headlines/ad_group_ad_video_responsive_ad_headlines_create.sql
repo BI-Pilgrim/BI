@@ -14,4 +14,4 @@ row_number() over(partition by ad_group_ad_ad_id,segments_date,REGEXP_EXTRACT(JS
 from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`,
   UNNEST(JSON_EXTRACT_ARRAY(ad_group_ad_ad_video_responsive_ad_headlines)) AS ABC
 )
-where rn = 1 and REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(ABC, '$'), r'text: \"([^\"]+)\"') is not null
+where rn = 1

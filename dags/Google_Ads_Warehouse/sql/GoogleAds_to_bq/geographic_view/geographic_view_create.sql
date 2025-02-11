@@ -10,4 +10,9 @@ SELECT
   geographic_view_location_type,
   segments_date,
 FROM
-  `shopify-pubsub-project.pilgrim_bi_google_ads.geographic_view`
+(
+select *,
+row_number() over(partition by ad_group_id,segments_date,geographic_view_location_type,geographic_view_country_criterion_id order by _airbyte_extracted_at desc) as rn
+from `shopify-pubsub-project.pilgrim_bi_google_ads.geographic_view`
+)
+where rn = 1

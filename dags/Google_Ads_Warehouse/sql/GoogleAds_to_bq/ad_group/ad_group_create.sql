@@ -10,7 +10,7 @@ select
   ad_group_effective_target_cpa_micros,
   ad_group_id,
   ad_group_name,
-  rn,
+  segments_date,
   ad_group_percent_cpc_bid_micros,
   ad_group_target_cpa_micros,
   ad_group_target_cpm_micros,
