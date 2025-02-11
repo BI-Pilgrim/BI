@@ -1,12 +1,14 @@
 # Import Functions
 from datetime import timedelta
 from airflow import DAG
-from airflow.utils.dates import timezone
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.python_operator import PythonOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 import subprocess
+import sys
+from airflow.utils.dates import days_ago, timezone
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 import os
+from Easyecom_Data_Warehouse.python.Easyecom_DW_Sanity_check_mail import send_sanity_check_email
 
 
 # Define default arguments for the DAG
@@ -329,7 +331,7 @@ with DAG(
     )
 
     # Reports Staging Table Refresh - Append
-    Reports_sql_path = os.path.join(SQL_DIR, "Reports/Easyecom_Reports_Append.sql")
+    Reports_sql_path = os.path.join(SQL_DIR, "Reports/Easyecom_Reports_Create.sql")
     with open(Reports_sql_path, 'r') as file:
         sql_query_19 = file.read()
 
@@ -393,7 +395,7 @@ with DAG(
     )
 
     # Status_Wise_Stock_report Staging Table Refresh - Append
-    Status_Wise_Stock_report_sql_path = os.path.join(SQL_DIR, "Wise_Stock_report/Easyecom_Status_Wise_Stock_report_Append.sql")
+    Status_Wise_Stock_report_sql_path = os.path.join(SQL_DIR, "Wise_Stock_report/Easyecom_Status_Wise_Stock_report_Create.sql")
     with open(Status_Wise_Stock_report_sql_path, 'r') as file:
         sql_query_23 = file.read()
 
@@ -608,7 +610,7 @@ with DAG(
     # Define the PythonOperator to run the function
     run_python_task = PythonOperator(
         task_id='run_main_script',
-        python_callable=run_main_script,
+        python_callable=send_sanity_check_email,
     )
 
     # End of the pipeline
@@ -616,11 +618,6 @@ with DAG(
         task_id='finish_pipeline'
     )
 
-
-    # # Task Orchestration
-    # start_pipeline >> [Append_Easyecom_All_Return_Order, Append_Countries, Append_Customers, Append_Easyecom_Order_Status_History, Append_GRN_detaill_Reports_sql_path,Append_Inventory_Aging_report, Append_Inventory_details, Append_Inventory_Snapshot, Append_Locations, Append_Marketplace, Append_Marketplace_listings, Append_Master_Product, Append_Order_Status_History, [Append_Orders >> Append_Order_items], Append_Pending_Returns_report, Append_Purchase_Orders, Append_Reports, Append_Return_report, Append_States, Append_Vendors, Append_Status_Wise_Stock_report]
-    # [Append_Easyecom_All_Return_Order, Append_Countries, Append_Customers, Append_Easyecom_Order_Status_History, Append_GRN_detaill_Reports_sql_path,Append_Inventory_Aging_report, Append_Inventory_details, Append_Inventory_Snapshot, Append_Locations, Append_Marketplace, Append_Marketplace_listings, Append_Master_Product, Append_Order_Status_History, Append_Orders, Append_Pending_Returns_report, Append_Purchase_Orders, Append_Reports, Append_Return_report, Append_States, Append_Vendors, Append_Status_Wise_Stock_report] >> finish_pipeline #Append_Order_items
-    # # Append_Order_items >> finish_pipeline
 
     # Orchestrate tasks
     start_pipeline >> [
@@ -692,128 +689,4 @@ with DAG(
     DW_Sanity_check >> run_python_task
     run_python_task >> finish_pipeline
 
-
-
-# # Import Functions 
-# from datetime import timedelta
-# from airflow import DAG
-# from airflow.utils.dates import days_ago, timezone
-# from airflow.operators.dummy_operator import DummyOperator
-# from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
-# import subprocess
-# from airflow.operators.python import PythonOperator
-
-# # Define the start date in UTC 
-# START_DATE = timezone.datetime(2025, 1, 10, 7, 55, 0, tzinfo=timezone.utc)  # Corresponds to 1.15 PM IST on 2025-01-02
-
-# GOOGLE_CONN_ID = "google_cloud_default"
-# PROJECT_ID = "shopify-pubsub-project"
-# DATASET = "easycom"
-# LOCATION = "asia-south1"  # Ensure this matches your dataset location
-
-# DATASET_STAGING = "Data_Warehouse_Easyecom_Staging"
-
-
-# default_args = {
-#     'owner': 'shafiq@discoverpilgrim.com',
-#     'depends_on_past': False,
-#     'email_on_failure': True,
-#     'email_on_retry': True,
-#     'retries': 1,
-#     'start_date': START_DATE,
-#     'retry_delay': timedelta(minutes=5),
-# }
-
-# with DAG(
-#     dag_id='Easyecom_DataWarehouse',
-#     schedule_interval='30 00 * * *',  # Cron expression for 6 AM IST (12:30 AM UTC)
-#     default_args=default_args,
-#     catchup=False
-# ) as dag:
-#     start_pipeline = DummyOperator(
-#         task_id='start_pipeline',
-#         dag=dag
-#     )
-
-    # # Orders Staging Table Refresh - Append
-
-    # # Load SQL query from file
-    # with open('/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Orders/Order_Append.sql', 'r') as file:
-    #     sql_query_1 = file.read()
-
-    # Orders_Append = BigQueryInsertJobOperator(
-    #     task_id='Orders_Append',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_1,
-    #             "useLegacySql": False,
-    #             "location": LOCATION,
-    #         }
-    #     }
-    # )
-
-    # # Order item Staging Table Refresh - Append
-
-    # # Load SQL query from file
-    # with open('/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Order_items/Order_item_Append.sql', 'r') as file:
-    #     sql_query_2 = file.read()
-
-    # Orderitem_Append = BigQueryInsertJobOperator(
-    #     task_id='Orderitem_Append',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_2,
-    #             "useLegacySql": False,
-    #             "location": LOCATION,
-    #         }
-    #     }
-    # )    
-
-
-    # # Sanity Check of all table
-    # # Load SQL query from file
-    # with open('/home/airflow/gcs/dags/Easyecom_Data_Warehouse/sql/Easyecom_DW_sanity_check.sql', 'r') as file:
-    #     sql_query_33 = file.read()
-
-    #     DW_Sanity_check = BigQueryInsertJobOperator(
-    #     task_id='DW_Sanity_check',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_34,
-    #             "useLegacySql": False,
-    #             "location": LOCATION,
-    #         }
-    #     }
-    # )  
-        
-    # def run_main_script():
-    #     script_path = '/home/airflow/gcs/dags/Easyecom_Data_Warehouse/dag/Easyecom_DW_dag.py'
-    #     try:
-    #      # Use subprocess to run the Python script with the specified path
-    #         result = subprocess.run(
-    #             ['python', script_path],
-    #             check=True,
-    #             capture_output=True,
-    #             text=True
-    #         )
-    #      # print("Script output:", result.stdout)
-    #      # print("Script errors:", result.stderr)
-    #     except subprocess.CalledProcessError as e:
-    #      # print(f"Error occurred while running the script: {e}")
-    #      # print(f"Command output: {e.stdout}")
-    #      # print(f"Command errors: {e.stderr}")
-    #         raise
-
-    # # Define the PythonOperator to run the function
-    # run_python_task = PythonOperator(
-    #     task_id='run_main_script',
-    #     python_callable=run_main_script,
-    # )
-
-
-#    finish_pipeline = DummyOperator(
-#        task_id='finish_pipeline',
-#        dag=dag
-#    )
-
-# start_pipeline >> Orders_Append >> Orderitem_Append >> DW_Sanity_check >> run_python_task
+    # DW_Sanity_check >> finish_pipeline
