@@ -31,7 +31,7 @@ def send_sanity_check_email():
 
     # Apply filtering logic
     filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) & (df['Staging_max_date'] != df['Latest_Valid_Date']) |
-                 (df['Source_max_date'] < df['Date1']) |
+                 (df['Source_max_date'] < (df['Date1']) - timedelta(days=1)) |
                  (df['Source_pk_count'] != df['Staging_pk_count'])]
     # print("The filtered_df is as -",filtered_df.head())
 
