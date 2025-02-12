@@ -14,7 +14,7 @@ services:
       - ./.dev/.bash_history:/root/.bash_history
       - ./.dev/.python_history:/root/.python_history
       - ./dags:/dags
-      - 'd:/Customer_Support/Project Goonj/Flipkart_Scraping:/Goonj'
+      # - 'd:/Customer_Support/Project Goonj/Flipkart_Scraping:/Goonj'
       # - empty:/dags/.dev
 volumes:
   empty:
