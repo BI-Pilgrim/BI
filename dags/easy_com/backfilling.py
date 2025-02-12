@@ -194,3 +194,24 @@ if __name__ == "__main__":
 
     # easyEComCountriesAPI().sync()
     # easyEComVendorsAPI().sync()
+
+    easyEComReportsAPI().sync_data(start_date=datetime(2025, 2, 1), end_date=datetime(2025, 2, 6))
+
+
+    from easy_com.reports.get_reports import easyEComReportsAPI
+    import time
+    from datetime import datetime
+    easyEComReportsAPI().sync_data(start_date=datetime(2025, 1, 1), end_date=datetime(2025, 2, 6))
+
+    from easy_com.reports.download_reports import easyEComDownloadReportsAPI
+    easyEComDownloadReportsAPI().sync_data()
+
+
+    from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
+    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
+    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
+        
+        # while True:nstart)))
+
+    from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
+    MiniSalesReportParserAPI().sync_data()
