@@ -6,7 +6,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
-# from airflow.models import Variable
+from airflow.models import Variable
 from datetime import datetime, timedelta
 import os
 
@@ -20,12 +20,12 @@ def send_sanity_check_email():
         """
     df =  pgbq.read_gbq(query,"shopify-pubsub-project")
     df['Source_max_date'] = pd.to_datetime(df['Source_max_date'])
-    df['Dest_max_date'] = pd.to_datetime(df['Dest_max_date'])
+    df['Staging_max_date'] = pd.to_datetime(df['Staging_max_date'])
     df['Date1'] = pd.to_datetime(df['Date1'])
 
-    filtered_df = df[(df['Source_max_date'] != df['Dest_max_date']) & 
+    filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) & 
                     (df['Date1'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
-                    (df['Source_pk_count'] != df['Dest_pk_count'])]
+                    (df['Source_pk_count'] != df['Staging_pk_count'])]
 
     # Email Configuration
     SENDER_EMAIL = "cloud@discoverpilgrim.com"
