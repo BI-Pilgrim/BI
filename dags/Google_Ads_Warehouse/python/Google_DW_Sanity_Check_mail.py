@@ -48,7 +48,7 @@ def send_sanity_check_email():
         send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch.csv")
     else:
         # If filtered_df is empty, send a message indicating no issues
-        body = "Hi Team,<br><br>No discrepancies found in the Amazon Seller data warehouse.<br><br>Warm Regards,"
+        body = "Hi Team,<br><br>No discrepancies found in the Google Seller data warehouse.<br><br>Warm Regards,"
         send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body)
 
 

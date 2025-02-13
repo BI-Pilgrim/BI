@@ -26,6 +26,7 @@ def send_sanity_check_email():
     filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) & 
                     (df['Date1'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
                     (df['Source_pk_count'] != df['Staging_pk_count'])]
+    # return filtered_df
 
     # Email Configuration
     SENDER_EMAIL = "cloud@discoverpilgrim.com"
@@ -43,7 +44,7 @@ def send_sanity_check_email():
         body = "Hi Team,<br><br>No discrepancies found in the Amazon Seller data warehouse.<br><br>Warm Regards,"
         send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body)
 
-def send_email(sender_email, sender_password, recipient_email, subject, body):
+def send_email(sender_email, sender_password, recipient_email, subject, body,attachment_path=None):
     try:
         if body is None or body.strip() == '':
             raise ValueError("Email body cannot be empty")
