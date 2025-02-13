@@ -16,7 +16,6 @@ class ReportTypes(enum.Enum):
 
     @classmethod
     def get_all_types(cls):
-        return [cls.MINI_SALES_REPORT.value, cls.TAX_REPORT_RETURN.value, cls.TAX_REPORT_SALES.value]
         return [report_type.value for report_type in cls]
     
 @enum.unique
