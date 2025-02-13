@@ -6,7 +6,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
-from airflow.models import Variable
+# from airflow.models import Variable
 from datetime import datetime, timedelta
 import os
 
@@ -22,30 +22,50 @@ def send_sanity_check_email():
     df['Source_max_date'] = pd.to_datetime(df['Source_max_date'], errors='coerce')
     df['Staging_max_date'] = pd.to_datetime(df['Staging_max_date'], errors='coerce')
     df['Date1'] = pd.to_datetime(df['Date1'], errors='coerce')  # Convert to datetime
+    df['Latest_Valid_Date'] = pd.to_datetime(df['Latest_Valid_Date'], errors='coerce')  # Convert to datetime
 
     # Subtract 3 days
-    df['Date1_minus_3'] = df['Date1'] - timedelta(days=3)
+    Date1_minus_7 = df['Date1'] - timedelta(days=7)
+    Date1_minus_3 = df['Date1'] - timedelta(days=3)
 
     # print(df[['Date1', 'Date1_minus_3']])
 
 
     # Apply filtering logic
-    filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) & (df['Staging_max_date'] != df['Latest_Valid_Date']) |
-                 (df['Source_max_date'] < df['Date1_minus_3']) |
+    filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) |
+                 (df['Source_max_date'] < Date1_minus_3) |
                  (df['Source_pk_count'] != df['Staging_pk_count'])]
-    # print("The filtered_df is as -",filtered_df.head())
+
+    filtered_df1 = df[(df['Latest_Valid_Date'] < Date1_minus_7)]
+
+    # return filtered_df1,filtered_df 
 
     # Email Configuration
-    SENDER_EMAIL = "cloud@discoverpilgrim.com"
+    SENDER_EMAIL = "omkar.sadawarte@discoverpilgrim.com"
     RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
-    EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
+    EMAIL_PASSWORD = "cyqt vcpq fxiv gren"  # Secure password handling
     subject = "Facebook DW Discrepancy !!!"
 
+    # SENDER_EMAIL = "cloud@discoverpilgrim.com"
+    # RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
+    # EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
+    # subject = "Facebook DW Discrepancy !!!"
+
     # Send email based on filtered data
-    if not filtered_df.empty:
-        filtered_df.to_csv("sanity_check_mismatch.csv", index=False)
+    if not filtered_df.empty or not filtered_df1.empty:
         body = "Hi Team,<br><br>Please find the mismatch details attached.<br><br>Warm Regards,"
-        send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch.csv")
+        if not filtered_df.empty and not filtered_df1.empty:
+            filtered_df.to_csv("sanity_check_mismatch.csv", index=False)
+            filtered_df1.to_csv("sanity_check_mismatch1.csv", index=False)
+            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, ["sanity_check_mismatch.csv","sanity_check_mismatch1.csv"])
+        if not filtered_df.empty:
+            filtered_df.to_csv("sanity_check_mismatch.csv", index=False)
+            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch.csv")
+    
+        if not filtered_df1.empty:
+            filtered_df1.to_csv("sanity_check_mismatch1.csv", index=False)
+            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch1.csv")
+        
     else:
         # If filtered_df is empty, send a message indicating no issues
         body = "Hi Team,<br><br>No discrepancies found in the Amazon Seller data warehouse.<br><br>Warm Regards,"
