@@ -6,7 +6,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
-# from airflow.models import Variable
+from airflow.models import Variable
 from datetime import datetime, timedelta
 import os
 
@@ -40,16 +40,10 @@ def send_sanity_check_email():
 
     # return filtered_df1,filtered_df 
 
-    # Email Configuration
-    SENDER_EMAIL = "omkar.sadawarte@discoverpilgrim.com"
+    SENDER_EMAIL = "cloud@discoverpilgrim.com"
     RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
-    EMAIL_PASSWORD = "cyqt vcpq fxiv gren"  # Secure password handling
+    EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
     subject = "Facebook DW Discrepancy !!!"
-
-    # SENDER_EMAIL = "cloud@discoverpilgrim.com"
-    # RECIPIENT_EMAILS = "bi@discoverpilgrim.com"
-    # EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
-    # subject = "Facebook DW Discrepancy !!!"
 
     # Send email based on filtered data
     if not filtered_df.empty or not filtered_df1.empty:
