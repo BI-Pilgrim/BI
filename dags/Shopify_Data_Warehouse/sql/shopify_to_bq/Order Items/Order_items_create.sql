@@ -1,4 +1,3 @@
-
 CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items`
 PARTITION BY DATE_TRUNC(Order_created_at,day)
 CLUSTER BY Order_id
@@ -19,11 +18,12 @@ CAST(processed_at as TIMESTAMP) as Order_processed_at,
 JSON_EXTRACT_SCALAR(customer, '$.id') AS customer_id,
 CAST(JSON_EXTRACT_SCALAR(tax_lines, '$[0].price') AS FLOAT64) AS order_tax_price,
 JSON_EXTRACT_SCALAR(item, '$.name') AS item_name,
+CAST(JSON_EXTRACT_SCALAR(item, '$.id') as String) AS order_item_id,
   CAST(JSON_EXTRACT_SCALAR(item, '$.price') AS FLOAT64) AS item_price,
   CAST(JSON_EXTRACT_SCALAR(item, '$.quantity') AS INT64) AS item_quantity,
   JSON_EXTRACT_SCALAR(item, '$.sku') AS item_sku_code,
   CAST(JSON_EXTRACT_SCALAR(item, '$.total_discount') AS FLOAT64) AS item_discount,
-  CAST(JSON_EXTRACT_SCALAR(item, '$.variant_id') AS INT64) AS item_variant_id,
+  CAST(JSON_EXTRACT_SCALAR(item, '$.variant_id') AS STRING) AS item_variant_id,
   JSON_EXTRACT_SCALAR(item, '$.fulfillment_status') AS item_fulfillment_status
 FROM
  `shopify-pubsub-project.pilgrim_bi_airbyte.orders`,
