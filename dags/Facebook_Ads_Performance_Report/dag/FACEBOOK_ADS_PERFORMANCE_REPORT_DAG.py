@@ -106,7 +106,7 @@ with DAG(
         task_id='Append_daily_ads_count',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_3,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -122,7 +122,7 @@ with DAG(
         task_id='Append_facebook_ads_daily_log',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_4,
                 "useLegacySql": False,
             },
             "location": LOCATION,
@@ -143,4 +143,4 @@ with DAG(
 
 
 
-bigquery_task
+    start_pipeline >> bigquery_task >> finish_pipeline
