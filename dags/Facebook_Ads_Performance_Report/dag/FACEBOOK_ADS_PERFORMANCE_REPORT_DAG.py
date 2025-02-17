@@ -5,6 +5,7 @@ from airflow.utils.dates import timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 import os
+from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
 
 
 # Define default arguments for the DAG
@@ -75,15 +76,23 @@ with DAG(
     with open(test_sql_path, 'r') as file:
         sql_query_10 = file.read()
         
-        test_new = BigQueryInsertJobOperator(
-        task_id='test',
-        configuration={
-            "query": {
-                "query": sql_query_10,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
+    #     test_new = BigQueryInsertJobOperator(
+    #     task_id='test',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_10,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
+
+        bigquery_task = BigQueryExecuteQueryOperator(
+        task_id="bq_query",
+        sql=sql_query_10,
+        use_legacy_sql=False,
+        gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
+        location="asia-south1"  # Change based on your dataset location
     )
 
 ################################################################################################################################################################
@@ -127,11 +136,11 @@ with DAG(
 
 
     # Task Orchestration
-    start_pipeline >> Append_daily_ad_spend_and_revenue
-    Append_daily_ad_spend_and_revenue >> Append_FACEBOOK_ADS_SPEND_TIERS_NEW
-    Append_FACEBOOK_ADS_SPEND_TIERS_NEW >> [ Append_daily_ads_count, Append_facebook_ads_daily_log]
-    [ Append_daily_ads_count, Append_facebook_ads_daily_log] >> finish_pipeline
+   # start_pipeline >> Append_daily_ad_spend_and_revenue
+   # Append_daily_ad_spend_and_revenue >> Append_FACEBOOK_ADS_SPEND_TIERS_NEW
+   # Append_FACEBOOK_ADS_SPEND_TIERS_NEW >> [ Append_daily_ads_count, Append_facebook_ads_daily_log]
+   # [ Append_daily_ads_count, Append_facebook_ads_daily_log] >> finish_pipeline
 
 
 
-test_new
+bigquery_task
