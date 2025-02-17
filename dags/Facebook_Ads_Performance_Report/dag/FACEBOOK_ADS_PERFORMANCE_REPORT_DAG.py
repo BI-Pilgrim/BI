@@ -82,7 +82,8 @@ with DAG(
         sql=sql_query_10,
         use_legacy_sql=False,
         gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
-        location="asia-south1"  # Change based on your dataset location
+        location="asia-south1",  # Change based on your dataset location
+        impersonation_chain=["composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com"]
     )
 
 ################################################################################################################################################################
