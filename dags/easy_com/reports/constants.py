@@ -28,7 +28,6 @@ class InventoryAgingTypes(enum.Enum):
     def get_all_types(cls):
         return [inventory_aging_type.value for inventory_aging_type in cls]
 
-
 @enum.unique
 class ReportStatus(enum.Enum):
     IN_PROGRESS = 'IN_PROGRESS'
