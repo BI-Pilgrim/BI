@@ -1,7 +1,0 @@
-table_name,source_table,Source_max_date,Staging_max_date,Latest_Valid_Date,Date1,Source_pk_count,Staging_pk_count
-ads_insights_action_carousel_card_conversion_values,ads_insights_action_carousel_card,2025-02-11,2024-08-28,2024-08-28,2025-02-13,0,0
-ads_insights_action_carousel_card_cost_per_conversion,ads_insights_action_carousel_card,2025-02-11,2025-02-01,2025-02-01,2025-02-13,0,0
-ads_insights_action_carousel_card_unique_actions_n_conversions_n_web_ctr,ads_insights_action_carousel_card,2025-02-11,2025-02-01,2025-02-01,2025-02-13,0,0
-ads_insights_action_reaction_conversion_values,ads_insights_action_reaction,2025-02-11,2024-08-28,2024-08-28,2025-02-13,0,0
-ads_insights_conversion_data,ads_insights,2025-02-11,2024-08-28,2024-08-28,2025-02-13,0,0
-ads_recommendations,ads,2025-02-11,2024-11-25,2024-11-25,2025-02-13,0,0
