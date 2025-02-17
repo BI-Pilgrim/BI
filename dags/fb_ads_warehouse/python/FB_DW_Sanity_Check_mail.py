@@ -45,20 +45,21 @@ def send_sanity_check_email():
     EMAIL_PASSWORD = Variable.get("EMAIL_PASSWORD")  # Secure password handling
     subject = "Facebook DW Discrepancy !!!"
 
-    # Send email based on filtered data
+    # Send email based on filtered data  "source_staging_max_date_&_pk_count_currdate_minus3.csv"  "source_vs_latest_valid_date_minus7.csv"
     if not filtered_df.empty or not filtered_df1.empty:
         body = "Hi Team,<br><br>Please find the mismatch details attached.<br><br>Warm Regards,"
-        if not filtered_df.empty and not filtered_df1.empty:
-            filtered_df.to_csv("sanity_check_mismatch.csv", index=False)
-            filtered_df1.to_csv("sanity_check_mismatch1.csv", index=False)
-            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, ["sanity_check_mismatch.csv","sanity_check_mismatch1.csv"])
+        attachments = []
+
         if not filtered_df.empty:
-            filtered_df.to_csv("sanity_check_mismatch.csv", index=False)
-            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch.csv")
-    
+            filtered_df.to_csv("source_staging_max_date_&_pk_count_currdate_minus3.csv", index=False)
+            attachments.append("source_staging_max_date_&_pk_count_currdate_minus3.csv")
+        
         if not filtered_df1.empty:
-            filtered_df1.to_csv("sanity_check_mismatch1.csv", index=False)
-            send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, "sanity_check_mismatch1.csv")
+            filtered_df1.to_csv("source_vs_latest_valid_date_minus7.csv", index=False)
+            attachments.append("source_vs_latest_valid_date_minus7.csv")
+
+        send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body, attachments if attachments else None)
+
         
     else:
         # If filtered_df is empty, send a message indicating no issues
@@ -66,9 +67,9 @@ def send_sanity_check_email():
         send_email(SENDER_EMAIL, EMAIL_PASSWORD, RECIPIENT_EMAILS, subject, body)
 
 
-def send_email(sender_email, sender_password, recipient_email, subject, body, attachment_path=None):
+def send_email(sender_email, sender_password, recipient_email, subject, body, attachment_paths=None):
     try:
-        if body is None or body.strip() == '':
+        if not body.strip():
             raise ValueError("Email body cannot be empty")
     
         msg = MIMEMultipart()
@@ -77,14 +78,15 @@ def send_email(sender_email, sender_password, recipient_email, subject, body, at
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'html'))
 
-        # Attach CSV file if exists
-        if attachment_path:
-            with open(attachment_path, "rb") as file:
-                attachment = MIMEBase("application", "octet-stream")
-                attachment.set_payload(file.read())
-                encoders.encode_base64(attachment)
-                attachment.add_header("Content-Disposition", f"attachment; filename={attachment_path}")
-                msg.attach(attachment)
+        # Attach multiple files if provided
+        if attachment_paths:  # ✅ Checks if attachments exist
+            for file_path in attachment_paths:  # ✅ Loops over the list
+                with open(file_path, "rb") as file:
+                    attachment = MIMEBase("application", "octet-stream")
+                    attachment.set_payload(file.read())
+                    encoders.encode_base64(attachment)
+                    attachment.add_header("Content-Disposition", f"attachment; filename={os.path.basename(file_path)}")
+                    msg.attach(attachment)
 
         # Set up the SMTP server
         server = smtplib.SMTP('smtp.gmail.com', 587)
