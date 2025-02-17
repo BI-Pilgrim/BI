@@ -105,7 +105,7 @@ def flipkart_seller_earn_more_report():
     login_cookies = trigger_login()
     generated_report = generate_report(login_cookies)
     wait_sensor = ReportGeneratedSensor(task_id="check_report_State", start=START, end=END, 
-                                        timeout=timedelta(hours=3), poke_interval=timedelta(minutes=10), 
+                                        timeout=timedelta(hours=12), poke_interval=timedelta(minutes=10), 
                                         cookies=login_cookies, report_name='earn_more_report', mode='reschedule')
     download_report = download_report(login_cookies)
 
