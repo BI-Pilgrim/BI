@@ -71,7 +71,7 @@ with DAG(
     )
     
     # Test
-    test_sql_path = os.path.join(SQL_DIR, "FACEBOOK_ADS_SPEND_TIERS_NEW/test.sql")
+    test_sql_path = os.path.join(SQL_DIR, "test.sql")
     with open(test_sql_path, 'r') as file:
         sql_query_10 = file.read()
         
