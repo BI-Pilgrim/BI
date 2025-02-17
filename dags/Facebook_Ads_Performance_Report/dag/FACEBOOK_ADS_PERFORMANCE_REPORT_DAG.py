@@ -69,6 +69,22 @@ with DAG(
             "location": LOCATION,
         }
     )
+    
+    # Test
+    test_sql_path = os.path.join(SQL_DIR, "FACEBOOK_ADS_SPEND_TIERS_NEW/test.sql")
+    with open(test_sql_path, 'r') as file:
+        sql_query_10 = file.read()
+        
+        test_new = BigQueryInsertJobOperator(
+        task_id='test',
+        configuration={
+            "query": {
+                "query": sql_query_10,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
 
 ################################################################################################################################################################
 
@@ -115,3 +131,7 @@ with DAG(
     Append_daily_ad_spend_and_revenue >> Append_FACEBOOK_ADS_SPEND_TIERS_NEW
     Append_FACEBOOK_ADS_SPEND_TIERS_NEW >> [ Append_daily_ads_count, Append_facebook_ads_daily_log]
     [ Append_daily_ads_count, Append_facebook_ads_daily_log] >> finish_pipeline
+
+
+
+test_new
