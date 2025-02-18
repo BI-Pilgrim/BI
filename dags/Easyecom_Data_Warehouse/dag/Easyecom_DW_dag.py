@@ -564,7 +564,7 @@ with DAG(
         task_id='Append_Tax_report_new',
         configuration={
             "query": {
-                "query": sql_query_2,
+                "query": sql_query_24,
                 "useLegacySql": False,
             },
             "location": LOCATION,
