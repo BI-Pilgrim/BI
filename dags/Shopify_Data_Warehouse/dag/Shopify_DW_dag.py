@@ -667,4 +667,25 @@ with DAG(
         python_callable=run_main_script,
     )
 
-start_pipeline >> [append_abandoned_checkout, append_metafield_customers, append_discount_code, append_customer, append_order >> append_order_items >> append_order_item_master , append_draft_order >> append_draft_order_items, append_transaction, append_refund_order, append_customer_address, append_metafield_order, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_inventory_level, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Fulfillments, append_Smart_collections] >> sanity_check >> run_python_task
+    def product_mapping():
+        script_path = '/home/airflow/gcs/dags/Shopify_Data_Warehouse/python/Gsheet_to_Static_Table.py'
+        try:
+            # Use subprocess to run the Python script with the specified path
+            result = subprocess.run(
+                ['python', script_path],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error occurred while running the script: {e}")
+            raise
+
+# Define the PythonOperator to run the function
+    run_product_mapping = PythonOperator(
+        task_id='product_mapping',
+        python_callable=product_mapping,
+    )
+
+start_pipeline >> append_order >> append_order_items >> run_product_mapping >> append_order_item_master
+# start_pipeline >> [append_abandoned_checkout, append_metafield_customers, append_discount_code, append_customer, append_order >> append_order_items >> run_product_mapping >> append_order_item_master , append_draft_order >> append_draft_order_items, append_transaction, append_refund_order, append_customer_address, append_metafield_order, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_inventory_level, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Fulfillments, append_Smart_collections] >> sanity_check >> run_python_task
