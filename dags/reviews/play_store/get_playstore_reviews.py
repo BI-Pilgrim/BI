@@ -16,9 +16,11 @@ import time
 import json
 
 class GooglePlayRatingsAPI:
+    dataset_id = "reviews"
+    project_id = "shopify-pubsub-project"
+    package_name = "com.discoverpilgrim"
+    
     def __init__(self):
-        self.project_id = "shopify-pubsub-project"
-        self.dataset_id = "reviews"
         self.table_id = f'{self.project_id}.{self.dataset_id}.{GooglePlayRatings.__tablename__}'
 
         # BigQuery connection string
@@ -122,9 +124,58 @@ class GooglePlayRatingsAPI:
         """Fetch Google Playstore reviews data from the the library."""
         all_reviews = []
         result = reviews_all(
-            "com.discoverpilgrim",
+            self.package_name,
             lang="en",  # defaults to 'en'
             country="us",  # defaults to 'us'
             sort=Sort.NEWEST,  # defaults to Sort.MOST_RELEVANT
         )
         return result
+
+class GooglePlayRatingPrivate(GooglePlayRatingsAPI):
+    def __init__(self):
+        self.API_KEY = Variable.get("GOOGLE_PLAY_REVIEWS_API_KEY")
+        super().__init__()
+    
+    def sync_data(self):
+        """Sync data from the API to BigQuery."""
+        reviews = self.get_data()
+        if not reviews:
+            print("No new reviews to sync")
+            return
+
+        print('Transforming Reviews data')
+        transformed_data = self.transform_data(data=reviews)
+        extrated_at = datetime.now()
+
+        # Insert the transformed data into the table
+        print("Truncating the table")
+        self.truncate_table()
+        print("Total no of reviews to sync: ", len(transformed_data))
+        self.load_data_to_bigquery(transformed_data, extrated_at)
+    
+    def get_data(self, next_token=None):
+        pass
+
+    def transform_data(data):
+        user_comment = data.get('comments', [{}])[0].get('userComment', {})
+        developer_comment = data.get('comments', [{}])[1].get('developerComment', {})
+        
+        return {
+        'reviewId': data.get('reviewId', None),
+        'authorName': data.get('authorName', None),
+        'userComment_text': user_comment.get('text', None),
+        'userComment_lastModified_seconds': user_comment.get('lastModified', {}).get('seconds', None),
+        'userComment_lastModified_nanos': user_comment.get('lastModified', {}).get('nanos', None),
+        'userComment_starRating': user_comment.get('starRating', None),
+        'userComment_reviewerLanguage': user_comment.get('reviewerLanguage', None),
+        'userComment_device': user_comment.get('device', None),
+        'userComment_androidOsVersion': user_comment.get('androidOsVersion', None),
+        'userComment_appVersionCode': user_comment.get('appVersionCode', None),
+        'userComment_appVersionName': user_comment.get('appVersionName', None),
+        'userComment_thumbsUpCount': user_comment.get('thumbsUpCount', None),
+        'userComment_thumbsDownCount': user_comment.get('thumbsDownCount', None),
+        'userComment_deviceMetadata': user_comment.get('deviceMetadata', None),
+        'developerComment_text': developer_comment.get('text', None),
+        'developerComment_lastModified_seconds': developer_comment.get('lastModified', {}).get('seconds', None),
+        'developerComment_lastModified_nanos': developer_comment.get('lastModified', {}).get('nanos', None),
+        }
