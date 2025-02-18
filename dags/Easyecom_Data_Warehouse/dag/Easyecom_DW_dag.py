@@ -681,7 +681,7 @@ with DAG(
         Append_grn_details,
         Append_inventory_view_by_bin_report,
         Append_Kits,
-        #Append_Mini_Sales_Report,
+        Append_Mini_Sales_Report,
         Append_Tax_report_new,
         Append_pending_return_orders,
     ] >> DW_Sanity_check
