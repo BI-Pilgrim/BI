@@ -31,7 +31,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='Shopify_Warehouse',
+    dag_id='Shopify_Warehouse_Testing',
     schedule_interval='30 23 * * *',  # Cron expression for 5 AM IST (11:30 PM UTC)
     default_args=default_args,
     catchup=False
