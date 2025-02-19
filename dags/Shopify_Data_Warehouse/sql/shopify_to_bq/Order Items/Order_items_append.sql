@@ -1,14 +1,16 @@
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items` AS target
 
 USING (
-  SELECT DISTINCT
+  SELECT 
+    distinct
     _airbyte_extracted_at,
-    CAST(id AS STRING) AS Order_id,
-    CAST(order_number AS STRING) AS Order_number,
-    name AS Order_name,
-    updated_at AS Order_updated_at,
-    created_at AS Order_created_at,
-    CAST(processed_at AS TIMESTAMP) AS Order_processed_at,
+    CAST(id AS STRING) as Order_id,
+    CAST(order_number AS STRING) as Order_number,
+    name as Order_name,
+    CAST(JSON_EXTRACT_SCALAR(item, '$.id') as String) AS order_item_id,
+    updated_at as Order_updated_at,
+    created_at as Order_created_at,
+    CAST(processed_at as TIMESTAMP) as Order_processed_at,
     JSON_EXTRACT_SCALAR(customer, '$.id') AS customer_id,
     CAST(JSON_EXTRACT_SCALAR(tax_lines, '$[0].price') AS FLOAT64) AS order_tax_price,
     JSON_EXTRACT_SCALAR(item, '$.name') AS item_name,
@@ -16,14 +18,15 @@ USING (
     CAST(JSON_EXTRACT_SCALAR(item, '$.quantity') AS INT64) AS item_quantity,
     JSON_EXTRACT_SCALAR(item, '$.sku') AS item_sku_code,
     CAST(JSON_EXTRACT_SCALAR(item, '$.total_discount') AS FLOAT64) AS item_discount,
-    CAST(JSON_EXTRACT_SCALAR(item, '$.variant_id') AS INT64) AS item_variant_id,
+    CAST(JSON_EXTRACT_SCALAR(item, '$.variant_id') AS STRING) AS item_variant_id,
     JSON_EXTRACT_SCALAR(item, '$.fulfillment_status') AS item_fulfillment_status
-  FROM `shopify-pubsub-project.pilgrim_bi_airbyte.orders`,
-    UNNEST(JSON_EXTRACT_ARRAY(line_items)) AS item
+FROM
+ `shopify-pubsub-project.pilgrim_bi_airbyte.orders`,
+  UNNEST(JSON_EXTRACT_ARRAY(line_items)) AS item
   WHERE DATE(_airbyte_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS source
 
-ON target.Order_id = source.Order_id
+ON target.order_item_id = source.order_item_id
 
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at 
 THEN UPDATE SET
@@ -31,6 +34,7 @@ THEN UPDATE SET
   target.Order_id = source.Order_id,
   target.Order_number = source.Order_number,
   target.Order_name = source.Order_name,
+  target.order_item_id = source.order_item_id,
   target.Order_updated_at = source.Order_updated_at,
   target.Order_created_at = source.Order_created_at,
   target.Order_processed_at = source.Order_processed_at,
@@ -49,6 +53,7 @@ WHEN NOT MATCHED THEN INSERT (
   Order_id,
   Order_number,
   Order_name,
+  order_item_id,
   Order_updated_at,
   Order_created_at,
   Order_processed_at,
@@ -67,6 +72,7 @@ VALUES (
   source.Order_id,
   source.Order_number,
   source.Order_name,
+  order_item_id,
   source.Order_updated_at,
   source.Order_created_at,
   source.Order_processed_at,

@@ -74,13 +74,13 @@ class easyEComPurchaseOrdersAPI(EasyComApiConnector):
         if not start_date and not end_date:
             start_datetime = (datetime.now() - timedelta(days=1))
             end_datetime = start_datetime
-            start_datetime = start_datetime.strftime("%Y-%m-%d 00:00:00")
-            end_datetime = end_datetime.strftime("%Y-%m-%d 23:59:59")
+            start_datetime = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+            end_datetime = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
         else:
             start_datetime = start_date
             end_datetime = end_date
-            start_datetime = start_datetime.strftime("%Y-%m-%d 00:00:00")
-            end_datetime = end_datetime.strftime("%Y-%m-%d 23:59:59")
+            start_datetime = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+            end_datetime = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
         table_data = self.get_data(start_datetime, end_datetime)
         if not table_data:
@@ -114,6 +114,8 @@ class easyEComPurchaseOrdersAPI(EasyComApiConnector):
                     max_count += 1
                     data = self.send_get_request(next_url, params={"created_after": start_datetime, "created_before": end_datetime, "limit": 10}, auth_token=token)
                     # print(data)
+                    # import pdb; pdb.set_trace()
+                    if data is None: return table_data
                     table_data.extend(data.get("data", []))
                     next_url = data.get("nextUrl")
                     next_url = self.base_url + next_url if next_url else None

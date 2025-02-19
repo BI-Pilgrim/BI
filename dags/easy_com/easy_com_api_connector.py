@@ -64,7 +64,7 @@ class EasyComApiConnector:
         }
         self.client:bigquery.Client = None
 
-    def send_get_request(self, url, params=None, auth_token = None):
+    def send_get_request(self, url, params=None, auth_token = None, _retry=0, max_retry=3):
 
         if auth_token:
             headers = {
@@ -78,6 +78,16 @@ class EasyComApiConnector:
             response = requests.get(url, headers=headers, params=params)
         else:
             response = requests.get(url, headers=headers)
+        # import pdb; pdb.set_trace()
+        # print(";;;" + f"{response.status_code}" + ";"+response.content.decode())
+        if(response.status_code!=200): 
+            if _retry+1<max_retry: 
+                mint = 60
+                print(f"SLEEPING :: Error getting data retrying in {mint} min")
+                time.sleep(60*mint)
+                return self.send_get_request(url, params=params, auth_token=auth_token, _retry=_retry+1, max_retry=max_retry)
+            print(";;;" + f"{response.status_code}" + ";"+response.content.decode())
+        if(len(response.content)==0 or response.content is None): return None
         return response.json()
     
     def send_post_request(self, url, body):

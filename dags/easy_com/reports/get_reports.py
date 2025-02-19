@@ -157,7 +157,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             }
         elif report_type == constants.ReportTypes.TAX_REPORT_SALES.value:
             return {
-                "reportType": report_type,
+                "reportType": 'TAX_REPORT',
                 "params" : {
                     "taxReportType" : "SALES",
                     "warehouseIds" : ",".join(self.locations_api.get_all_location_keys()),
