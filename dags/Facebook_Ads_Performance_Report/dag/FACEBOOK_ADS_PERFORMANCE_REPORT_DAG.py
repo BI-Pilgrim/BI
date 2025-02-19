@@ -5,6 +5,7 @@ from airflow.utils.dates import timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 import os
+from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
 
 
 # Define default arguments for the DAG
@@ -38,71 +39,86 @@ with DAG(
         task_id='start_pipeline'
     )
 
-    # daily_ad_spend_and_revenue Table Refresh - Append
-    daily_ad_spend_and_revenue_sql_path = os.path.join(SQL_DIR, "daily_ad_spend_and_revenue/daily_ad_spend_and_revenue_append.sql")
-    with open(daily_ad_spend_and_revenue_sql_path, 'r') as file:
-        sql_query_1 = file.read()
+    # # daily_ad_spend_and_revenue Table Refresh - Append
+    # daily_ad_spend_and_revenue_sql_path = os.path.join(SQL_DIR, "daily_ad_spend_and_revenue/daily_ad_spend_and_revenue_append.sql")
+    # with open(daily_ad_spend_and_revenue_sql_path, 'r') as file:
+    #     sql_query_1 = file.read()
 
-    Append_daily_ad_spend_and_revenue = BigQueryInsertJobOperator(
-        task_id='Append_daily_ad_spend_and_revenue',
-        configuration={
-            "query": {
-                "query": sql_query_1,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_daily_ad_spend_and_revenue = BigQueryInsertJobOperator(
+    #     task_id='Append_daily_ad_spend_and_revenue',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_1,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
-    # FACEBOOK_ADS_SPEND_TIERS_NEW Table Refresh - Append
-    FACEBOOK_ADS_SPEND_TIERS_NEW_sql_path = os.path.join(SQL_DIR, "FACEBOOK_ADS_SPEND_TIERS_NEW/FACEBOOK_ADS_SPEND_TIERS_NEW_APPEND.sql")
-    with open(FACEBOOK_ADS_SPEND_TIERS_NEW_sql_path, 'r') as file:
-        sql_query_2 = file.read()
+    # # FACEBOOK_ADS_SPEND_TIERS_NEW Table Refresh - Append
+    # FACEBOOK_ADS_SPEND_TIERS_NEW_sql_path = os.path.join(SQL_DIR, "FACEBOOK_ADS_SPEND_TIERS_NEW/FACEBOOK_ADS_SPEND_TIERS_NEW_APPEND.sql")
+    # with open(FACEBOOK_ADS_SPEND_TIERS_NEW_sql_path, 'r') as file:
+    #     sql_query_2 = file.read()
 
-    Append_FACEBOOK_ADS_SPEND_TIERS_NEW = BigQueryInsertJobOperator(
-        task_id='Append_FACEBOOK_ADS_SPEND_TIERS_NEW',
-        configuration={
-            "query": {
-                "query": sql_query_2,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
+    # Append_FACEBOOK_ADS_SPEND_TIERS_NEW = BigQueryInsertJobOperator(
+    #     task_id='Append_FACEBOOK_ADS_SPEND_TIERS_NEW',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_2,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
+    
+    # Test
+    test_sql_path = os.path.join(SQL_DIR, "test.sql")
+    with open(test_sql_path, 'r') as file:
+        sql_query_10 = file.read()
+
+
+        bigquery_task = BigQueryExecuteQueryOperator(
+        task_id="bq_query",
+        sql=sql_query_10,
+        use_legacy_sql=False,
+        gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
+        location="asia-south1",  # Change based on your dataset location
+        impersonation_chain=["composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com"]
     )
 
 ################################################################################################################################################################
 
-    # daily_ads_count Table Refresh - Append
-    daily_ads_count_sql_path = os.path.join(SQL_DIR, "daily_ads_count/daily_ads_count_append.sql")
-    with open(daily_ads_count_sql_path, 'r') as file:
-        sql_query_3 = file.read()
+    # # daily_ads_count Table Refresh - Append
+    # daily_ads_count_sql_path = os.path.join(SQL_DIR, "daily_ads_count/daily_ads_count_append.sql")
+    # with open(daily_ads_count_sql_path, 'r') as file:
+    #     sql_query_3 = file.read()
 
-    Append_daily_ads_count = BigQueryInsertJobOperator(
-        task_id='Append_daily_ads_count',
-        configuration={
-            "query": {
-                "query": sql_query_2,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_daily_ads_count = BigQueryInsertJobOperator(
+    #     task_id='Append_daily_ads_count',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_3,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
-    # facebook_ads_daily_log Table Refresh - Append
-    facebook_ads_daily_log_sql_path = os.path.join(SQL_DIR, "facebook_ads_daily_log/facebook_ads_daily_log_append.sql")
-    with open(facebook_ads_daily_log_sql_path, 'r') as file:
-        sql_query_4 = file.read()
+    # # facebook_ads_daily_log Table Refresh - Append
+    # facebook_ads_daily_log_sql_path = os.path.join(SQL_DIR, "facebook_ads_daily_log/facebook_ads_daily_log_append.sql")
+    # with open(facebook_ads_daily_log_sql_path, 'r') as file:
+    #     sql_query_4 = file.read()
 
-    Append_facebook_ads_daily_log = BigQueryInsertJobOperator(
-        task_id='Append_facebook_ads_daily_log',
-        configuration={
-            "query": {
-                "query": sql_query_2,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # Append_facebook_ads_daily_log = BigQueryInsertJobOperator(
+    #     task_id='Append_facebook_ads_daily_log',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_4,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # End of the pipeline
     finish_pipeline = DummyOperator(
@@ -111,7 +127,11 @@ with DAG(
 
 
     # Task Orchestration
-    start_pipeline >> Append_daily_ad_spend_and_revenue
-    Append_daily_ad_spend_and_revenue >> Append_FACEBOOK_ADS_SPEND_TIERS_NEW
-    Append_FACEBOOK_ADS_SPEND_TIERS_NEW >> [ Append_daily_ads_count, Append_facebook_ads_daily_log]
-    [ Append_daily_ads_count, Append_facebook_ads_daily_log] >> finish_pipeline
+   # start_pipeline >> Append_daily_ad_spend_and_revenue
+   # Append_daily_ad_spend_and_revenue >> Append_FACEBOOK_ADS_SPEND_TIERS_NEW
+   # Append_FACEBOOK_ADS_SPEND_TIERS_NEW >> [ Append_daily_ads_count, Append_facebook_ads_daily_log]
+   # [ Append_daily_ads_count, Append_facebook_ads_daily_log] >> finish_pipeline
+
+
+
+    start_pipeline >> bigquery_task >> finish_pipeline
