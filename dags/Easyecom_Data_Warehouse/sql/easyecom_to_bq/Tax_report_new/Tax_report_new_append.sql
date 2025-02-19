@@ -1,6 +1,10 @@
 merge into `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Tax_report_new` as target
 using
 (
+select
+*
+from
+(
 select distinct
 -- regex expression to remove trailing decimal and digits after decimal from the strings
 REGEXP_REPLACE(Company_Name,'\\.\\d+', '') as Company_Name,
@@ -14,11 +18,16 @@ REGEXP_REPLACE(MP_Ref_No,'\\.\\d+', '') as MP_Ref_No,
 REGEXP_REPLACE(Order_Status,'\\.\\d+', '') as Order_Status,
 REGEXP_REPLACE(Invoice_Status,'\\.\\d+', '') as Invoice_Status,
 REGEXP_REPLACE(Credit_Note_ID,'\\.\\d+', '') as Credit_Note_ID,
-Return_Date,
+-- date(timestamp_micros(Return_Date/1000)) as Return_Date,
+-- DATE(TIMESTAMP_MICROS(Return_Date / 1000)) AS parsed_date,
+DATE(TIMESTAMP_MICROS(CAST(Return_Date / 1000 AS INT64))) as Return_Date,
+DATE(TIMESTAMP_MICROS(CAST(Import_Date / 1000 AS INT64))) as Import_Date,
+DATE(TIMESTAMP_MICROS(CAST(Order_Date / 1000 AS INT64))) as Order_Date,
+DATE(TIMESTAMP_MICROS(CAST(Invoice_Date / 1000 AS INT64))) as Invoice_Date,
 REGEXP_REPLACE(CR_Voucher_Num,'\\.\\d+', '') as CR_Voucher_Num,
-Import_Date,
-Order_Date,
-Invoice_Date,
+-- Import_Date,
+-- Order_Date,
+-- Invoice_Date,
 REGEXP_REPLACE(Parent_Courier_Partner,'\\.\\d+', '') as Parent_Courier_Partner,
 REGEXP_REPLACE(Courier,'\\.\\d+', '') as Courier,
 REGEXP_REPLACE(AWB_No,'\\.\\d+', '') as AWB_No,
@@ -74,15 +83,19 @@ UTGST,
 TDS,
 IRN_Number,
 Acknowledgement_Num,
-Acknowledgement_Date,
+DATE(TIMESTAMP_MICROS(CAST(Acknowledgement_Date / 1000 AS INT64))) as Acknowledgement_Date,
+DATE(TIMESTAMP_MICROS(CAST(Eway_Bill_Date / 1000 AS INT64))) as Eway_Bill_Date,
+-- Acknowledgement_Date,
 Eway_Bill_Number,
-Eway_Bill_Date,
+-- Eway_Bill_Date,
 CRN_Number,
 CreditNote_Acknowledgement_Num,
-CreditNote_Acknowledgement_Date,
+DATE(TIMESTAMP_MICROS(CAST(CreditNote_Acknowledgement_Date / 1000 AS INT64))) as CreditNote_Acknowledgement_Date,
+-- CreditNote_Acknowledgement_Date,
 REGEXP_REPLACE(Debit_Note_Number,'\\.\\d+', '') as Debit_Note_Number,
 REGEXP_REPLACE(Sales_Channel,'\\.\\d+', '') as Sales_Channel,
-Manifest_Date,
+-- Manifest_Date,
+DATE(TIMESTAMP_MICROS(CAST(Manifest_Date / 1000 AS INT64))) as Manifest_Date,
 REGEXP_REPLACE(ERP_Customer_ID,'\\.\\d+', '') as ERP_Customer_ID,
 REGEXP_REPLACE(EE_Client_ID,'\\.\\d+', '') as EE_Client_ID,
 REGEXP_REPLACE(Invoice_ERP_Transaction_ID,'\\.\\d+', '') as Invoice_ERP_Transaction_ID,
@@ -101,7 +114,8 @@ REGEXP_REPLACE(External_Order_Code,'\\.\\d+', '') as External_Order_Code,
 GRN_Cost_per_unit,
 Additional_cost_per_unit,
 Cost_of_Goods_Purchased,
-Delivery_Appointment_Date,
+DATE(TIMESTAMP_MICROS(CAST(Delivery_Appointment_Date / 1000 AS INT64))) as Delivery_Appointment_Date,
+-- Delivery_Appointment_Date,
 REGEXP_REPLACE(report_id,'\\.\\d+', '') as report_id,
 REGEXP_REPLACE(report_type,'\\.\\d+', '') as report_type,
 start_date,
@@ -109,18 +123,15 @@ end_date,
 created_on,
 inventory_type,
 ee_extracted_at,
-
-from 
-(
-select *,
-row_number() over(partition by Reference_Code, Suborder_No, Component_SKU order by ee_extracted_at desc) as rn
-from shopify-pubsub-project.easycom.tax_reports
+row_number() over(partition by Reference_Code, Suborder_No, Component_SKU,report_id order by ee_extracted_at desc) as rn
+from shopify-pubsub-project.easycom.tax_reports 
 )
-where rn =1 and Invoice_Date >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
+where rn = 1 and date(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) as source
 on target.Reference_Code = source.Reference_Code
 and target.Suborder_No = source.Suborder_No
 and target.Component_SKU = source.Component_SKU
+and target.report_id = source.report_id
 when matched and target.ee_extracted_at < source.ee_extracted_at
 then update set
 target.Company_Name = source.Company_Name,
