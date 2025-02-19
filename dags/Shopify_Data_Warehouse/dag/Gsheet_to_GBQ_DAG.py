@@ -43,8 +43,8 @@ def shopify_gsheet_to_gbq():
         .execute()
         )
         values = result.get("values", [])
-        df = pd.DataFrame(values[1:], columns=[COLUMN_MAP[x.lower().strip()] for x in values[0]])
-        
+        # df = pd.DataFrame(values[1:], columns=[COLUMN_MAP[x.lower().strip()] for x in values[0]])
+        df = pd.DataFrame(values)
         table = bq_client.get_table(TABLE_NAME)
         bq_client.query(f"TRUNCATE table {TABLE_NAME}").result()
         bq_client.insert_rows_from_dataframe(TABLE_NAME, df, selected_fields=table.schema)
