@@ -25,9 +25,9 @@ API_KEY = Variable.get("CLICKPOST_API_KEY")
 PROJECT_ID = 'shopify-pubsub-project'
 DATASET_ID = 'clickpost_data'
 
-def get_google_credentials_info():
-    """Get Google credentials from environment variables"""
-    return os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+# def get_google_credentials_info():
+#     """Get Google credentials from environment variables"""
+#     return os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
 
 def generate_report() -> str:
     """Initiates report generation and returns reference number"""
@@ -594,10 +594,10 @@ def main():
         logger.info("=== Starting Clickpost data extraction and loading process ===")
         
         # Check if credentials are available
-        credentials_info = get_google_credentials_info()
-        if not credentials_info:
-            raise ValueError("Google credentials not found in environment")
-        logger.info("✅ Google credentials verified")
+        # credentials_info = get_google_credentials_info()
+        # if not credentials_info:
+        #     raise ValueError("Google credentials not found in environment")
+        # logger.info("✅ Google credentials verified")
         
         # Generate report
         logger.info("\n📊 Generating Clickpost report...")
