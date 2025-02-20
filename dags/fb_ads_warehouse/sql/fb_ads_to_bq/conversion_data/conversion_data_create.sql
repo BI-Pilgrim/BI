@@ -1,11 +1,15 @@
 CREATE OR REPLACE TABLE `shopify-pubsub-project.Data_Warehouse_Facebook_Ads_Staging.conversion_data`
 PARTITION BY DATE_TRUNC(_airbyte_extracted_at, DAY)
 AS
+select *
+from
+(
 SELECT
   _airbyte_extracted_at,
   campaign_id,
   adset_id,
   ad_id,
+  date_start,
   JSON_EXTRACT_SCALAR(ctr, '$.action_type') as website_ctr_action_type,
   JSON_EXTRACT_SCALAR(ctr, '$.value') as website_ctr_value,
   JSON_EXTRACT_SCALAR(conversions, '$.28d_click') AS conversions_28d_click,
@@ -28,9 +32,12 @@ SELECT
   JSON_EXTRACT_SCALAR(cost_per_conv, '$.7d_view') AS cost_per_conv_7d_view,
   JSON_EXTRACT_SCALAR(cost_per_conv, '$.action_type') AS cost_per_conv_action_type,
   JSON_EXTRACT_SCALAR(cost_per_conv, '$.value') AS cost_per_conv_value,
+  row_number() over(partition by ad_id,date_start,JSON_EXTRACT_SCALAR(conversions, '$.action_type'),JSON_EXTRACT_SCALAR(conv, '$.action_type'),JSON_EXTRACT_SCALAR(cost_per_conv, '$.action_type') order by _airbyte_extracted_at desc) as rn
 FROM
   shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights,
   UNNEST(JSON_EXTRACT_ARRAY(conversion_values)) AS conversions,
   UNNEST(JSON_EXTRACT_ARRAY(conversions)) AS conv,
   UNNEST(JSON_EXTRACT_ARRAY(cost_per_conversion)) AS cost_per_conv,
   UNNEST(JSON_EXTRACT_ARRAY(website_ctr)) AS ctr
+)
+where rn = 1
