@@ -1740,6 +1740,7 @@ with DAG(
                         append_ad_creatives,
                         append_ads_isnghts_conversions,
                         append_ads_insights_conversions,
+                        append_ads_insights_cost_per_conv_value 
 
                       ]
 
@@ -1837,7 +1838,8 @@ with DAG(
       append_ads_insights_delivery_platform_and_device_platform_unique_actions,
       append_ad_creatives,
       append_ads_isnghts_conversions,
-      append_ads_insights_conversions
+      append_ads_insights_conversions,
+      append_ads_insights_cost_per_conv_value 
     ] >> sanity_check >> finish_pipeline
     
     sanity_check >> run_python_task
