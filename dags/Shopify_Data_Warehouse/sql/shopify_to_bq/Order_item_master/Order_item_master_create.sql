@@ -1,5 +1,5 @@
 CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items_master`
-PARTITION BY DATE_TRUNC(Order_created_at,day)
+PARTITION BY DATE_TRUNC(Order_processed_at,day)
  
 OPTIONS(
  description = "Orderitem Master table is partitioned on Order created at day level",
@@ -9,39 +9,43 @@ OPTIONS(
 with Orders_cte as 
 (
     SELECT 
-    _airbyte_extracted_at as airbyte_extracted_at,
     customer_id,
     order_name,
-    Datetime(Order_created_at, "Asia/Kolkata") as Order_created_at,
     discount_code,
-    total_tax,
-    Order_total_price,
+    max(Datetime(Order_processed_at, "Asia/Kolkata")) as Order_processed_at,
+    sum(total_tax) as total_tax,
+    sum(Order_total_price) as Order_total_price,
     
   FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` 
   WHERE 1=1 
   and Order_fulfillment_status = 'fulfilled'
   and Order_financial_status not in ('voided','refunded')
-
+  group by all
+ 
   ),
 
   Order_item as (
     select
+    distinct
     OI.Order_name,
     OI.order_item_id,
     OI.item_variant_id,
     OI.item_sku_code,
+    OI.item_price,
     PM.Product_Title,
     PM.Parent_SKU,
+    PM.Variant_SKU,
     PM.Main_Category,
     PM.Sub_Category,
+    PM.Range,
     OI.item_quantity,
     case when PM.Parent_SKU like 'PGJB%' then 28 
     when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' then 0 
-    else PM.MRP_OG end as item_MRP_price,
+    else OI.item_price end as item_MRP_price,
 
     (case when PM.Parent_SKU like 'PGJB%' then 28 
     when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' then 0 
-    else PM.MRP_OG end)*item_quantity as item_GMV,
+    else OI.item_price end)*item_quantity as item_GMV,
 
     
     
@@ -49,18 +53,17 @@ with Orders_cte as
     left join `shopify-pubsub-project.adhoc_data_asia.Product_SKU_mapping_D2C` as PM
     on cast(OI.item_variant_id as string)= PM.variant_id
     where 1=1
-    and item_fulfillment_status = 'fulfilled'
+    -- and item_fulfillment_status = 'fulfilled'
 
-    
 
   ),
 
 derived_GMV as
 (  select 
-  O.airbyte_extracted_at,
+distinct
   O.customer_id,
   O.order_name,
-  O.Order_created_at,
+  O.Order_processed_at,
   O.discount_code,
   sum(item_MRP_price*item_quantity) as Order_GMV,
   avg(Order_total_price) as Order_value,
@@ -73,11 +76,11 @@ derived_GMV as
 )
 
    select 
-    DG.airbyte_extracted_at,
+   distinct
     DG.customer_id,
     OI.Order_name,
     OI.order_item_id,
-    DG.Order_created_at,
+    DG.Order_processed_at,
     DG.discount_code,
     OI.item_variant_id,
     OI.item_sku_code,
@@ -91,4 +94,3 @@ derived_GMV as
     from Order_item as OI
     left join derived_GMV as DG
     using(order_name)
- 
