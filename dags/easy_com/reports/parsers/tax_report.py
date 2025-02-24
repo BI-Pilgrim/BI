@@ -78,6 +78,7 @@ class TaxReportParserAPI(EasyComApiConnector):
             df = self.convert_if_found(df, int_cols, int)
             
             df = df.assign(**report_data)
+            df = df[self.get_table_columns()]
             transformed_data.append(df)
         # import pdb; pdb.set_trace()
             
