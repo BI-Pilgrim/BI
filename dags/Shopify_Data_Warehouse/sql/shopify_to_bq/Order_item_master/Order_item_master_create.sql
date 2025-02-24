@@ -11,7 +11,7 @@ with Orders_cte as
     SELECT 
     customer_id,
     order_name,
-    coalesce(discount_application,'')||coalesce(discount_code,'') as discount_final,
+    discount_final,
     discount_code,discount_application
     max(Datetime(Order_processed_at, "Asia/Kolkata")) as Order_processed_at,
     sum(total_tax) as total_tax,
