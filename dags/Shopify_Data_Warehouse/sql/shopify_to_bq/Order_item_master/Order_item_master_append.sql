@@ -12,9 +12,9 @@ with Orders_cte as
     sum(Order_total_price) as Order_total_price,
     
   FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` 
-  WHERE 1=1 
-  and Order_fulfillment_status = 'fulfilled'
-  and Order_financial_status not in ('voided','refunded')
+  -- WHERE 1=1 
+  -- and Order_fulfillment_status = 'fulfilled'
+  -- and Order_financial_status not in ('voided','refunded')
   group by all
  
   ),
@@ -47,10 +47,7 @@ with Orders_cte as
     from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items` as OI
     left join `shopify-pubsub-project.adhoc_data_asia.Product_SKU_mapping_D2C` as PM
     on cast(OI.item_variant_id as string)= PM.variant_id
-    where 1=1
-    -- and item_fulfillment_status = 'fulfilled'
-
-
+    -- where 1=1
   ),
 
 derived_GMV as

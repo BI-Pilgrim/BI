@@ -147,6 +147,18 @@ def Scrape_child_asin(df):
                     
         except:
             print("No Child ASINs")
+        
+        try:
+            child_elements = driver.find_elements('xpath', './/div[@id="tp-inline-twister-dim-values-container"]//ul//li')
+            for li in child_elements:
+                child_asin = li.get_attribute("data-asin")
+                print(child_asin)
+                child_url.append(std+child_asin)
+                c_asin.append(child_asin)
+                p_asin.append(row['Parent_ASIN'])
+
+        except:
+            print("No Child ASINs")
             
     driver.close()
     
@@ -632,7 +644,7 @@ def write_to_gbq(df):
     print("Done appending in the table")
     
     
-keyword = 'Hair Mask'
+keyword = 'Face Serum'
 
 No_of_pages = 10
 
@@ -659,7 +671,7 @@ final_op = mtrcsdf
 
 
 final_op['Category'] = keyword
-final_op['Date_MS'] = date(2024,12,1)
+final_op['Date_MS'] = date(2025,2,10)
 # date.today()
 # date.today().replace(day=1) - relativedelta(months=1)
 
@@ -788,6 +800,6 @@ rfdf = rfdf[final_column]
 rfdf = rfdf[rfdf['Parent_ASIN'] != '0']
 rfdf = datatype_normalizing(rfdf,column_dtype_mapping)
 df_unique = rfdf.drop_duplicates(subset=['ASIN', 'Inbuilt_category'])
-write_to_gbq(df_unique)
+# write_to_gbq(df_unique)
 df_unique.to_csv(f'{keyword}_MS_with_brand.csv',index=False)
 print("Done writing the table")
