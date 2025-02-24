@@ -18,8 +18,10 @@ with Orders_cte as
     
   FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` 
   WHERE 1=1 
+
   -- and Order_fulfillment_status = 'fulfilled'
   -- and Order_financial_status not in ('voided','refunded')
+
   group by all
  
   ),
