@@ -5,7 +5,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator, BigQueryExecuteQueryOperator
 from airflow.operators.python import PythonOperator
 import subprocess
 
