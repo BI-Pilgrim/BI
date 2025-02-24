@@ -72,7 +72,12 @@ WITH source_orders AS (
     JSON_EXTRACT_SCALAR(shipping_address, '$.zip') AS shipping_zip,
 
     admin_graphql_api_id,
-    JSON_EXTRACT_SCALAR(discount_applications, '$[0].title') AS discount_application,
+    --JSON_EXTRACT_SCALAR(discount_applications, '$[0].title') AS discount_application, 
+    ARRAY_TO_STRING(
+    ARRAY(
+      SELECT JSON_EXTRACT_SCALAR(element, '$.title') 
+      FROM UNNEST(JSON_EXTRACT_ARRAY(discount_applications)) AS element
+    ), ',') AS discount_application,
     -- Extract the payment_gateway_names JSON array as is
     payment_gateway_names
 
