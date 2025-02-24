@@ -11,7 +11,8 @@ with Orders_cte as
     SELECT 
     customer_id,
     order_name,
-    discount_code,
+    coalesce(discount_application,'')||coalesce(discount_code,'') as discount_final,
+    discount_code,discount_application
     max(Datetime(Order_processed_at, "Asia/Kolkata")) as Order_processed_at,
     sum(total_tax) as total_tax,
     sum(Order_total_price) as Order_total_price,
@@ -63,7 +64,7 @@ distinct
   O.customer_id,
   O.order_name,
   O.Order_processed_at,
-  O.discount_code,
+  O.discount_final,
   sum(item_MRP_price*item_quantity) as Order_GMV,
   avg(Order_total_price) as Order_value,
   from Orders_cte as O
@@ -80,7 +81,7 @@ distinct
     OI.Order_name,
     OI.order_item_id,
     DG.Order_processed_at,
-    DG.discount_code,
+    DG.discount_final,
     OI.item_variant_id,
     OI.item_sku_code,
     OI.Parent_SKU,
