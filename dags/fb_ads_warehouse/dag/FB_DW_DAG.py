@@ -1300,21 +1300,21 @@ with DAG(
     )
 
 
-    # # ads_insights_conversion_data Staging Table Refresh - Append
-    # ads_insights_conversion_data_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_data/ads_insights_conversion_data_append.sql")
-    # with open(ads_insights_conversion_data_sql_path, 'r') as file:
-    #     sql_query_79 = file.read()
+    # ads_insights_conversion_data Staging Table Refresh - Append
+    ads_insights_conversion_data_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_data/ads_insights_conversion_data_append.sql")
+    with open(ads_insights_conversion_data_sql_path, 'r') as file:
+        sql_query_79 = file.read()
 
-    # append_ads_insights_conversion_data = BigQueryInsertJobOperator(
-    #     task_id='append_ads_insights_conversion_data',
-    #     configuration={
-    #         "query": {
-    #             "query": sql_query_79,
-    #             "useLegacySql": False,
-    #         },
-    #         "location": LOCATION,
-    #     }
-    # )
+    append_ads_insights_conversion_data = BigQueryInsertJobOperator(
+        task_id='append_ads_insights_conversion_data',
+        configuration={
+            "query": {
+                "query": sql_query_79,
+                "useLegacySql": False,
+            },
+            "location": LOCATION,
+        }
+    )
 
 
     # ads_insights_delivery_platform_and_device_platform_cost_per_action_type  Staging Table Refresh - Append
@@ -1714,7 +1714,7 @@ with DAG(
                         append_ad_sets,
                         append_campaigns,
                         append_clicks,
-                        append_conversion_data,
+                        # append_conversion_data,
                         append_images,
                         append_roas,
                         append_videos,
@@ -1734,7 +1734,7 @@ with DAG(
                         append_ads_insights_demographics_age_action_values,
                         append_ads_excluded_audience,
                         append_ads_insights_delivery_platform_and_device_platform_cost_per_action_type,
-                        # append_ads_insights_conversion_data,
+                        append_ads_insights_conversion_data,
                         append_ads_insights_demographics_country_actions,
                         append_ads_insights_delivery_platform_and_device_platform_unique_actions,
                         append_ad_creatives,
