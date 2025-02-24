@@ -28,7 +28,7 @@ with DAG(
 ) as dag:
 
     def run_fetch_data():
-        script_path = '/dags/Supply Chain/clickpost_to_bq/python/fetch_data.py'
+        script_path = 'gcs/dags/Supply Chain/clickpost_to_bq/python/fetch_data.py'
         try:
             result = subprocess.run(
                 ['python', script_path],

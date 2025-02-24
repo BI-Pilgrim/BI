@@ -18,18 +18,20 @@ default_args = {
     'email': ['akash.banger@discoverpilgrim.com'],
 }
 
-def generate_date_ranges(days: int = 90) -> List[dict]:
-    """Generate list of date ranges for backfill"""
-    end_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+def generate_date_ranges() -> List[dict]:
+    """Generate list of date ranges for specific backfill period"""
+    start_date = datetime(2024, 11, 25)
+    end_date = datetime(2025, 1, 1)
     date_ranges = []
     
-    for i in range(days):
-        current_date = end_date - timedelta(days=i)
+    current_date = start_date
+    while current_date <= end_date:
         date_ranges.append({
             'start_time': f"{current_date.strftime('%Y-%m-%d')} 00:00:00",
             'end_time': f"{current_date.strftime('%Y-%m-%d')} 23:59:59",
             'date_str': current_date.strftime('%Y_%m_%d')
         })
+        current_date += timedelta(days=1)
     
     return date_ranges
 
@@ -67,20 +69,20 @@ def run_fetch_data_for_date(start_time: str, end_time: str, **context):
 with DAG(
     dag_id='clickpost_backfill',
     default_args=default_args,
-    description='Backfill Clickpost data for last 90 days',
+    description='Backfill Clickpost data from Nov 25, 2024 to Jan 1, 2025',
     schedule_interval=None,  # Manual trigger only
-    start_date=pendulum.datetime(2025, 2, 18, tz="UTC"),
+    start_date=pendulum.datetime(2024, 11, 24, tz="UTC"),  # Set to one day before backfill start
     catchup=False,
     max_active_runs=1,
     concurrency=3,  # Process 3 days simultaneously
     tags=['supply_chain', 'clickpost', 'backfill'],
 ) as dag:
     
-    date_ranges = generate_date_ranges(90)
+    date_ranges = generate_date_ranges()
     
-    # Create tasks in groups of 30 days each for better organization
-    for group_num in range(0, len(date_ranges), 30):
-        group_dates = date_ranges[group_num:group_num + 30]
+    # Create tasks in groups of 10 days each for better organization
+    for group_num in range(0, len(date_ranges), 10):
+        group_dates = date_ranges[group_num:group_num + 10]
         
         with TaskGroup(group_id=f'process_days_{group_num + 1}_to_{group_num + len(group_dates)}') as task_group:
             for date_range in group_dates:

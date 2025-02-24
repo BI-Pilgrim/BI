@@ -18,7 +18,7 @@ import json
 class GooglePlayRatingsAPI:
     def __init__(self):
         self.project_id = "shopify-pubsub-project"
-        self.dataset_id = "reviews"
+        self.dataset_id = "pilgrim_bi_google_play"
         self.table_id = f'{self.project_id}.{self.dataset_id}.{GooglePlayRatings.__tablename__}'
 
         # BigQuery connection string
