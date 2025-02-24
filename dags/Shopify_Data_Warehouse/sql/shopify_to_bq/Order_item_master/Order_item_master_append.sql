@@ -6,8 +6,8 @@ with Orders_cte as
     SELECT 
     customer_id,
     order_name,
-    discount_final,,
-    max(Datetime(Order_processed_at, "Asia/Kolkata")) as Order_processed_at,
+    discount_final,
+    max(Datetime(Order_created_at, "Asia/Kolkata")) as Order_created_at,
     sum(total_tax) as total_tax,
     sum(Order_total_price) as Order_total_price,
     
@@ -55,7 +55,7 @@ derived_GMV as
 distinct
   O.customer_id,
   O.order_name,
-  O.Order_processed_at,
+  O.Order_created_at,
   O.discount_final,
   sum(item_MRP_price*item_quantity) as Order_GMV,
   avg(Order_total_price) as Order_value,
@@ -72,7 +72,7 @@ distinct
     DG.customer_id,
     OI.Order_name,
     OI.order_item_id,
-    DG.Order_processed_at,
+    DG.Order_created_at,
     DG.discount_final,
     OI.item_variant_id,
     OI.item_sku_code,
@@ -86,7 +86,7 @@ distinct
     from Order_item as OI
     left join derived_GMV as DG
     using(order_name)
-    where date(Order_processed_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 30 DAY)
+    where date(Order_created_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 30 DAY)
 ) as Source
 
 on Target.order_item_id = source.order_item_id
@@ -95,7 +95,7 @@ when MATCHED THEN UPDATE SET
 target.customer_id = source.customer_id,
 target.Order_name = source.Order_name,
 target.order_item_id = source.order_item_id,
-target.Order_processed_at = source.Order_processed_at,
+target.Order_created_at = source.Order_created_at,
 target.discount_final = source.discount_final,
 target.item_variant_id = source.item_variant_id,
 target.item_sku_code = source.item_sku_code,
@@ -113,7 +113,7 @@ WHEN NOT MATCHED THEN INSERT
 customer_id,
 Order_name,
 order_item_id,
-Order_processed_at,
+Order_created_at,
 discount_final,
 item_variant_id,
 item_sku_code,
@@ -130,7 +130,7 @@ VALUES
 source.customer_id,
 source.Order_name,
 source.order_item_id,
-source.Order_processed_at,
+source.Order_created_at,
 source.discount_final,
 source.item_variant_id,
 source.item_sku_code,

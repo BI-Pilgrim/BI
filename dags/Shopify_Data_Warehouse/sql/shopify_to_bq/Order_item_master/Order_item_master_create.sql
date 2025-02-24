@@ -1,5 +1,6 @@
+
 CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items_master`
-PARTITION BY DATE_TRUNC(Order_processed_at,day)
+PARTITION BY DATE_TRUNC(Order_created_at,day)
  
 OPTIONS(
  description = "Orderitem Master table is partitioned on Order created at day level",
@@ -12,8 +13,7 @@ with Orders_cte as
     customer_id,
     order_name,
     discount_final,
-    discount_code,discount_application
-    max(Datetime(Order_processed_at, "Asia/Kolkata")) as Order_processed_at,
+    max(Datetime(Order_created_at, "Asia/Kolkata")) as Order_created_at,
     sum(total_tax) as total_tax,
     sum(Order_total_price) as Order_total_price,
     
@@ -63,7 +63,7 @@ derived_GMV as
 distinct
   O.customer_id,
   O.order_name,
-  O.Order_processed_at,
+  O.Order_created_at,
   O.discount_final,
   sum(item_MRP_price*item_quantity) as Order_GMV,
   avg(Order_total_price) as Order_value,
@@ -80,7 +80,7 @@ distinct
     DG.customer_id,
     OI.Order_name,
     OI.order_item_id,
-    DG.Order_processed_at,
+    DG.Order_created_at,
     DG.discount_final,
     OI.item_variant_id,
     OI.item_sku_code,
