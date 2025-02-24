@@ -18,8 +18,8 @@ with Orders_cte as
     
   FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` 
   WHERE 1=1 
-  and Order_fulfillment_status = 'fulfilled'
-  and Order_financial_status not in ('voided','refunded')
+  -- and Order_fulfillment_status = 'fulfilled'
+  -- and Order_financial_status not in ('voided','refunded')
   group by all
  
   ),
@@ -53,9 +53,6 @@ with Orders_cte as
     left join `shopify-pubsub-project.adhoc_data_asia.Product_SKU_mapping_D2C` as PM
     on cast(OI.item_variant_id as string)= PM.variant_id
     where 1=1
-    -- and item_fulfillment_status = 'fulfilled'
-
-
   ),
 
 derived_GMV as
