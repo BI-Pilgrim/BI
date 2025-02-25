@@ -241,9 +241,9 @@ def Reviews_scraper(df):
 
 def main():
     project_id = 'shopify-pubsub-project'
-    FK_top_products = 'Project_GOONJ.Flipkart_top_25_products'
-    FK_ratings = 'Project_GOONJ.Flipkart_Rating_top_products'
-    FK_reviews = 'Project_GOONJ.Flipkart_Reviews_top_products'
+    FK_top_products = 'Project_Goonj_asia.Flipkart_top_25_products'
+    FK_ratings = 'Project_Goonj_asia.Flipkart_Ratings_Top_Products'
+    FK_reviews = 'Project_Goonj_asia.Flipkart_Reviews_Top_Products'
     credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS") 
     bq_client = get_bq_client(credentials_info)
 
