@@ -33,7 +33,7 @@ with DAG(
 # Abandoned Checkout Staging Table Refresh - Append
 
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/Project_Goonj/Monhtly_dashboard/Master_Query_all_in_one.sql', 'r') as file:
+    with open('/home/airflow/gcs/dags/Project_Goonj/Monhtly_dashboard/sql/Master_Query_all_in_one.sql', 'r') as file:
         sql_query_1 = file.read()
     master_query = BigQueryInsertJobOperator(
         task_id='Project_GOONJ_DAG',
