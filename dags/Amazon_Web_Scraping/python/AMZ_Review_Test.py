@@ -41,37 +41,43 @@ def datatype_normalizing(mtdf,datatypes):
                 print(f"Error converting column '{col}' to {dtype}: {e}")
     return mtdf
 # Login function - using Sync API (no async involved)
-def Login_AMZ(homepage, username, password, df): 
+def Login_AMZ(homepage, username, password, df):
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True)
         page = browser.new_page()
-        page.goto(homepage,wait_until='load') 
-        time.sleep(2) 
-        if page.locator('#nav-link-accountList').is_visible():
-            page.locator('#nav-link-accountList').click()
-        else:
-            print("Element not visible")
-            page.wait_for_selector('#nav-link-accountList', state='attached', timeout=60000)
-            page.locator('#nav-link-accountList').click()
+        try:
+            page.goto(homepage, wait_until='load')  
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            page.screenshot(path=f'error_screenshot_{timestamp}.png')
+            page_content = page.content()
+            with open('before_locating_nav_link_account_list.html', 'w', encoding="utf-8") as f:
+                f.write(page_content) 
+                print('Screenshot captured')
 
-        #page.wait_for_selector('#nav-link-accountList', state='attached', timeout=60000)
-        #page.locator('#nav-link-accountList').click()
+            page.locator('#nav-link-accountList').click() 
+            page.wait_for_load_state('load') 
 
-        page.wait_for_load_state('load') 
-        if page.locator('input#ap_email_login').is_visible():
-            # If present, use the 'ap_email_login' field
-            page.fill('input#ap_email_login',username)
-        else:
-            # If not present, use 'ap_email' field as a fallback
-            page.fill('input#ap_email',username)
-        page.locator('span#continue').click() 
-        page.wait_for_load_state('load') 
-        page.wait_for_selector('input#ap_password')
-        page.fill('input#ap_password',password) 
-        time.sleep(2)
-        page.locator('#signInSubmit').click() 
-        time.sleep(4)
-
+            if page.locator('input#ap_email_login').is_visible():
+                page.fill('input#ap_email_login', username)
+            else:
+        # If not present, use 'ap_email' field as a fallback
+                page.fill('input#ap_email', username)
+    
+            page.locator('span#continue').click() 
+            page.wait_for_load_state('load') 
+            page.wait_for_selector('input#ap_password')
+            page.fill('input#ap_password', password) 
+            time.sleep(2)
+            page.locator('#signInSubmit').click() 
+            time.sleep(4)
+        except Exception as e:
+            error_message = str(e)
+            print(f"Error occurred: {error_message}")
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            page.screenshot(path=f'error_screenshot_{timestamp}.png')
+            with open(f'error_log_{timestamp}.txt', 'w') as log_file:
+                log_file.write(f"Error: {error_message}\n")
+        print('Screenshot and error log captured.')
         op_df = ratings_count(page, df)   
         # Hover over the account menu
         account_menu = page.locator("#nav-link-accountList") 
@@ -181,24 +187,24 @@ def ratings_count(page, df):
             
             # Get number of ratings and reviews
             rat_rev_cnt = rating_counts.inner_text().split(' ') 
-            no_of_ratings = rat_rev_cnt[0]#.replace(',', '')
-            no_of_reviews = rat_rev_cnt[3]#.replace(',', '')
+            no_of_ratings = rat_rev_cnt[0].replace(',', '')
+            no_of_reviews = rat_rev_cnt[3].replace(',', '')
             
             reviews, ratings, dates, names, page_URL = scrape_multiple_pages(page, url, num_pages) 
             
             # Create a DataFrame for this star rating
             df = pd.DataFrame({
-                'Review': reviews,
-                'Rating': ratings,
-                'Date': dates,
-                'Names': names,
-                'Page_url': page_URL
+                'Review1': reviews,
+                'Rating1': ratings,
+                'Date_R1': dates,
+                'Names1': names,
+                'Page_url1': page_URL
             })
             df_star = pd.DataFrame({
-                'Star': [s] * len(df),
-                'No_of_ratings': [no_of_ratings] * len(df),
-                'No_of_reviews': [no_of_reviews] * len(df),
-                'Avg_Rating': [avg_rating] * len(df)
+                'Star1': [s] * len(df),
+                'No_of_ratings1': [no_of_ratings] * len(df),
+                'No_of_reviews1': [no_of_reviews] * len(df),
+                'Avg_Rating1': [avg_rating] * len(df)
             })
             
             df = pd.concat([df, df_star], axis=1)
@@ -206,9 +212,9 @@ def ratings_count(page, df):
 
         # Add product details to the DataFrame
         df_new_cols = pd.DataFrame({
-            'Product_Title': [title] * len(df),
-            'SKU': [sku] * len(df),
-            'ASIN': [asin] * len(df)
+            'Product_Title1': [title] * len(df),
+            'SKU1': [sku] * len(df),
+            'ASIN1': [asin] * len(df)
         })
         
         df_all_stars = pd.concat([df_all_stars, df_new_cols], axis=1)
@@ -278,8 +284,8 @@ def append_dataframes(dataframes):
     return result
 
 # Main execution
-def main(start_index,end_index):
-    home_page = "https://www.amazon.in/"
+def main():
+    home_page =   "https://www.amazon.in/"
     username = Variable.get("AMAZON_LOGIN_MAIL")
     password = Variable.get("AMAZON_LOGIN_PASSWORD") 
     project_id = 'shopify-pubsub-project'
@@ -306,7 +312,9 @@ def main(start_index,end_index):
         'SKU1': 'str',
         'ASIN1': 'str',
         'Avg_Rating1': 'float64',
-    }
+    } 
+    start_index = 0 
+    end_index = 25
     batch_df = df.iloc[start_index:end_index]
     processed_df = Login_AMZ(home_page, username, password, batch_df) 
     final_df = datatype_normalizing(processed_df, Review_col_dt) 
@@ -336,22 +344,23 @@ def main(start_index,end_index):
 
     project_id = 'shopify-pubsub-project'
     table_review = 'Amazon_Market_Sizing.AMZ_Rating_Reviews_Top_products_Playwright_testing' 
-    rating_df_write = 'Amazon_Market_Sizing.AMZ_Ratings_Top_products_dummy' 
-    review_df_write = 'Amazon_Market_Sizing.AMZ_Reviews_Top_products_dummy' 
-    past_review_df = 'Amazon_Market_Sizing.AMZ_Reviews_Top_products' 
-    review_write = 'Amazon_Market_Sizing.AMZ_Reviews_Test_Write'
-    past_table = read_from_gbq(project_id,past_review_df) 
+    rating_df_write = 'Amazon_Market_Sizing.AMZ_Ratings_Top_products' 
+    review_df_write = 'Amazon_Market_Sizing.AMZ_Reviews_Top_products' 
+    #past_review_df = 'Amazon_Market_Sizing.AMZ_Reviews_Top_products'  
+    new_filter_review = 'Amazon_Market_Sizing.AMZ_Reviews_Filtered_new_table'
+    past_table = read_from_gbq(bq_client,project_id,review_df_write) 
     merged_df = pd.merge(final_df_review,past_table, 
-                    left_on=['Review1', 'Names1', 'Page_url1', 'Star1','SKU1','ASIN1'], right_on=['Review', 'Names', 'Page_url', 'Star','SKU','ASIN'],
+                    left_on=['Names1','Review1','SKU1'], right_on=['Names','Review','SKU'],
                     how='left') 
-    filtered_df = merged_df[merged_df['ASIN'].isnull()]  
-    write_to_gbq(filtered_df,project_id,review_write)
+    merged_df = merged_df[merged_df['Review1'] != 'nan']
+    merged_df = merged_df[merged_df['Review1'] != ""] 
+    filtered_df = merged_df[merged_df['SKU'].isna()]
+    filtered_df = filtered_df[Review_df_columns] 
+    print(len(filtered_df))
+
+    #write_to_gbq(bq_client,filtered_df,project_id,new_filter_review)
     write_to_gbq(grouped_final_df_rating,project_id,rating_df_write) 
     write_to_gbq(final_df_review,project_id,review_df_write)
-
-    
-
-    #return final_df 
 
 
 
