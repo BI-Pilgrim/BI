@@ -23,8 +23,8 @@ def send_sanity_check_email():
     df['Staging_max_date'] = pd.to_datetime(df['Staging_max_date'])
     df['Date1'] = pd.to_datetime(df['Date1'])
 
-    filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) & 
-                    (df['Date1'] - pd.to_timedelta('1 day') != df['Source_max_date']) & 
+    filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) | 
+                    (df['Date1'] - pd.to_timedelta('1 day') != df['Source_max_date']) | 
                     (df['Source_pk_count'] != df['Staging_pk_count'])]
     # return filtered_df
 
