@@ -47,7 +47,7 @@ def sync_tax_report_return():
         TaxReportParserAPI(report_type = report_constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
     resp = sync()
 
-@dag("sync_tax_report_sales", schedule='30 0 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
+@dag("sync_tax_report_sales", schedule='30 4 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
 def sync_tax_report():
     from easy_com.reports.parsers.tax_report import TaxReportParserAPI
     
