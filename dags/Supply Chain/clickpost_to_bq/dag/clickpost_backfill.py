@@ -20,7 +20,7 @@ default_args = {
 
 def generate_date_ranges() -> List[dict]:
     """Generate list of date ranges for specific backfill period"""
-    start_date = datetime(2024, 11, 25)
+    start_date = datetime(2024, 11, 27)
     end_date = datetime(2025, 1, 1)
     date_ranges = []
     
