@@ -1123,21 +1123,21 @@ with DAG(
         }
     )
 
-    # conversion_data Staging Table Refresh - Append
-    conversion_data_sql_path = os.path.join(SQL_DIR, "conversion_data/conversion_data_append.sql")
-    with open(conversion_data_sql_path, 'r') as file:
-        sql_query_68 = file.read()
+    # # conversion_data Staging Table Refresh - Append
+    # conversion_data_sql_path = os.path.join(SQL_DIR, "conversion_data/conversion_data_append.sql")
+    # with open(conversion_data_sql_path, 'r') as file:
+    #     sql_query_68 = file.read()
 
-    append_conversion_data = BigQueryInsertJobOperator(
-        task_id='append_conversion_data',
-        configuration={
-            "query": {
-                "query": sql_query_68,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # append_conversion_data = BigQueryInsertJobOperator(
+    #     task_id='append_conversion_data',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_68,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # images Staging Table Refresh - Append
     images_sql_path = os.path.join(SQL_DIR, "images/images_append.sql")
@@ -1813,7 +1813,7 @@ with DAG(
       append_ad_sets,
       append_campaigns,
       append_clicks,
-      append_conversion_data,
+      # append_conversion_data,
       append_images,
       append_roas,
       append_videos,
