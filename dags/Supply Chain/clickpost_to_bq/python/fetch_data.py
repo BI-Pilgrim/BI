@@ -394,6 +394,7 @@ def load_to_bigquery(dataframes: Dict[str, pd.DataFrame]) -> None:
                     bigquery.SchemaField("Box Count", "INTEGER"),
                     bigquery.SchemaField("RTO AWB", "STRING"),
                     bigquery.SchemaField("Zone", "STRING"),
+                    bigquery.SchemaField("Pricing Zone", "STRING"),
                     bigquery.SchemaField("From Warehouse", "STRING"),
                     bigquery.SchemaField("To Warehouse", "STRING")
                 ]
@@ -481,16 +482,18 @@ def load_to_bigquery(dataframes: Dict[str, pd.DataFrame]) -> None:
 
                 # Handle Pricing Zone specifically
                 if 'Pricing Zone' in df.columns:
-                    # Convert to string but handle null values properly
-                    df['Pricing Zone'] = df['Pricing Zone'].apply(
-                        lambda x: None if pd.isna(x) or str(x).lower() in ['nan', 'none', ''] else str(x)
-                    )
+                    # First, replace problematic values with None
+                    df['Pricing Zone'] = df['Pricing Zone'].replace(['nan', 'None', '', 'NaN'], None)
+                    
+                    # Then, for non-None values, ensure they're strings
+                    mask = df['Pricing Zone'].notna()
+                    if mask.any():
+                        df.loc[mask, 'Pricing Zone'] = df.loc[mask, 'Pricing Zone'].astype(str)
 
                 # Convert other string columns
-                string_columns = ['RTO AWB', 'Zone', 'From Warehouse', 'To Warehouse', 'Pricing Zone']
+                string_columns = ['RTO AWB', 'Zone', 'From Warehouse', 'To Warehouse']
                 for col in string_columns:
                     if col in df.columns:
-                        # Handle null values properly - convert to string but keep None values as None
                         df[col] = df[col].astype(str).replace(['nan', 'None', ''], None)
                         
             elif table_name == 'tracking':

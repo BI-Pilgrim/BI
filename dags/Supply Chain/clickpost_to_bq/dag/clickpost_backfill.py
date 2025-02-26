@@ -69,9 +69,9 @@ def run_fetch_data_for_date(start_time: str, end_time: str, **context):
 with DAG(
     dag_id='clickpost_backfill',
     default_args=default_args,
-    description='Backfill Clickpost data from Nov 25, 2024 to Jan 1, 2025',
+    description='Backfill Clickpost data from Nov 27, 2024 to Jan 1, 2025',
     schedule_interval=None,  # Manual trigger only
-    start_date=pendulum.datetime(2024, 11, 24, tz="UTC"),  # Set to one day before backfill start
+    start_date=pendulum.datetime(2024, 11, 27, tz="UTC"),  # Set to one day before backfill start
     catchup=False,
     max_active_runs=1,
     concurrency=3,  # Process 3 days simultaneously
