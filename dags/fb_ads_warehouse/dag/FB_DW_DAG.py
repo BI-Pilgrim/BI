@@ -1123,21 +1123,21 @@ with DAG(
         }
     )
 
-    # conversion_data Staging Table Refresh - Append
-    conversion_data_sql_path = os.path.join(SQL_DIR, "conversion_data/conversion_data_append.sql")
-    with open(conversion_data_sql_path, 'r') as file:
-        sql_query_68 = file.read()
+    # # conversion_data Staging Table Refresh - Append
+    # conversion_data_sql_path = os.path.join(SQL_DIR, "conversion_data/conversion_data_append.sql")
+    # with open(conversion_data_sql_path, 'r') as file:
+    #     sql_query_68 = file.read()
 
-    append_conversion_data = BigQueryInsertJobOperator(
-        task_id='append_conversion_data',
-        configuration={
-            "query": {
-                "query": sql_query_68,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # append_conversion_data = BigQueryInsertJobOperator(
+    #     task_id='append_conversion_data',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_68,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
     # images Staging Table Refresh - Append
     images_sql_path = os.path.join(SQL_DIR, "images/images_append.sql")
@@ -1300,21 +1300,21 @@ with DAG(
     )
 
 
-    # ads_insights_conversion_data Staging Table Refresh - Append
-    ads_insights_conversion_data_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_data/ads_insights_conversion_data_append.sql")
-    with open(ads_insights_conversion_data_sql_path, 'r') as file:
-        sql_query_79 = file.read()
+    # # ads_insights_conversion_data Staging Table Refresh - Append
+    # ads_insights_conversion_data_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_data/ads_insights_conversion_data_append.sql")
+    # with open(ads_insights_conversion_data_sql_path, 'r') as file:
+    #     sql_query_79 = file.read()
 
-    append_ads_insights_conversion_data = BigQueryInsertJobOperator(
-        task_id='append_ads_insights_conversion_data',
-        configuration={
-            "query": {
-                "query": sql_query_79,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
-    )
+    # append_ads_insights_conversion_data = BigQueryInsertJobOperator(
+    #     task_id='append_ads_insights_conversion_data',
+    #     configuration={
+    #         "query": {
+    #             "query": sql_query_79,
+    #             "useLegacySql": False,
+    #         },
+    #         "location": LOCATION,
+    #     }
+    # )
 
 
     # ads_insights_delivery_platform_and_device_platform_cost_per_action_type  Staging Table Refresh - Append
@@ -1549,13 +1549,13 @@ with DAG(
         }
     )
 
-    # ads_isnghts_conversions Staging Table Refresh - Append
-    ads_isnghts_conversions_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_values/ads_isnghts_conversion_values_append.sql")
+    # ads_isnghts_conversion_values Staging Table Refresh - Append
+    ads_isnghts_conversion_values_sql_path = os.path.join(SQL_DIR, "ads_insights_conversion_values/ads_isnghts_conversion_values_append.sql")
     with open(ads_recommendations_sql_path, 'r') as file:
         sql_query_94 = file.read()
 
-    append_ads_isnghts_conversions = BigQueryInsertJobOperator(
-        task_id='append_ads_isnghts_conversions',
+    append_ads_isnghts_conversion_values = BigQueryInsertJobOperator(
+        task_id='append_ads_isnghts_conversion_values',
         configuration={
             "query": {
                 "query": sql_query_94,
@@ -1734,11 +1734,10 @@ with DAG(
                         append_ads_insights_demographics_age_action_values,
                         append_ads_excluded_audience,
                         append_ads_insights_delivery_platform_and_device_platform_cost_per_action_type,
-                        append_ads_insights_conversion_data,
                         append_ads_insights_demographics_country_actions,
                         append_ads_insights_delivery_platform_and_device_platform_unique_actions,
                         append_ad_creatives,
-                        append_ads_isnghts_conversions,
+                        append_ads_isnghts_conversion_values,
                         append_ads_insights_conversions,
                         append_ads_insights_cost_per_conv_value 
 
@@ -1813,7 +1812,7 @@ with DAG(
       append_ad_sets,
       append_campaigns,
       append_clicks,
-      append_conversion_data,
+      # append_conversion_data,
       append_images,
       append_roas,
       append_videos,
@@ -1837,7 +1836,7 @@ with DAG(
       append_ads_insights_demographics_country_actions,
       append_ads_insights_delivery_platform_and_device_platform_unique_actions,
       append_ad_creatives,
-      append_ads_isnghts_conversions,
+      append_ads_isnghts_conversion_values,
       append_ads_insights_conversions,
       append_ads_insights_cost_per_conv_value 
     ] >> sanity_check >> finish_pipeline
