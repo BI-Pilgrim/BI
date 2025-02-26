@@ -479,11 +479,20 @@ def load_to_bigquery(dataframes: Dict[str, pd.DataFrame]) -> None:
                 df['Shipping Cost'] = df['Shipping Cost'].astype(float)
                 df['Box Count'] = pd.to_numeric(df['Box Count'], errors='coerce').fillna(0).astype(int)
 
-                # Convert string columns explicitly
-                string_columns = ['RTO AWB', 'Zone', 'From Warehouse', 'To Warehouse']
+                # Handle Pricing Zone specifically
+                if 'Pricing Zone' in df.columns:
+                    # Convert to string but handle null values properly
+                    df['Pricing Zone'] = df['Pricing Zone'].apply(
+                        lambda x: None if pd.isna(x) or str(x).lower() in ['nan', 'none', ''] else str(x)
+                    )
+
+                # Convert other string columns
+                string_columns = ['RTO AWB', 'Zone', 'From Warehouse', 'To Warehouse', 'Pricing Zone']
                 for col in string_columns:
                     if col in df.columns:
-                        df[col] = df[col].astype(str).replace('nan', None)
+                        # Handle null values properly - convert to string but keep None values as None
+                        df[col] = df[col].astype(str).replace(['nan', 'None', ''], None)
+                        
             elif table_name == 'tracking':
                 # Convert timestamp columns
                 timestamp_columns = [
