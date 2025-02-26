@@ -112,8 +112,8 @@ class easyEComMasterProductAPI(EasyComApiConnector):
         max_count = 0
 
         while next_url:
-            if max_count >= 10:
-                print("Reached maximum limit of 10 API requests")
+            if max_count >= 100:
+                print("Reached maximum limit of 100 API requests")
                 break
             try:
                 max_count += 1
