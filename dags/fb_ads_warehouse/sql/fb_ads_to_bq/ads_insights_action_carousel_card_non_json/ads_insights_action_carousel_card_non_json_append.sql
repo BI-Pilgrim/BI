@@ -71,7 +71,7 @@ select
 row_number() over(partition by ad_id,date_start order by _airbyte_extracted_at desc) as rn
 from shopify-pubsub-project.pilgrim_bi_airbyte_facebook.ads_insights_action_carousel_card
 )
-where rn = 1 and date(created_time) >= date_sub(current_date("Asia/Kolkata"), INTERVAL 10 day)
+where rn = 1 and date(_airbyte_extracted_at) >= date_sub(current_date("Asia/Kolkata"), INTERVAL 10 day)
 ) as source
 on target.ad_id = source.ad_id
 and target.date_start = source.date_start

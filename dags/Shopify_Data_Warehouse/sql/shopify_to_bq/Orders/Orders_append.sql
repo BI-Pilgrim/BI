@@ -55,6 +55,8 @@ WITH source_orders AS (
     JSON_EXTRACT_SCALAR(discount_codes, '$[0].code') AS discount_code,
     JSON_EXTRACT_SCALAR(discount_codes, '$[0].type') AS discount_type,
 
+  
+
     JSON_EXTRACT_SCALAR(billing_address, '$.address1') AS billing_address,
     JSON_EXTRACT_SCALAR(billing_address, '$.city') AS billing_city,
     JSON_EXTRACT_SCALAR(billing_address, '$.country') AS billing_country,
@@ -70,47 +72,51 @@ WITH source_orders AS (
     JSON_EXTRACT_SCALAR(shipping_address, '$.province') AS shipping_province,
     JSON_EXTRACT_SCALAR(shipping_address, '$.province_code') AS shipping_province_code,
     JSON_EXTRACT_SCALAR(shipping_address, '$.zip') AS shipping_zip,
-
+    REGEXP_EXTRACT(landing_site, r"utm_source=([^&]+)") AS utm_source,
+    REGEXP_EXTRACT(landing_site, r"utm_medium=([^&]+)") AS utm_medium,
+    REGEXP_EXTRACT(landing_site, r"utm_campaign=([^&]+)") AS utm_campaign,
+    REGEXP_EXTRACT(landing_site, r"utm_content=([^&]+)") AS utm_content,
+    REGEXP_EXTRACT(landing_site, r"utm_term=([^&]+)") AS utm_term,
+    REGEXP_EXTRACT(landing_site, r"utm_id=([^&]+)") AS utm_id,
+    REGEXP_EXTRACT(landing_site, r"campaign_id=([^&]+)") AS campaign_id,
+    REGEXP_EXTRACT(landing_site, r"ad_id=([^&]+)") AS ad_id,
     admin_graphql_api_id,
-    JSON_EXTRACT_SCALAR(discount_applications, '$[0].title') AS discount_application,
-    -- Extract the payment_gateway_names JSON array as is
+
+    ARRAY_TO_STRING(
+    ARRAY(
+      SELECT JSON_EXTRACT_SCALAR(element, '$.title') 
+      FROM UNNEST(JSON_EXTRACT_ARRAY(discount_applications)) AS element
+    ), ',') AS discount_application,
+
     payment_gateway_names
 
   FROM `shopify-pubsub-project.pilgrim_bi_airbyte.orders`
+
 )
 
--- Aggregate multiple payment gateways into a single row per order
 SELECT 
-  o._airbyte_extracted_at, o.Order_note, o.Order_cancelled_reason, o.Order_cancelled_at, o.landing_weburl,
-  o.referring_weburl, o.Order_cart_token, o.browser_ip_id, o.Order_checkout_id, o.Order_checkout_token, 
-  o.Order_closed_at, o.Order_fulfillment_status, o.Order_currency, o.Order_shop_url, o.Order_confirmed, 
-  o.Order_estimated_taxes, o.isTestOrder, o.Order_taxes_included, o.Order_financial_status, 
-  o.Order_source_name, o.Order_app_id, o.total_line_items_price, o.total_tax, o.Order_total_price, 
-  o.Order_total_discounts, o.Order_tags, o.Order_updated_at, o.Order_created_at, o.Order_processed_at, 
-  o.Order_name, o.Order_id, o.Order_token, o.Order_number, o.customer_id, o.tax_channel_liable, 
-  o.tax_price, o.tax_rate, o.tax_title, o.browser_language, o.browser_height, o.browser_ip, 
-  o.browser_width, o.session_hash, o.browser_agent, o.discount_amount, o.discount_code, o.discount_type, 
-  o.billing_address, o.billing_city, o.billing_country, o.billing_country_code, o.billing_province, 
-  o.billing_province_code, o.billing_zip, o.shipping_address, o.shipping_city, o.shipping_country, 
-  o.shipping_country_code, o.shipping_province, o.shipping_province_code, o.shipping_zip, 
-  o.admin_graphql_api_id, o.discount_application,
-  STRING_AGG(payment_gateway_name, ', ') AS payment_gateway_names
-FROM source_orders AS o
-LEFT JOIN UNNEST(JSON_VALUE_ARRAY(o.payment_gateway_names)) AS payment_gateway_name
-GROUP BY 
-  o._airbyte_extracted_at, o.Order_note, o.Order_cancelled_reason, o.Order_cancelled_at, o.landing_weburl,
-  o.referring_weburl, o.Order_cart_token, o.browser_ip_id, o.Order_checkout_id, o.Order_checkout_token, 
-  o.Order_closed_at, o.Order_fulfillment_status, o.Order_currency, o.Order_shop_url, o.Order_confirmed, 
-  o.Order_estimated_taxes, o.isTestOrder, o.Order_taxes_included, o.Order_financial_status, 
-  o.Order_source_name, o.Order_app_id, o.total_line_items_price, o.total_tax, o.Order_total_price, 
-  o.Order_total_discounts, o.Order_tags, o.Order_updated_at, o.Order_created_at, o.Order_processed_at, 
-  o.Order_name, o.Order_id, o.Order_token, o.Order_number, o.customer_id, o.tax_channel_liable, 
-  o.tax_price, o.tax_rate, o.tax_title, o.browser_language, o.browser_height, o.browser_ip, 
-  o.browser_width, o.session_hash, o.browser_agent, o.discount_amount, o.discount_code, o.discount_type, 
-  o.billing_address, o.billing_city, o.billing_country, o.billing_country_code, o.billing_province, 
-  o.billing_province_code, o.billing_zip, o.shipping_address, o.shipping_city, o.shipping_country, 
-  o.shipping_country_code, o.shipping_province, o.shipping_province_code, o.shipping_zip, 
-  o.admin_graphql_api_id, o.discount_application
+  _airbyte_extracted_at, Order_note, Order_cancelled_reason, Order_cancelled_at, landing_weburl,
+  referring_weburl, Order_cart_token, browser_ip_id, Order_checkout_id, Order_checkout_token, 
+  Order_closed_at, Order_fulfillment_status, Order_currency, Order_shop_url, Order_confirmed, 
+  Order_estimated_taxes, isTestOrder, Order_taxes_included, Order_financial_status, 
+  Order_source_name, Order_app_id, total_line_items_price, total_tax, Order_total_price, 
+  Order_total_discounts, Order_tags, Order_updated_at, Order_created_at, Order_processed_at, 
+  Order_name, Order_id, Order_token, Order_number, customer_id, tax_channel_liable, 
+  tax_price, tax_rate, tax_title, browser_language, browser_height, browser_ip, 
+  browser_width, session_hash, browser_agent, discount_amount, discount_type, 
+  billing_address, billing_city, billing_country, billing_country_code, billing_province, 
+  billing_province_code, billing_zip, shipping_address, shipping_city, shipping_country, 
+  shipping_country_code, shipping_province, shipping_province_code, shipping_zip, 
+  admin_graphql_api_id,utm_source,utm_medium,utm_campaign,utm_content,utm_term,utm_id,campaign_id,ad_id,
+  discount_application,
+  discount_code,
+  CONCAT(coalesce(discount_application,''), ' - ', coalesce(discount_code,'')) as discount_final,
+  STRING_AGG(payment_gateway_name, ', ') AS payment_gateway_names,
+  
+
+FROM source_orders
+LEFT JOIN UNNEST(JSON_VALUE_ARRAY(payment_gateway_names)) AS payment_gateway_name
+GROUP BY ALL
  ) AS source
 ON target.Order_id = source.Order_id
 WHEN MATCHED AND source._airbyte_extracted_at > target._airbyte_extracted_at THEN UPDATE SET
@@ -160,7 +166,6 @@ target.browser_width = source.browser_width,
 target.session_hash = source.session_hash,
 target.browser_agent = source.browser_agent,
 target.discount_amount = source.discount_amount,
-target.discount_code = source.discount_code,
 target.discount_type = source.discount_type,
 target.billing_address = source.billing_address,
 target.billing_city = source.billing_city,
@@ -176,12 +181,21 @@ target.shipping_country_code = source.shipping_country_code,
 target.shipping_province = source.shipping_province,
 target.shipping_province_code = source.shipping_province_code,
 target.shipping_zip = source.shipping_zip,
-target.payment_gateway_names = source.payment_gateway_names,
 target.admin_graphql_api_id = source.admin_graphql_api_id,
-target.discount_application = source.discount_application
+target.utm_source = source.utm_source,
+target.utm_medium = source.utm_medium,
+target.utm_campaign = source.utm_campaign,
+target.utm_content = source.utm_content,
+target.utm_term = source.utm_term,
+target.utm_id = source.utm_id,
+target.campaign_id = source.campaign_id,
+target.ad_id = source.ad_id,
+target.payment_gateway_names = source.payment_gateway_names,
+target.discount_final = source.discount_final
+
 
 WHEN NOT MATCHED THEN INSERT (
- _airbyte_extracted_at,
+_airbyte_extracted_at,
 Order_note,
 Order_cancelled_reason,
 Order_cancelled_at,
@@ -226,7 +240,6 @@ browser_width,
 session_hash,
 browser_agent,
 discount_amount,
-discount_code,
 discount_type,
 billing_address,
 billing_city,
@@ -242,9 +255,17 @@ shipping_country_code,
 shipping_province,
 shipping_province_code,
 shipping_zip,
-payment_gateway_names,
 admin_graphql_api_id,
-discount_application
+utm_source,
+utm_medium,
+utm_campaign,
+utm_content,
+utm_term,
+utm_id,
+campaign_id,
+ad_id,
+payment_gateway_names,
+discount_final
 )
   VALUES (
 source._airbyte_extracted_at,
@@ -292,7 +313,6 @@ source.browser_width,
 source.session_hash,
 source.browser_agent,
 source.discount_amount,
-source.discount_code,
 source.discount_type,
 source.billing_address,
 source.billing_city,
@@ -309,6 +329,14 @@ source.shipping_province,
 source.shipping_province_code,
 source.shipping_zip,
 source.admin_graphql_api_id,
+source.utm_source,
+source.utm_medium,
+source.utm_campaign,
+source.utm_content,
+source.utm_term,
+source.utm_id,
+source.campaign_id,
+source.ad_id,
 source.payment_gateway_names,
-source.discount_application
+source.discount_final
   )

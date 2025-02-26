@@ -5,7 +5,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator, BigQueryExecuteQueryOperator
 from airflow.operators.python import PythonOperator
 import subprocess
 
@@ -608,21 +608,17 @@ with DAG(
 
 
 # Orderitem master Staging Table Refresh - Append
-
-    # Load SQL query from file
     with open('/home/airflow/gcs/dags/Shopify_Data_Warehouse/sql/shopify_to_bq/Order_item_master/Order_item_master_append.sql', 'r') as file:
-        sql_query_40 = file.read()
-
-    append_order_item_master = BigQueryInsertJobOperator(
-        task_id='append_order_item_master',
-        configuration={
-            "query": {
-                "query": sql_query_40,
-                "useLegacySql": False,
-                "location": LOCATION,
-            }
-        }
+        sql_query_33 = file.read()
+        Order_item_master_append = BigQueryExecuteQueryOperator(
+        task_id="Order_item_master_append",
+        sql=sql_query_33,
+        use_legacy_sql=False,
+        gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
+        location="asia-south1",  # Change based on your dataset location
+        impersonation_chain=["composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com"]
     )
+
     
 # Sanity check Table 
 
@@ -667,4 +663,5 @@ with DAG(
         python_callable=run_main_script,
     )
 
-start_pipeline >> [append_abandoned_checkout, append_metafield_customers, append_discount_code, append_customer, append_order >> append_order_items >> append_order_item_master , append_draft_order >> append_draft_order_items, append_transaction, append_refund_order, append_customer_address, append_metafield_order, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_inventory_level, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Fulfillments, append_Smart_collections] >> sanity_check >> run_python_task
+start_pipeline >> [append_abandoned_checkout, append_metafield_customers, append_discount_code, append_customer, append_order >> append_order_items >> Order_item_master_append , append_draft_order >> append_draft_order_items, append_transaction, append_refund_order, append_customer_address, append_metafield_order, append_collections, append_metafield_collections, append_pages, append_metafield_pages, append_locations, append_inventory_level, append_articles, append_product_variants, append_metafield_articles, append_products, append_inventory_items, append_customer_journey_summary, append_Metafield_Product_Variants,append_Metafield_products, append_Order_risks, append_tender_transactions, append_Fulfillment_Orders, append_Fulfillments, append_Smart_collections] >> sanity_check >> run_python_task
+

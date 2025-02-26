@@ -30,6 +30,7 @@ where rn = 1  and date(_airbyte_extracted_at) >= date_sub(current_date("Asia/Kol
 ) as source
 on target.ad_id = source.ad_id
 and target.date_start = source.date_start
+and target.conv_values_action_type = source.conv_values_action_type
 when matched and target._airbyte_extracted_at < source._airbyte_extracted_at
 then update set
   target._airbyte_extracted_at = source._airbyte_extracted_at,

@@ -1,0 +1,59 @@
+create or replace table `shopify-pubsub-project.adhoc_data_asia.customer_sku_purchaser` as
+WITH ordercte AS (
+  SELECT DISTINCT customer_id,
+         order_name,
+         order_created_at,
+         order_total_price
+  FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` 
+  WHERE 
+  Order_fulfillment_status = 'fulfilled' 
+  AND Order_financial_status NOT IN ('voided', 'refunded')
+),
+item_sku_map AS (
+  SELECT oi.customer_id, 
+         oi.order_name, 
+         oi.order_created_at,
+         oi.item_sku_code,
+         mt.parent_sku, 
+         mt.product_title
+  FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items` oi
+  LEFT JOIN (
+    SELECT DISTINCT Product_Title, Parent_SKU, Variant_SKU
+    FROM `shopify-pubsub-project.adhoc_data_asia.Product_SKU_mapping_D2C` 
+  ) mt ON oi.item_sku_code = mt.Variant_SKU -- where customer_id = '6527827116261' 
+  WHERE parent_sku in ('PGKS-AHGS1','PGKS-RAAHGSDPS1','PGGTM-RAAHGS1','PGKS-RAAHGS1','PGA-10VCFS30')
+), 
+
+cust_det AS (
+  SELECT i.*, 
+         c.Customer_first_name, 
+         c.Customer_last_name, 
+         c.Customer_phone, 
+         c.Customer_email, 
+         c.Customer_province, 
+         c.Customer_zip
+  FROM item_sku_map i 
+  LEFT JOIN `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Customers` c 
+  ON i.customer_id = c.customer_id 
+  where i.customer_id is not null
+) 
+SELECT 
+  c.Customer_first_name, 
+  c.Customer_last_name, 
+  RIGHT(c.Customer_phone, 10) AS Customer_phone,
+  c.Customer_email, 
+  c.Customer_province, 
+  --c.Customer_zip, 
+  c.parent_sku, 
+  c.product_title,
+  COUNT(DISTINCT c.order_name) AS order_count 
+FROM cust_det c 
+where  date(order_created_at)>= current_date - interval '180' day
+GROUP BY 
+ALL
+
+
+
+--select * from `shopify-pubsub-project.adhoc_data_asia.customer_sku_purchaser`
+
+
