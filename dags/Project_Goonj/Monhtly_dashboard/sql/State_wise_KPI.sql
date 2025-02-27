@@ -96,10 +96,13 @@ Base as
     Customer_State,
     Payment_type,
     New_Repeat_Tag,
+    B.Region,
     count(distinct customer_id) as Customer_count,
     count(distinct order_name) as Order_count,
     sum(Order_total_price) as Order_Price
-  from Base
+  from Base as A
+ left join `shopify-pubsub-project.Project_Goonj_asia.State_Zone_Mapping` as B
+  on A.Customer_State = B.State
   where 1=1 
   and Order_fulfillment_status = 'fulfilled'
   and Payment_type not in ('Cancelled')
