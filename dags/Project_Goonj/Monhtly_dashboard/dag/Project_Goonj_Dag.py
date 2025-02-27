@@ -5,7 +5,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator, BigQueryExecuteQueryOperator
 
 
 # Define the start date in UTC 
@@ -35,15 +35,12 @@ with DAG(
     # Load SQL query from file
     with open('/home/airflow/gcs/dags/Project_Goonj/Monhtly_dashboard/sql/Master_Query_all_in_one.sql', 'r') as file:
         sql_query_1 = file.read()
-    master_query = BigQueryInsertJobOperator(
+    master_query = BigQueryExecuteQueryOperator(
         task_id='Project_GOONJ_DAG',
-        configuration={
-            "query": {
-                "query": sql_query_1,
-                "useLegacySql": False,
-                "location": LOCATION,
-            }
-        }
+        gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
+        location="asia-south1",  # Change based on your dataset location
+        impersonation_chain=["composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com"]
+        sql=sql_query_1,
+        use_legacy_sql=False,
     )
-
 start_pipeline >> master_query
