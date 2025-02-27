@@ -20,6 +20,9 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+# Define constants
+LOCATION = "asia-south1" 
+
 with DAG(
     dag_id='Goonj_sync',
     schedule_interval='30 23 7 * *',  # Cron expression for 5 AM IST (11:30 PM UTC)
@@ -30,7 +33,6 @@ with DAG(
         task_id='start_pipeline',
         dag=dag
     )
-
 
     # Load SQL query from file
     with open('/home/airflow/gcs/dags/Project_Goonj/Monhtly_dashboard/sql/Google_Playstor_Ratings.sql', 'r') as file:

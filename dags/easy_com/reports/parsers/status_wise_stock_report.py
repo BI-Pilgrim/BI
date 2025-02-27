@@ -48,6 +48,7 @@ class StatusWiseStockReportParserAPI(EasyComApiConnector):
             df = df.astype(str)
             df.columns = [self.clean_column_name(col) for col in df.columns]
             df = df.assign(**report_data)
+            df = df[self.get_table_columns()]
             transformed_data.append(df)
             
         return transformed_data

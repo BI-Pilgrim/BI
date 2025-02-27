@@ -60,7 +60,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             transformed_data.append(transformed_record)
         return transformed_data
 
-    def sync_data(self, start_date = None, end_date = None):
+    def sync_data(self, start_date = None, end_date = None, report_types = None):
         """Sync data from the API to BigQuery."""
         if not (start_date and end_date):
             end_datetime = (datetime.now() - timedelta(days=1))
@@ -71,7 +71,9 @@ class easyEComReportsAPI(EasyComApiConnector):
 
         end_datetime = end_datetime.replace(hour=23, minute=59, second=59, microsecond=0)
         extracted_at = datetime.now()
-        for report_type in constants.ReportTypes.get_all_types():
+
+        report_types = report_types or constants.ReportTypes.get_all_types()
+        for report_type in report_types:
             if self.report_already_exists(report_type, start_datetime, end_datetime):
                 print(f"Report {report_type} already exists in BigQuery")
                 continue

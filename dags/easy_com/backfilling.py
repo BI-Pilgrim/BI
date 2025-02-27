@@ -29,6 +29,11 @@ def backfill_reports(year, month):
     
     easyEComReportsAPI().sync_data(start_date=start_date, end_date=end_date)
 
+def backfill_sales_reports():
+    start_date = datetime(2025, 2, 7)
+    end_date = datetime(2025, 2, 25)
+    easyEComReportsAPI().sync_data(start_date=start_date, end_date=end_date, report_types=['TAX_REPORT_SALES'])
+
 def ranges(start_date:datetime, end_date:datetime, nhours:int):
     ret_ranges = []
     delta = timedelta(hours=nhours-1)
@@ -159,59 +164,62 @@ def run_range(filler_class, start_date, end_date, nhours):
 #     from easy_com.reports.download_reports import easyEComDownloadReportsAPI
 #     easyEComDownloadReportsAPI().sync_data()
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
-    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
-    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
+#     from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
+#     TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
+#     TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
     
-    # while True:nstart)))
+#     # while True:nstart)))
 
-    # from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
-    # MiniSalesReportParserAPI().sync_data()
+#     # from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
+#     # MiniSalesReportParserAPI().sync_data()
 
-    from easy_com.reports.parsers.tax_report import TaxReportParserAPI
-    TaxReportParserAPI().sync_data()
+#     from easy_com.reports.parsers.tax_report import TaxReportParserAPI
+#     TaxReportParserAPI().sync_data()
 
-    from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
-    ReturnsReportParserAPI().sync_data()
+#     from easy_com.reports.parsers.returns_report import ReturnsReportParserAPI
+#     ReturnsReportParserAPI().sync_data()
 
-    from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
-    PendingReturnsReportParserAPI().sync_data()
+#     from easy_com.reports.parsers.pending_returns_report import PendingReturnsReportParserAPI
+#     PendingReturnsReportParserAPI().sync_data()
 
-    from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
-    GRNDetailsReportParserAPI().sync_data()
+#     from easy_com.reports.parsers.grn_details_report import GRNDetailsReportParserAPI
+#     GRNDetailsReportParserAPI().sync_data()
 
-    from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
-    StatusWiseStockReportParserAPI().sync_data()
+#     from easy_com.reports.parsers.status_wise_stock_report import StatusWiseStockReportParserAPI
+#     StatusWiseStockReportParserAPI().sync_data()
 
-    from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
-    InventoryAgingReportParserAPI().sync_data()
+#     from easy_com.reports.parsers.inventory_aging_report import InventoryAgingReportParserAPI
+#     InventoryAgingReportParserAPI().sync_data()
 
-    from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI
-    InventoryViewByBinReportParserAPI().sync_data()
-
-
-    # easyEComCountriesAPI().sync()
-    # easyEComVendorsAPI().sync()
-
-    easyEComReportsAPI().sync_data(start_date=datetime(2025, 2, 1), end_date=datetime(2025, 2, 6))
+#     from easy_com.reports.parsers.inventory_view_by_bin_report import InventoryViewByBinReportParserAPI
+#     InventoryViewByBinReportParserAPI().sync_data()
 
 
-    from easy_com.reports.get_reports import easyEComReportsAPI
-    import time
-    from datetime import datetime
-    easyEComReportsAPI().sync_data(start_date=datetime(2025, 1, 1), end_date=datetime(2025, 2, 6))
+#     # easyEComCountriesAPI().sync()
+#     # easyEComVendorsAPI().sync()
 
-    from easy_com.reports.download_reports import easyEComDownloadReportsAPI
-    easyEComDownloadReportsAPI().sync_data()
+#     easyEComReportsAPI().sync_data(start_date=datetime(2025, 2, 1), end_date=datetime(2025, 2, 6))
 
 
-    from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
-    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
-    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
+#     from easy_com.reports.get_reports import easyEComReportsAPI
+#     import time
+#     from datetime import datetime
+#     easyEComReportsAPI().sync_data(start_date=datetime(2025, 1, 1), end_date=datetime(2025, 2, 6))
+
+#     from easy_com.reports.download_reports import easyEComDownloadReportsAPI
+#     easyEComDownloadReportsAPI().sync_data()
+
+
+#     from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
+#     TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()
+#     TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_RETURN.value).sync_data()
         
-        # while True:nstart)))
+#         # while True:nstart)))
 
-    from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
-    MiniSalesReportParserAPI().sync_data()
+#     from easy_com.reports.parsers.mini_sales_report import MiniSalesReportParserAPI
+#     MiniSalesReportParserAPI().sync_data()
+
+if __name__ == "__main__":
+    backfill_sales_reports()

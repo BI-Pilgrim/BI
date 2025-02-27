@@ -394,6 +394,7 @@ def load_to_bigquery(dataframes: Dict[str, pd.DataFrame]) -> None:
                     bigquery.SchemaField("Box Count", "INTEGER"),
                     bigquery.SchemaField("RTO AWB", "STRING"),
                     bigquery.SchemaField("Zone", "STRING"),
+                    bigquery.SchemaField("Pricing Zone", "STRING"),
                     bigquery.SchemaField("From Warehouse", "STRING"),
                     bigquery.SchemaField("To Warehouse", "STRING")
                 ]
@@ -479,11 +480,22 @@ def load_to_bigquery(dataframes: Dict[str, pd.DataFrame]) -> None:
                 df['Shipping Cost'] = df['Shipping Cost'].astype(float)
                 df['Box Count'] = pd.to_numeric(df['Box Count'], errors='coerce').fillna(0).astype(int)
 
-                # Convert string columns explicitly
+                # Handle Pricing Zone specifically
+                if 'Pricing Zone' in df.columns:
+                    # First, replace problematic values with None
+                    df['Pricing Zone'] = df['Pricing Zone'].replace(['nan', 'None', '', 'NaN'], None)
+                    
+                    # Then, for non-None values, ensure they're strings
+                    mask = df['Pricing Zone'].notna()
+                    if mask.any():
+                        df.loc[mask, 'Pricing Zone'] = df.loc[mask, 'Pricing Zone'].astype(str)
+
+                # Convert other string columns
                 string_columns = ['RTO AWB', 'Zone', 'From Warehouse', 'To Warehouse']
                 for col in string_columns:
                     if col in df.columns:
-                        df[col] = df[col].astype(str).replace('nan', None)
+                        df[col] = df[col].astype(str).replace(['nan', 'None', ''], None)
+                        
             elif table_name == 'tracking':
                 # Convert timestamp columns
                 timestamp_columns = [
