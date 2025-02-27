@@ -100,4 +100,4 @@ with DAG(
         sql=sql_query_5,
         use_legacy_sql=False,
     )
-start_pipeline >> [google_playstore,MP_Ratings,Customer_Metrics,State_wise_KPI,State_wise_AOV_KPI]
+start_pipeline >> [google_playstore,Market_Place_Ratings,Customer_Metrics,State_wise_KPI,State_wise_AOV_KPI]
