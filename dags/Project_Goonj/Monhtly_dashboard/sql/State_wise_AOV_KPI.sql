@@ -1,8 +1,6 @@
-
 -- #5  State, month wise AOV across Male Female,Prepaid COD, New Repeat
 
-create or Replace Table `shopify-pubsub-project.Project_Goonj_asia.State_wise_AOV`
-as
+create or Replace Table `shopify-pubsub-project.Project_Goonj_asia.State_wise_AOV` as
 with cust as 
 (select 
 distinct
@@ -137,7 +135,8 @@ metric_Calc as
 )
 
 select 
-*,
+A.*,
+coalesce(B.Region,'OOI') as Region,
 prepaid_revenue/prepaid_order_count as prepaid_AOV,
 COD_revenue/COD_order_count as COD_AOV,
 Male_revenue/Male_order_count as Male_AOV,
@@ -145,4 +144,6 @@ Female_revenue/Female_order_count as Female_AOV,
 New_revenue/New_order_count as New_AOV,
 Repeat_revenue/Repeat_order_count as Repeat_AOV,
 Total_Revenue/Total_Orders as Overall_AOV,
- from metric_Calc;
+ from metric_Calc as A
+ left join `shopify-pubsub-project.Project_Goonj_asia.State_Zone_Mapping` as B
+ on A.Customer_State = B.State;
