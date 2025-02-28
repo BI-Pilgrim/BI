@@ -702,7 +702,7 @@ with DAG(
     ) 
 
     run_python_task = PythonOperator(
-    task_id='run_main_script',
+    task_id='run_python_task',
     python_callable=send_sanity_check_email,  # Call the function here
     )
 
@@ -798,3 +798,6 @@ with DAG(
         append_user_interest,
         append_user_location_view
     ] >> sanity_check 
+
+    sanity_check >> run_python_task
+    run_python_task >> finish_pipeline
