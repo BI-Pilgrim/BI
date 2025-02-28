@@ -686,7 +686,8 @@ with DAG(
         }
     )
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
+    
+    with open('/home/airflow/gcs/dags/Google_Ads_Warehouse/sql/Sanity_Check/Google_DW_Sanity_Check.sql', 'r') as file:
     # with open('../dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
         sql_query_41 = file.read()
 
