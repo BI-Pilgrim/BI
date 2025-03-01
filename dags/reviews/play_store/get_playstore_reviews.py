@@ -135,11 +135,12 @@ class GooglePlayRatingsAPI:
 
 class GooglePlayRatingPrivate(GooglePlayRatingsAPI):
     def __init__(self):
-        self.API_KEY = Variable.get("GOOGLE_PLAY_REVIEWS_API_KEY")
+        self.API_KEY = "ya29.a0AXeO80R3UjcUx2yaFEkTwFW7XCGqUi5rkUi5OO60Y9cJ0kiOuEWS8jiIQOy8KJkYtvuJul_LrDhSemJl1jQo7qYN1CEhualH-P-2Rm9l9ntpFZFLZcHDOnynbVS7RKb8d0zYHucpusb4GBsJPJTn737VD7nCo9nATCkOBmxVaCgYKARUSARMSFQHGX2MiRoiHe-kt4WOJh3_pcHOw5w0175"
         super().__init__()
     
     def sync_data(self):
         """Sync data from the API to BigQuery."""
+        import pdb; pdb.set_trace()
         reviews = self.get_data()
         if not reviews:
             print("No new reviews to sync")
@@ -156,28 +157,51 @@ class GooglePlayRatingPrivate(GooglePlayRatingsAPI):
         self.load_data_to_bigquery(transformed_data, extrated_at)
     
     def get_data(self, next_token=None):
-        pass
+        """Fetch Google Playstore reviews data using the API key."""
+        all_reviews = []
+        while True:
+            headers = {
+                "Authorization": f"Bearer {self.API_KEY}"
+            }
+            url = f"https://playstore.googleapis.com/v1/reviews?packageName={self.package_name}"
+            if next_token:
+                url += f"&pageToken={next_token}"
+            response = requests.get(url, headers=headers)
+            if response.status_code != 200:
+                print(f"Error fetching data: {response.status_code}")
+                break
+            data = response.json()
+            reviews = data.get("reviews", [])
+            all_reviews.extend(reviews)
+            next_token = data.get("nextPageToken", None)
+            if not next_token:
+                break
+        return all_reviews
 
-    def transform_data(data):
-        user_comment = data.get('comments', [{}])[0].get('userComment', {})
-        developer_comment = data.get('comments', [{}])[1].get('developerComment', {})
-        
-        return {
-        'reviewId': data.get('reviewId', None),
-        'authorName': data.get('authorName', None),
-        'userComment_text': user_comment.get('text', None),
-        'userComment_lastModified_seconds': user_comment.get('lastModified', {}).get('seconds', None),
-        'userComment_lastModified_nanos': user_comment.get('lastModified', {}).get('nanos', None),
-        'userComment_starRating': user_comment.get('starRating', None),
-        'userComment_reviewerLanguage': user_comment.get('reviewerLanguage', None),
-        'userComment_device': user_comment.get('device', None),
-        'userComment_androidOsVersion': user_comment.get('androidOsVersion', None),
-        'userComment_appVersionCode': user_comment.get('appVersionCode', None),
-        'userComment_appVersionName': user_comment.get('appVersionName', None),
-        'userComment_thumbsUpCount': user_comment.get('thumbsUpCount', None),
-        'userComment_thumbsDownCount': user_comment.get('thumbsDownCount', None),
-        'userComment_deviceMetadata': user_comment.get('deviceMetadata', None),
-        'developerComment_text': developer_comment.get('text', None),
-        'developerComment_lastModified_seconds': developer_comment.get('lastModified', {}).get('seconds', None),
-        'developerComment_lastModified_nanos': developer_comment.get('lastModified', {}).get('nanos', None),
-        }
+    def transform_data(self, data):
+        """Transform the data into the required schema."""
+        transformed_data = []
+        for record in data:
+            user_comment = record.get('comments', [{}])[0].get('userComment', {})
+            developer_comment = record.get('comments', [{}])[1].get('developerComment', {})
+            transformed_record = {
+                'reviewId': record.get('reviewId', None),
+                'authorName': record.get('authorName', None),
+                'userComment_text': user_comment.get('text', None),
+                'userComment_lastModified_seconds': user_comment.get('lastModified', {}).get('seconds', None),
+                'userComment_lastModified_nanos': user_comment.get('lastModified', {}).get('nanos', None),
+                'userComment_starRating': user_comment.get('starRating', None),
+                'userComment_reviewerLanguage': user_comment.get('reviewerLanguage', None),
+                'userComment_device': user_comment.get('device', None),
+                'userComment_androidOsVersion': user_comment.get('androidOsVersion', None),
+                'userComment_appVersionCode': user_comment.get('appVersionCode', None),
+                'userComment_appVersionName': user_comment.get('appVersionName', None),
+                'userComment_thumbsUpCount': user_comment.get('thumbsUpCount', None),
+                'userComment_thumbsDownCount': user_comment.get('thumbsDownCount', None),
+                'userComment_deviceMetadata': user_comment.get('deviceMetadata', None),
+                'developerComment_text': developer_comment.get('text', None),
+                'developerComment_lastModified_seconds': developer_comment.get('lastModified', {}).get('seconds', None),
+                'developerComment_lastModified_nanos': developer_comment.get('lastModified', {}).get('nanos', None),
+            }
+            transformed_data.append(transformed_record)
+        return transformed_data
