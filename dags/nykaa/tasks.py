@@ -34,8 +34,7 @@ def nykaa_email_report_sheet():
     @task.python
     def fetch_and_load_sheet():
         GMAIL_FB_APP_TESTING_TOKEN = json.loads(Variable.get("GMAIL_FB_APP_TESTING_TOKEN", "{}"))
-
-        GMAIL_FB_APP_TESTING_TOKEN = json.loads(Variable.get("GMAIL_FB_APP_TESTING_TOKEN", "{}"))
+        
 
         creds = Credentials.from_authorized_user_info(GMAIL_FB_APP_TESTING_TOKEN)
         creds.refresh(Request())

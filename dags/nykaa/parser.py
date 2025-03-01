@@ -20,15 +20,17 @@ class ExtractReportData:
         self.bigquery = get_bq_client(credentials_info)
         # self.workbook.close()
 
-    def get_start_row(self, sheet: pyxlsb.Worksheet, value: str, start_col:int=0, end_col:Optional[int]=None) -> int:
+    def get_start_row_col(self, sheet: pyxlsb.Worksheet, value: str, start_col:int=0, end_col:Optional[int]=None, max_seek:int=5) -> int:
         for i, row in enumerate(sheet.rows()):
             cells = list(row)
             if end_col is not None: cells = cells[start_col:end_col+1]
             else: cells = cells[start_col:]
             # print(cells)
             if cells and cells[0].v and cells[0].v.lower().strip() == value:
-                return i
-        return 0
+                return i, start_col
+        if start_col<=max_seek:
+            return self.get_start_row_col(sheet, value, start_col+1, end_col, max_seek)
+        return 0, 0
 
     def sync(self, mail_date:datetime, runid:int, schema:str):
         df1 = self.parse_assortments()
@@ -142,63 +144,63 @@ class ExtractReportData:
     
     def parse_assortments(self, sheet_index: int = 2) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'brand name')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'brand name')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_brand_lvl_dashboard(self, sheet_index: int = 3) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'brand name')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'brand name')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_velocity_lvl_dashboard(self, sheet_index: int = 4) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'brand name')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'brand name')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_sku_lvl_dashboard(self, sheet_index: int = 5) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'sku status')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'sku status')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_inv_ageing(self, sheet_index: int = 6) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'brand name')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'brand name')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_sku_inv(self, sheet_index: int = 7) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'brand name')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'brand name')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_open_po_summary(self, sheet_index: int = 8) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'wh location')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'wh location')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         df = pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
@@ -207,41 +209,41 @@ class ExtractReportData:
     
     def parse_fill_summary(self, sheet_index: int = 9) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'wh location')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'wh location')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_sku_level_fill(self, sheet_index: int = 10) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'brand name')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'brand name')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_grn_details(self, sheet_index: int = 11) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'brand name')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'brand name')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_appointment_adherence_summary(self, sheet_index: int = 12) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'month', 0, 4)
+        start_row, start_col = self.get_start_row_col(sheet, 'month', 0, 4)
         non_null_cols = self.get_non_null_cols(sheet, start_row, 0, 5)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         df1 =  pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
 
-        start_row = self.get_start_row(sheet, 'wh', 7, 11)
+        start_row, start_col = self.get_start_row_col(sheet, 'wh', 7, 11)
         non_null_cols = self.get_non_null_cols(sheet, start_row, 7, 4)
         rows = self.get_non_empty_rows(sheet, start_row+1, 7, len(non_null_cols))
         df2 = pd.DataFrame(rows).rename(
@@ -251,27 +253,27 @@ class ExtractReportData:
     
     def parse_appointment_adherence(self, sheet_index: int = 13) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'parent')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'parent')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_inward_discrepancy(self, sheet_index: int = 14) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'product sku')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'product sku')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
     
     def parse_open_rtv(self, sheet_index: int = 15) -> pd.DataFrame:
         sheet = self.workbook.get_sheet(self.workbook.sheets[sheet_index])
-        start_row = self.get_start_row(sheet, 'rtv no')
-        non_null_cols = self.get_non_null_cols(sheet, start_row)
-        rows = self.get_non_empty_rows(sheet, start_row+1, 0, len(non_null_cols))
+        start_row, start_col = self.get_start_row_col(sheet, 'rtv no')
+        non_null_cols = self.get_non_null_cols(sheet, start_row, start_col)
+        rows = self.get_non_empty_rows(sheet, start_row+1, start_col, len(non_null_cols))
         return pd.DataFrame(rows).rename(
             columns={i: self.fix_col_name(col) for i, col in enumerate(non_null_cols)}
         )
