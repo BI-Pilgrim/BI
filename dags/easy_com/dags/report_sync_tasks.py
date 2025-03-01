@@ -4,7 +4,7 @@ from easy_com.reports.get_reports import easyEComReportsAPI
 from easy_com.reports import constants as report_constants
 
     
-@dag("sync_reports_data", schedule='15 0 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
+@dag("sync_reports_data", schedule='0 */3 * * *', start_date=datetime(year=2024,month=1,day=1), tags=["easyecom", "reports"])
 def sync_reports_data():
     
     @task.python
