@@ -60,7 +60,7 @@ class easyEComReportsAPI(EasyComApiConnector):
             transformed_data.append(transformed_record)
         return transformed_data
 
-    def sync_data(self, start_date = None, end_date = None, report_types = None):
+    def sync_data(self, start_date = None, end_date = None, report_types = None, snip_time = True):
         """Sync data from the API to BigQuery."""
         if not (start_date and end_date):
             end_datetime = (datetime.now() - timedelta(days=1))
@@ -69,7 +69,11 @@ class easyEComReportsAPI(EasyComApiConnector):
             start_datetime = start_date
             end_datetime = end_date
 
-        end_datetime = end_datetime.replace(hour=23, minute=59, second=59, microsecond=0)
+
+        if snip_time:
+            start_datetime = start_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_datetime = end_datetime.replace(hour=23, minute=59, second=59, microsecond=0)
+        
         extracted_at = datetime.now()
 
         report_types = report_types or constants.ReportTypes.get_all_types()

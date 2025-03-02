@@ -686,7 +686,8 @@ with DAG(
         }
     )
     # Load SQL query from file
-    with open('/home/airflow/gcs/dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
+    
+    with open('/home/airflow/gcs/dags/Google_Ads_Warehouse/sql/Sanity_Check/Google_DW_Sanity_Check.sql', 'r') as file:
     # with open('../dags/fb_ads_warehouse/sql/datawarehouse_sanity_check/sanity_check.sql', 'r') as file:
         sql_query_41 = file.read()
 
@@ -702,7 +703,7 @@ with DAG(
     ) 
 
     run_python_task = PythonOperator(
-    task_id='run_main_script',
+    task_id='run_python_task',
     python_callable=send_sanity_check_email,  # Call the function here
     )
 
@@ -798,3 +799,6 @@ with DAG(
         append_user_interest,
         append_user_location_view
     ] >> sanity_check 
+
+    sanity_check >> run_python_task
+    run_python_task >> finish_pipeline
