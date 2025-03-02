@@ -4,7 +4,6 @@ from airflow.models import Variable
 from utils.google_cloud import get_playstore_token
 from reviews.play_store.reviews_schema import GooglePlayRatings, GooglePlayRatingsPriv
 from sqlalchemy import create_engine, inspect, MetaData, Table
-from sqlalchemy.dialects.postgresql import insert
 from google.oauth2 import service_account
 from google.cloud import bigquery
 import pandas as pd
@@ -16,17 +15,29 @@ import base64
 import time
 import json
 
+def date_from_ts_s(ts_s):
+    if ts_s is not None:
+        return datetime.fromtimestamp(int(ts_s))
+    return None
 class GooglePlayRatingsAPI:
     dataset_id = "pilgrim_bi_google_play"
     project_id = "shopify-pubsub-project"
     package_name = "com.discoverpilgrim"
     table = GooglePlayRatings
+
+    @property
+    def table_id(self):
+        return f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
+    
     def __init__(self):
         # self.project_id = "shopify-pubsub-project"
         # self.dataset_id = "pilgrim_bi_google_play"
-        self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
+        # self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
 
         # BigQuery connection string
+        self._initialize()
+
+    def _initialize(self):
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
 
         credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
@@ -44,9 +55,9 @@ class GooglePlayRatingsAPI:
         if not self.table_exists(self.table.__tablename__):
             print("Creating Google Play Ratings table in BigQuery")
             self.table.metadata.create_all(self.engine)
-            print("Google Play Ratings table created in BigQuery")
+            print(f"{self.table_id} table created in BigQuery")
         else:
-            print("Google Play Ratings table already exists in BigQuery")
+            print(f"{self.table_id} table already exists in BigQuery")
 
     def table_exists(self, table_name):
         """Check if table exists in BigQuery."""
@@ -135,30 +146,41 @@ class GooglePlayRatingsAPI:
         return result
 
 class GooglePlayRatingPrivate(GooglePlayRatingsAPI):
+    """
+    Can't get mor than last 7 days data from the API
+    https://support.google.com/googleplay/android-developer/thread/239806165/google-play-api-list-reviews-only-returns-last-7-days-of-reviews-and-does-not-return-pagination?hl=en
+    """
     table = GooglePlayRatingsPriv
     def __init__(self):
-        self.ACCESS_TOKEN = get_playstore_token(Variable.get("GOOGLE_PLAYSTORE_TOKEN"))
+        # super().__init__()
+        self.ACCESS_TOKEN = get_playstore_token(json.loads(Variable.get("GOOGLE_PLAYSTORE_TOKEN", "{}")))
         self.session = requests.Session()
         self.URL = f'https://www.googleapis.com/androidpublisher/v3/applications/{self.package_name}/reviews'
-        self.table_id = f'{self.project_id}.{self.dataset_id}.{GooglePlayRatingsPriv.__tablename__}'
-        super().__init__()
+        self._initialize()
+        # self.table_id = f'{self.project_id}.{self.dataset_id}.{GooglePlayRatingsPriv.__tablename__}'
+    
+    def get_max_stored_date(self):
+        data = self.engine.execute(
+            f"select max(userComment_lastModified_seconds) from {self.table_id}"
+            ).fetchall()
+        if(len(data) == 0 or data[0][0] is None): return datetime.min
+        return data[0][0]
     
     def sync_data(self):
         """Sync data from the API to BigQuery."""
-        # reviews = self.get_data()
-        # if not reviews:
-        #     print("No new reviews to sync")
-        #     return
 
         print('Transforming Reviews data')
-        transformed_data = [self.transform_data(review) for review in self.get_data()]
+        last_stored_date = self.get_max_stored_date()
+        transformed_data = [
+            x for x in filter(
+            lambda x: x.get("userComment_lastModified_seconds", datetime.max) > last_stored_date,
+            (self.transform_data(review) for review in self.get_data())
+            )
+        ]
         extrated_at = datetime.now()
 
-        # Insert the transformed data into the table
-        print("Truncating the table")
-        self.truncate_table()
         print("Total no of reviews to sync: ", len(transformed_data))
-        self.load_data_to_bigquery(transformed_data, extrated_at)
+        if(len(transformed_data)>0): self.load_data_to_bigquery(transformed_data, extrated_at)
     
     def get_data(self, next_token=None):
         
@@ -182,26 +204,26 @@ class GooglePlayRatingPrivate(GooglePlayRatingsAPI):
                 print(f"Failed to fetch data: {response.status_code}, {response.text}")
                 break   
 
-    def transform_data(data):
+    def transform_data(self, data):
         user_comment = data.get('comments', [{}])[0].get('userComment', {})
-        developer_comment = data.get('comments', [{}])[1].get('developerComment', {})
+        developer_comment = data.get('comments', [{}])[0].get('developerComment', {})
         
         return {
         'reviewId': data.get('reviewId', None),
         'authorName': data.get('authorName', None),
         'userComment_text': user_comment.get('text', None),
-        'userComment_lastModified_seconds': user_comment.get('lastModified', {}).get('seconds', None),
+        'userComment_lastModified_seconds': date_from_ts_s(user_comment.get('lastModified', {}).get('seconds', None)),
         'userComment_lastModified_nanos': user_comment.get('lastModified', {}).get('nanos', None),
         'userComment_starRating': user_comment.get('starRating', None),
         'userComment_reviewerLanguage': user_comment.get('reviewerLanguage', None),
         'userComment_device': user_comment.get('device', None),
         'userComment_androidOsVersion': user_comment.get('androidOsVersion', None),
-        'userComment_appVersionCode': user_comment.get('appVersionCode', None),
+        'userComment_appVersionCode': user_comment.get('JSON', None),
         'userComment_appVersionName': user_comment.get('appVersionName', None),
         'userComment_thumbsUpCount': user_comment.get('thumbsUpCount', None),
         'userComment_thumbsDownCount': user_comment.get('thumbsDownCount', None),
-        'userComment_deviceMetadata': user_comment.get('deviceMetadata', None),
+        'userComment_deviceMetadata': json.dumps(user_comment.get('deviceMetadata', None)),
         'developerComment_text': developer_comment.get('text', None),
-        'developerComment_lastModified_seconds': developer_comment.get('lastModified', {}).get('seconds', None),
+        'developerComment_lastModified_seconds': date_from_ts_s(developer_comment.get('lastModified', {}).get('seconds', None)),
         'developerComment_lastModified_nanos': developer_comment.get('lastModified', {}).get('nanos', None),
         }

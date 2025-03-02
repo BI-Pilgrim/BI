@@ -16,7 +16,7 @@ def sync_reviews_priv():
     # order data sync
     @task.python
     def sync():
-        GooglePlayRatingsAPI().sync_data()
+        GooglePlayRatingPrivate().sync_data()
     resp = sync()
 
 sync_reviews()

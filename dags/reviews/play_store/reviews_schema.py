@@ -1,5 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, create_engine, DateTime, Text, JSON
+from sqlalchemy_bigquery import STRUCT
 
 Base = declarative_base()
 
@@ -44,7 +45,7 @@ class GooglePlayRatingsPriv(Base):
     reviewId = Column(String, primary_key=True)
     authorName = Column(String)
     userComment_text = Column(String)
-    userComment_lastModified_seconds = Column(Integer)
+    userComment_lastModified_seconds = Column(DateTime(False))
     userComment_lastModified_nanos = Column(Integer)
     userComment_starRating = Column(Integer)
     userComment_reviewerLanguage = Column(String)
@@ -54,9 +55,9 @@ class GooglePlayRatingsPriv(Base):
     userComment_appVersionName = Column(String)
     userComment_thumbsUpCount = Column(Integer)
     userComment_thumbsDownCount = Column(Integer)
-    userComment_deviceMetadata = Column(JSON)
+    userComment_deviceMetadata = Column(String)
     developerComment_text = Column(String)
-    developerComment_lastModified_seconds = Column(Integer)
+    developerComment_lastModified_seconds = Column(DateTime(False))
     developerComment_lastModified_nanos = Column(Integer)
     ee_extracted_at = Column(DateTime(True))
 
@@ -107,29 +108,4 @@ class GooglePlayRatingsPriv(Base):
   ]
 }
 """
-
-class GooglePlayReviewsPrivateView(Base):
-  __tablename__ = 'google_play_reviews_private_view'
-
-  reviewId = Column(String, primary_key=True)
-  authorName = Column(String)
-  userComment_text = Column(String)
-  userComment_lastModified_seconds = Column(String)
-  userComment_lastModified_nanos = Column(Integer)
-  userComment_starRating = Column(Integer)
-  userComment_reviewerLanguage = Column(String)
-  userComment_device = Column(String)
-  userComment_androidOsVersion = Column(Integer)
-  userComment_appVersionCode = Column(Integer)
-  userComment_appVersionName = Column(String)
-  userComment_thumbsUpCount = Column(Integer)
-  userComment_thumbsDownCount = Column(Integer)
-  userComment_deviceMetadata = Column(JSON)
-  developerComment_text = Column(String)
-  developerComment_lastModified_seconds = Column(String)
-  developerComment_lastModified_nanos = Column(Integer)
-
-  __table_args__ = (
-     {"schema": "reviews"}
-  )
 
