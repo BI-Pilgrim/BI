@@ -37,3 +37,8 @@ def get_gsheets_client(auth_json):
 def get_base_name_from_uri(uri):
     parsed_url = urlparse(uri)
     return os.path.basename(parsed_url.path)
+
+def get_playstore_token(auth_json):
+    creds = Credentials.from_authorized_user_info(auth_json)
+    creds.refresh(Request())
+    return creds.token

@@ -82,7 +82,7 @@ class easyEComDownloadReportsAPI(EasyComApiConnector):
             
             if data.get("reportStatus") == constants.ReportStatus.COMPLETED.value and data.get("downloadUrl").startswith("https"):
                 
-                destination_blob_name = f"easyecom/reports/{report_id}/{get_base_name_from_uri(data.get("downloadUrl"))}"
+                destination_blob_name = f"easyecom/reports/{report_id}/{get_base_name_from_uri(data.get('downloadUrl'))}"
                 self.download_and_upload_report(data.get("downloadUrl"), destination_blob_name)
                 
                 completed_reports.append({

@@ -38,7 +38,27 @@ class GooglePlayRatings(Base):
 
 #     last_review_created_on = Column(DateTime, nullable=False)
 #     last_synced_on = Column(DateTime, nullable=False)
+class GooglePlayRatingsPriv(Base):
+    __tablename__ = 'google_play_ratings_priv'
 
+    reviewId = Column(String, primary_key=True)
+    authorName = Column(String)
+    userComment_text = Column(String)
+    userComment_lastModified_seconds = Column(Integer)
+    userComment_lastModified_nanos = Column(Integer)
+    userComment_starRating = Column(Integer)
+    userComment_reviewerLanguage = Column(String)
+    userComment_device = Column(String)
+    userComment_androidOsVersion = Column(Integer)
+    userComment_appVersionCode = Column(Integer)
+    userComment_appVersionName = Column(String)
+    userComment_thumbsUpCount = Column(Integer)
+    userComment_thumbsDownCount = Column(Integer)
+    userComment_deviceMetadata = Column(JSON)
+    developerComment_text = Column(String)
+    developerComment_lastModified_seconds = Column(Integer)
+    developerComment_lastModified_nanos = Column(Integer)
+    ee_extracted_at = Column(DateTime(True))
 
 """
 {

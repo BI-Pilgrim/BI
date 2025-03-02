@@ -17,3 +17,4 @@ RUN sed -i 's/\r/\n/g; s/\n$//' /airflow_config/setup.sh;
 EXPOSE 8080
 
 CMD ["bash", "/airflow_config/setup.sh"]
+# CMD ["sleep", "infinity"]

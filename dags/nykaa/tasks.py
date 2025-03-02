@@ -28,7 +28,7 @@ SCOPES = [
 ]
 
 
-@dag("nykaa_email_report_sheet", schedule='0 22 * * *', start_date=datetime(year=2025,month=1,day=20), tags=["nykaa"])
+@dag("nykaa_email_report_sheet", schedule='0 10 * * *', start_date=datetime(year=2025,month=1,day=20), catchup=False, tags=["nykaa"])
 def nykaa_email_report_sheet():
 
     @task.python
@@ -67,3 +67,5 @@ def nykaa_email_report_sheet():
             messages_client.modify(userId="me", id=mail["id"], body=dict(removeLabelIds=["UNREAD"])).execute()
     
     load_sheet = fetch_and_load_sheet()
+
+nykaa_email_report_sheet()

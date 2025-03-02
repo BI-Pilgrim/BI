@@ -1,7 +1,8 @@
 from datetime import datetime
 import requests
 from airflow.models import Variable
-from reviews.play_store.reviews_schema import GooglePlayRatings
+from utils.google_cloud import get_playstore_token
+from reviews.play_store.reviews_schema import GooglePlayRatings, GooglePlayRatingsPriv
 from sqlalchemy import create_engine, inspect, MetaData, Table
 from sqlalchemy.dialects.postgresql import insert
 from google.oauth2 import service_account
@@ -16,14 +17,14 @@ import time
 import json
 
 class GooglePlayRatingsAPI:
-    dataset_id = "reviews"
+    dataset_id = "pilgrim_bi_google_play"
     project_id = "shopify-pubsub-project"
     package_name = "com.discoverpilgrim"
-    
+    table = GooglePlayRatings
     def __init__(self):
-        self.project_id = "shopify-pubsub-project"
-        self.dataset_id = "pilgrim_bi_google_play"
-        self.table_id = f'{self.project_id}.{self.dataset_id}.{GooglePlayRatings.__tablename__}'
+        # self.project_id = "shopify-pubsub-project"
+        # self.dataset_id = "pilgrim_bi_google_play"
+        self.table_id = f'{self.project_id}.{self.dataset_id}.{self.table.__tablename__}'
 
         # BigQuery connection string
         connection_string = f"bigquery://{self.project_id}/{self.dataset_id}"
@@ -40,9 +41,9 @@ class GooglePlayRatingsAPI:
 
     def create_table(self):
         """Create table in BigQuery if it does not exist."""
-        if not self.table_exists(GooglePlayRatings.__tablename__):
+        if not self.table_exists(self.table.__tablename__):
             print("Creating Google Play Ratings table in BigQuery")
-            GooglePlayRatings.metadata.create_all(self.engine)
+            self.table.metadata.create_all(self.engine)
             print("Google Play Ratings table created in BigQuery")
         else:
             print("Google Play Ratings table already exists in BigQuery")
@@ -102,7 +103,7 @@ class GooglePlayRatingsAPI:
 
     def truncate_table(self):
         """Truncate the BigQuery table by deleting all rows."""
-        table_ref = self.client.dataset(self.dataset_id).table(GooglePlayRatings.__tablename__)
+        table_ref = self.client.dataset(self.dataset_id).table(self.table.__tablename__)
         truncate_query = f"DELETE FROM `{table_ref}` WHERE true"
         self.client.query(truncate_query).result()  # Executes the DELETE query
 
@@ -134,19 +135,23 @@ class GooglePlayRatingsAPI:
         return result
 
 class GooglePlayRatingPrivate(GooglePlayRatingsAPI):
+    table = GooglePlayRatingsPriv
     def __init__(self):
-        self.API_KEY = Variable.get("GOOGLE_PLAY_REVIEWS_API_KEY")
+        self.ACCESS_TOKEN = get_playstore_token(Variable.get("GOOGLE_PLAYSTORE_TOKEN"))
+        self.session = requests.Session()
+        self.URL = f'https://www.googleapis.com/androidpublisher/v3/applications/{self.package_name}/reviews'
+        self.table_id = f'{self.project_id}.{self.dataset_id}.{GooglePlayRatingsPriv.__tablename__}'
         super().__init__()
     
     def sync_data(self):
         """Sync data from the API to BigQuery."""
-        reviews = self.get_data()
-        if not reviews:
-            print("No new reviews to sync")
-            return
+        # reviews = self.get_data()
+        # if not reviews:
+        #     print("No new reviews to sync")
+        #     return
 
         print('Transforming Reviews data')
-        transformed_data = self.transform_data(data=reviews)
+        transformed_data = [self.transform_data(review) for review in self.get_data()]
         extrated_at = datetime.now()
 
         # Insert the transformed data into the table
@@ -156,7 +161,26 @@ class GooglePlayRatingPrivate(GooglePlayRatingsAPI):
         self.load_data_to_bigquery(transformed_data, extrated_at)
     
     def get_data(self, next_token=None):
-        pass
+        
+        params = {
+            'access_token': self.ACCESS_TOKEN,
+            'maxResults': 50,
+            'token': next_token
+        }
+        while True:
+            response = self.session.get(self.URL, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                reviews = data.get('reviews', [])
+                for review in reviews:
+                    yield review
+                next_token = data.get('tokenPagination', {}).get('nextPageToken')
+                params['token'] = next_token
+                if not params['token']:
+                    break
+            else:
+                print(f"Failed to fetch data: {response.status_code}, {response.text}")
+                break   
 
     def transform_data(data):
         user_comment = data.get('comments', [{}])[0].get('userComment', {})
