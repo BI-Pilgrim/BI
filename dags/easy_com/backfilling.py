@@ -1,8 +1,10 @@
+import sys, os
+sys.path.append(os.getcwd())
+print(sys.path)
 # this is a script to backfill data to bigquery month wise where we take the input of the month and year and sync all the data for that month
 # in chunks of 5 days
 
-import sys, os
-sys.path.append(os.getcwd())
+
 
 from easy_com.countries.get_countries import easyEComCountriesAPI
 from easy_com.vendors.get_vendors import easyEComVendorsAPI
@@ -30,9 +32,9 @@ def backfill_reports(year, month):
     easyEComReportsAPI().sync_data(start_date=start_date, end_date=end_date)
 
 def backfill_sales_reports():
-    start_date = datetime(2025, 2, 7)
-    end_date = datetime(2025, 2, 25)
-    easyEComReportsAPI().sync_data(start_date=start_date, end_date=end_date, report_types=['TAX_REPORT_SALES'])
+    start_date = datetime(2025, 3, 1, 5, 0, 0)
+    end_date = datetime(2025, 3, 2, 5, 0, 0)
+    easyEComReportsAPI().sync_data(start_date=start_date, end_date=end_date, report_types=['TAX_REPORT_SALES'], snip_time=False)
 
 def ranges(start_date:datetime, end_date:datetime, nhours:int):
     ret_ranges = []
@@ -222,4 +224,8 @@ def run_range(filler_class, start_date, end_date, nhours):
 #     MiniSalesReportParserAPI().sync_data()
 
 if __name__ == "__main__":
-    backfill_sales_reports()
+    # backfill_sales_reports()
+    from easy_com.reports.parsers.tax_report import TaxReportParserAPI, constants
+    from easy_com.reports.download_reports import easyEComDownloadReportsAPI
+    # easyEComDownloadReportsAPI().sync_data()
+    TaxReportParserAPI(report_type=constants.ReportTypes.TAX_REPORT_SALES.value).sync_data()

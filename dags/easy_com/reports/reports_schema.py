@@ -13,4 +13,5 @@ class Reports(Base):
     status = Column(String(255), nullable=True)
     csv_url = Column(String, nullable=True)
     inventory_type = Column(String(255), nullable=True)
+    gcs_uri = Column(String, nullable=True)
     ee_extracted_at = Column(DateTime(True))
