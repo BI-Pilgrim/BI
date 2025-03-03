@@ -40,7 +40,6 @@ def Search_page(nopage,key):
     Top_brands = []
 
     driver = webdriver.Firefox()
-    driver.implicitly_wait(20)
     for i in range(1,num_of_pages+1):
         url = category_link+str(i)
         Prod_url,Asin = Scrape_Page(driver,url)
@@ -129,7 +128,7 @@ def Scrape_child_asin(df):
     std = "https://www.amazon.in/dp/"
     time_interval = 1
     driver = webdriver.Firefox()
-    driver.implicitly_wait(20)
+    driver.implicitly_wait(2)
     for index, row in df.iterrows():
         
         amazon_url = row['Product_URL']
@@ -152,7 +151,6 @@ def Scrape_child_asin(df):
             child_elements = driver.find_elements('xpath', './/div[@id="tp-inline-twister-dim-values-container"]//ul//li')
             for li in child_elements:
                 child_asin = li.get_attribute("data-asin")
-                print(child_asin)
                 child_url.append(std+child_asin)
                 c_asin.append(child_asin)
                 p_asin.append(row['Parent_ASIN'])
@@ -350,12 +348,18 @@ def child_details(df):
 
         else:
 
-            # Extract Selling Price        
-            sp = Extract_table(driver,'.//div[@id="corePriceDisplay_desktop_feature_div"]//div[@class="a-section a-spacing-none aok-align-center aok-relative"]//span[@class="a-price aok-align-center reinventPricePriceToPayMargin priceToPay"]//span[@class = "a-price-whole"]')
-            if sp:
-                Selling_price.append(sp.replace("₹","").replace(",",""))
+            spp = Extract_table(driver,'.//div[@id="corePriceDisplay_desktop_feature_div"]//div[@class="a-section a-spacing-none aok-align-center aok-relative"]//span[@class="a-price aok-align-center reinventPricePriceToPayMargin priceToPay"]//span[@class = "a-price-whole"]')
+            spm = Extract_table(driver,'.//div[@id="corePrice_feature_div"]//div[@class="a-section a-spacing-micro a-padding-none"]//span[1]')
+            if spm:
+                a = int(spm.split("\n")[0].replace("₹","").replace(",",""))
             else:
-                Selling_price.append(0)
+                a=0
+            if spp:
+                b = int(spp.replace("₹","").replace(",",""))
+            else:
+                b=0
+
+            Selling_price.append(max(a,b))
 
 
             # Extract Unit Price per 100ml        
@@ -644,7 +648,7 @@ def write_to_gbq(df):
     print("Done appending in the table")
     
     
-keyword = 'Face Serum'
+keyword = 'Face Cream'
 
 No_of_pages = 10
 
@@ -671,7 +675,7 @@ final_op = mtrcsdf
 
 
 final_op['Category'] = keyword
-final_op['Date_MS'] = date(2025,2,10)
+final_op['Date_MS'] = date(2025,3,3)
 # date.today()
 # date.today().replace(day=1) - relativedelta(months=1)
 
