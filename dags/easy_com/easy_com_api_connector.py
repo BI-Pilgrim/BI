@@ -15,6 +15,20 @@ import os
 import re
 import zipfile
 import io
+import json
+
+
+from google.oauth2 import service_account
+from google.cloud import  storage
+
+def get_gcs_client(credentials_info)->storage.Client:
+    credentials_info = json.loads(credentials_info)
+    
+    SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
+    
+    credentials = service_account.Credentials.from_service_account_info(credentials_info, scopes=SCOPES)
+    client = storage.Client(credentials=credentials, project="shopify-pubsub-project")
+    return client
 
 
 BASE_URL = "https://api.easyecom.io"
@@ -52,6 +66,7 @@ def generate_location_key_token(location_key):
 
 
 class EasyComApiConnector:
+    data_download_bucket = "airflow-data-download"
     def __init__(self):
         token = generate_api_token()
         if not token:
@@ -158,7 +173,7 @@ class EasyComApiConnector:
         truncate_query = f"DELETE FROM `{table_ref}` WHERE true"
         self.client.query(truncate_query).result()  # Executes the DELETE query
 
-    def download_csv(self, url, report_type):
+    def _download_csv(self, url, report_type):
         """Download the CSV data. check if the url is returning a csv file or a zip folder ?"""
         response = requests.get(url, stream=True)
         content_type = response.headers.get('Content-Type')
@@ -183,7 +198,10 @@ class EasyComApiConnector:
                 for chunk in response.iter_content(chunk_size=8192):  # Adjust chunk_size if necessary
                     if chunk:
                         file.write(chunk)
-
+        return file_path
+    
+    def download_csv(self, url, report_type):
+        file_path = self._download_csv(url, report_type)
         data_frames = pd.read_csv(file_path, chunksize=10000, on_bad_lines='skip')
 
         # os.remove(file_path)
@@ -225,3 +243,34 @@ class EasyComApiConnector:
             if key in df.columns:
                 df[key] = df[key].apply(func)
         return df
+
+    def upload_to_gcs(self, file_path, bucket_name=None, file_name=None, credentials_info=None)->str:
+        if not bucket_name:
+            bucket_name = self.data_download_bucket
+        if not file_name:
+            file_name = os.path.basename(file_path)
+        if not credentials_info:
+            credentials_info = Variable.get("GOOGLE_CLOUD_STORE_TOKEN")
+        storage_client = get_gcs_client(credentials_info)
+        
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(file_name)
+        blob.upload_from_filename(file_path)
+        return self.get_blob_uri(blob)
+
+    def get_blob_uri(self, blob)->str:
+        return 'gs://' + blob.id[:-(len(str(blob.generation)) + 1)]
+
+    def download_from_gcs(self, gcs_uri, bucket_name=None, to_file_path=None, credentials_info=None):
+        from utils.google_cloud import get_gcs_client
+        if not bucket_name:
+            bucket_name = self.data_download_bucket
+        if not credentials_info:
+            credentials_info = Variable.get("GOOGLE_CLOUD_STORE_TOKEN")
+        if not to_file_path:
+            to_file_path = f"./{os.path.basename(gcs_uri)}"
+        storage_client = get_gcs_client(credentials_info)
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(gcs_uri[6+len(bucket_name):])
+        blob.download_to_filename(to_file_path)
+        return to_file_path

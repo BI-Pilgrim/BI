@@ -57,6 +57,7 @@ class MiniSalesReportParserAPI(EasyComApiConnector):
         """Get the report data."""
         del report['status']
         del report['csv_url']
+        del report['gcs_uri']
 
         if 'Cost_of_Goods_purchased' in report:
             del report['Cost_of_Goods_purchased']
