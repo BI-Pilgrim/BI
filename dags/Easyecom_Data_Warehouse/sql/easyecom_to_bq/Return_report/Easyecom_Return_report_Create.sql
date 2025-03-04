@@ -49,7 +49,7 @@ SELECT distinct
   Return_Type,
   Comments,
   -- SAFE_CAST(Total_Credit_Note_Amount AS FLOAT64) AS Total_Credit_Note_Amount,
-SAFE_CAST(CASE WHEN Total_Credit_Note_Amount = 'nan' THEN '0' ELSE Total_Credit_Note_Amount END AS FLOAT64) AS Total_Credit_Note_Amount,
+  SAFE_CAST((CASE WHEN Total_Credit_Note_Amount='nan' THEN 0 ELSE Total_Credit_Note_Amount END) AS FLOAT64) as Total_Credit_Note_Amount,
   External_Order_Code,
   MP_Alias,
   SAFE_CAST(MP_Delivered_Date AS DATETIME) AS MP_Delivered_Date,

@@ -26,3 +26,6 @@ undetected-chromedriver
 google-cloud-bigquery-storage~=2.27
 google_play_scraper
 fuzzywuzzy
+pyxlsb~=1.0.10
+playwright-recaptcha
+git+https://github.com/Mattwmaster58/playwright_stealth@rc4

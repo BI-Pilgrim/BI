@@ -87,6 +87,7 @@ class TaxReportParserAPI(EasyComApiConnector):
         """Get the report data."""
         del report['status']
         del report['csv_url']
+        del report['gcs_uri']
         return report
     
     def sync_data(self):
