@@ -1,3 +1,5 @@
+
+
 CREATE or replace TABLE `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Returns_report`
 PARTITION BY DATE_TRUNC(Order_Date,day)
 CLUSTER BY Seller_Return_Reason
@@ -31,7 +33,7 @@ SELECT distinct
   Serial_Number,
   Inventory_Status,
   -- SAFE_CAST(Return_Quantity AS FLOAT64) AS Return_Quantity,
-  SAFE_CAST((CASE WHEN Return_Quantity='nan' THEN 0 ELSE Return_Quantity END) AS FLOAT64) as Return_Quantity,
+  SAFE_CAST(CASE WHEN Return_Quantity = 'nan' THEN '0' ELSE Return_Quantity END AS FLOAT64) AS Return_Quantity,
   companyProductId,
   Invoice_Id,
   Awb_Number,
