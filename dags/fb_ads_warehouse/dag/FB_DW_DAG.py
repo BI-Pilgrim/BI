@@ -1627,7 +1627,7 @@ with DAG(
         task_id='sanity_check',
         configuration={
             "query": {
-                "query": sql_query_13,
+                "query": sql_query_95,
                 "useLegacySql": False,
                 "location": LOCATION,
             }
