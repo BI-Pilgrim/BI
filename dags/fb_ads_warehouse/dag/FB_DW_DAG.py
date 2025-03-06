@@ -1839,7 +1839,7 @@ with DAG(
       append_ads_isnghts_conversion_values,
       append_ads_insights_conversions,
       append_ads_insights_cost_per_conv_value 
-    ] >> sanity_check >> finish_pipeline
+    ] >> sanity_check
     
     sanity_check >> run_python_task
     run_python_task >> finish_pipeline   
