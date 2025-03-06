@@ -351,7 +351,7 @@ select
 'keyword_view' as table_name,
 max(date(_airbyte_extracted_at)) as Staging_max_date,
 max(date(_airbyte_extracted_at)) as Latest_Valid_Date,
-count(distinct case when date(_airbyte_extracted_at) = (select max(date(_airbyte_extracted_at)) from `shopify-pubsub-project.pilgrim_bi_google_ads.keyword_view`) then concat(ad_group_id,segments_date,ad_group_criterion_keyword_text,ad_group_criterion_keyword_match_type) end ) as Staging_pk_count
+count(distinct case when date(segments_date) = (select max(date(segments_date)) from `shopify-pubsub-project.pilgrim_bi_google_ads.keyword_view`) then concat(ad_group_id,segments_date,ad_group_criterion_keyword_text,ad_group_criterion_keyword_match_type) end ) as Staging_pk_count
 from  `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.keyword_view`
 
 union all
