@@ -27,27 +27,27 @@ with DAG(
 ) as dag: 
 
     # Load SQL queries from files
-    with open('../dags/Shopify_retention/sql/Overall_Cohort.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Overall_Cohort.sql', 'r') as file: 
         sql_query_1 = file.read()  
-    with open('../dags/Shopify_retention/sql/Skuwise_Retention_Cohort.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Skuwise_Retention_Cohort.sql', 'r') as file: 
         sql_query_2 = file.read() 
-    with open('../dags/Shopify_retention/sql/Per_Product_Retention.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Per_Product_Retention.sql', 'r') as file: 
         sql_query_3 = file.read() 
-    with open('../dags/Shopify_retention/sql/Retention_KPI.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Retention_KPI.sql', 'r') as file: 
         sql_query_4 = file.read()
-    with open('../dags/Shopify_retention/sql/Exact_Order_Count_KPI.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Exact_Order_Count_KPI.sql', 'r') as file: 
         sql_query_5 = file.read() 
-    with open('../dags/Shopify_retention/sql/Retention_KPI_Meta_Spend_PP.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Retention_KPI_Meta_Spend_PP.sql', 'r') as file: 
         sql_query_6 = file.read() 
-    with open('../dags/Shopify_retention/sql/KPI_Order_Count.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/KPI_Order_Count.sql', 'r') as file: 
         sql_query_7 = file.read()
-    with open('../dags/Shopify_retention/sql/Retention_KPI_M0Cont.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Retention_KPI_M0Cont.sql', 'r') as file: 
         sql_query_8 = file.read() 
-    with open('../dags/Shopify_retention/sql/Retention_KPI_bogo_dis.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Retention_KPI_bogo_dis.sql', 'r') as file: 
         sql_query_9 = file.read() 
-    with open('../dags/Shopify_retention/sql/Retention_KPI_crm_metrics.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Retention_KPI_crm_metrics.sql', 'r') as file: 
         sql_query_10 = file.read()  
-    with open('../dags/Shopify_retention/sql/Retention_KPI_MAIN.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Shopify_retention/sql/Retention_KPI_MAIN.sql', 'r') as file: 
         sql_query_11 = file.read() 
 
     # Define the queries to run
