@@ -8,7 +8,7 @@ from fuzzywuzzy import fuzz
 # Login function - using Sync API (no async involved)
 def Login_AMZ(homepage, username, password, df): 
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True)
+        browser = p.firefox.launch(headless=True) #check
         page = browser.new_page()
         page.goto(homepage,wait_until='load') 
         page.locator('#nav-link-accountList').click() 
