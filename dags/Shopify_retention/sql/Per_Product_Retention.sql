@@ -12,13 +12,16 @@ item_sku_map AS (
          oi.order_name, 
          oi.order_created_at,
          oi.item_sku_code,
-         CASE WHEN mt.parent_sku IN ('PGKS-AHGS1','PGKS-RAAHGSDPS1','PGGTM-RAAHGS1','PGKS-RAAHGS1') THEN 'ALL_HGS' 
-         ELSE mt.parent_sku END AS parent_sku, 
+         mt.master_sku as parent_sku,
+         -- CASE WHEN mt.master_sku as parent_sku, --IN ('PGKS-AHGS1','PGKS-RAAHGSDPS1','PGGTM-RAAHGS1','PGKS-RAAHGS1') THEN 'ALL_HGS' 
+         --ELSE mt.parent_sku END AS parent_sku, 
+         --CASE WHEN mt.parent_sku IN ('PGKS-AHGS1','PGKS-RAAHGSDPS1','PGGTM-RAAHGS1','PGKS-RAAHGS1') THEN 'HAIR GROWTH SERUM' 
+         --ELSE mt.product 
          mt.master_title as product_title,
          DENSE_RANK() OVER (PARTITION BY oi.customer_id ORDER BY oi.order_created_at) AS order_rank
   FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items` oi
   LEFT JOIN (
-    SELECT DISTINCT Master_Title, Parent_SKU,Variant_ID-- AS INT) AS Variant_ID
+    SELECT DISTINCT Master_Title, Master_SKU,Variant_ID-- AS INT) AS Variant_ID
     FROM `shopify-pubsub-project.Product_SKU_Mapping.D2C_SKU_mapping` where Type_of_Product in('Single') AND Parent_SKU not in('')
   ) mt ON oi.item_variant_id = mt.Variant_ID
 ), 
@@ -76,7 +79,7 @@ Day_tagging as (
 ), 
 SKU_PPR_cohort AS (
   SELECT  
-    DATE_TRUNC(DATE(s.acquisition_date), MONTH) AS Year_month,
+    DATE_TRUNC(DATE(acquisition_date), MONTH) AS Year_month,
     first_product,
     first_prod_title,
     COUNT(DISTINCT CASE WHEN Acq = 1 THEN customer_id END) AS Acquisition,
@@ -93,7 +96,7 @@ SKU_PPR_cohort AS (
     COUNT(DISTINCT CASE WHEN D360=1 AND DATE_ADD(DATE(acquisition_date), INTERVAL 365 DAY) < CURRENT_DATE()-1 THEN customer_id END) AS D360, 
     COUNT(DISTINCT CASE WHEN D390=1 AND DATE_ADD(DATE(acquisition_date), INTERVAL 395 DAY) < CURRENT_DATE()-1 THEN customer_id END) AS D390,
     COUNT(DISTINCT CASE WHEN D360plus=1 AND DATE_ADD(DATE(acquisition_date), INTERVAL 395 DAY) < CURRENT_DATE()-1 THEN customer_id END) AS D360plus
-  FROM Day_tagging s inner join `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.sku_title_mapping` mp on s.first_product=mp.Parent_SKU
+  FROM Day_tagging 
   WHERE DATE(acquisition_date) >= DATE(DATE_TRUNC(CURRENT_DATE, MONTH)- INTERVAL 1 MONTH - INTERVAL 13 MONTH) 
    -- AND DATE(acquisition_date) <= DATE_TRUNC(CURRENT_DATE, MONTH)
   GROUP BY 1, 2,3
