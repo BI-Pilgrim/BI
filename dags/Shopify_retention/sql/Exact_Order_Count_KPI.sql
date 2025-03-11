@@ -17,7 +17,7 @@ WITH cust AS (
 zero_order_counts AS (
     SELECT
         customer_id,
-        DATE(DATE_TRUNC(customer_created_at, MONTH)) AS year_month,
+        LAST_DAY(DATE(DATE_TRUNC(customer_created_at, MONTH))) AS year_month,
         COUNT(DISTINCT order_name) AS order_count
     FROM 
         cust
@@ -32,20 +32,21 @@ monthly_zero_order_counts AS (
         zero_order_counts
     GROUP BY 
         year_month
-), 
+),
+--SELECT * FROM monthly_zero_order_counts 
 cumulative_zero_counts AS (
     SELECT
-        year_month,
+        DATE_TRUNC(year_month, MONTH) AS year_month,
         SUM(zero_orders) OVER (ORDER BY year_month ) AS cumulative_zero_orders,
     FROM
         monthly_zero_order_counts 
 
 ),
---select * from cumulative_zero_counts
-
+--SELECT *  FROM cumulative_zero_counts
 Months AS (
-    SELECT * 
-    FROM UNNEST(GENERATE_DATE_ARRAY(DATE '2024-01-01', CURRENT_DATE(), INTERVAL 1 MONTH)) AS year_month
+    SELECT 
+    LAST_DAY(DATE_ADD(DATE '2024-01-31', INTERVAL x MONTH), MONTH) AS year_month
+  FROM UNNEST(GENERATE_ARRAY(0, DATE_DIFF(LAST_DAY(CURRENT_DATE(), MONTH), DATE '2022-03-31', MONTH), 1)) AS x
 ),  
 orders AS (
     SELECT  
@@ -54,16 +55,16 @@ orders AS (
         COUNT(DISTINCT order_name) AS order_count
     FROM cust AS c
     CROSS JOIN Months AS m 
-    WHERE DATE(Order_created_at) < year_month
+    WHERE DATE(Order_created_at) <= year_month
     GROUP BY year_month, customer_id
-), 
+),
 cummultative_count as(
 SELECT 
-    year_month, 
-    LAG(COUNT(DISTINCT CASE WHEN order_count = 1 THEN customer_id END)) OVER (ORDER BY year_month desc) AS cumulative_one_order,
-    LAG(COUNT(DISTINCT CASE WHEN order_count = 2 THEN customer_id END)) OVER (ORDER BY year_month desc) AS cumulative_two_order,
-    LAG(COUNT(DISTINCT CASE WHEN order_count = 3 THEN customer_id END)) OVER (ORDER BY year_month desc) AS cumulative_three_order,
-    LAG(COUNT(DISTINCT CASE WHEN order_count > 3 THEN customer_id END)) OVER (ORDER BY year_month desc) AS cumulative_three_plus_order
+    DATE_TRUNC(year_month, MONTH) AS year_month,
+    COUNT(DISTINCT CASE WHEN order_count = 1 THEN customer_id END) AS cumulative_one_order, 
+    COUNT(DISTINCT CASE WHEN order_count = 2 THEN customer_id END) AS cumulative_two_order, 
+    COUNT(DISTINCT CASE WHEN order_count = 3 THEN customer_id END) AS cumulative_three_order, 
+    COUNT(DISTINCT CASE WHEN order_count > 3 THEN customer_id END) AS cumulative_three_plus_order,
 FROM orders
 GROUP BY year_month
 --ORDER BY year_month 
@@ -76,7 +77,7 @@ zero_all as(
     c.cumulative_two_order, 
     c.cumulative_three_order, 
     c.cumulative_three_plus_order
-    from cummultative_count c inner join cumulative_zero_counts co on c.year_month = co.year_month
+    from cummultative_count c inner join cumulative_zero_counts co on DATE_TRUNC(c.year_month,MONTH) = co.year_month
 ), 
 --select * from zero_all
 total_orders_by_month AS (
@@ -89,7 +90,7 @@ total_orders_by_month AS (
         year_month
 ) 
 SELECT
-    c.year_month,
+    DATE_TRUNC(c.year_month,MONTH) AS year_month,
     c.cumulative_zero_orders, 
     c.cumulative_one_order, 
     c.cumulative_two_order,
@@ -120,9 +121,7 @@ SELECT
 FROM 
     zero_all c
 JOIN 
-    total_orders_by_month t ON c.year_month = t.year_month 
-    WHERE c.year_month < DATE_TRUNC(CURRENT_DATE(),MONTH)
+    total_orders_by_month t ON DATE_TRUNC(c.year_month,MONTH) = DATE_TRUNC(t.year_month,MONTH)
+    WHERE c.year_month <= DATE_TRUNC(c.year_month,MONTH) 
 ORDER BY 
     c.year_month DESC; 
-
-
