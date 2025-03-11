@@ -10,7 +10,7 @@ from airflow.models import Variable
 from utils.google_cloud import get_bq_client
 
 class ExtractReportData:
-    def __init__(self, file: Union[str, bytes]):
+    def __init__(self, file: Union[str, bytes], mail_subject:str):
         """
         file: str or bytes
         """
@@ -18,6 +18,7 @@ class ExtractReportData:
         self.workbook = pyxlsb.open_workbook(file)
         credentials_info = Variable.get("GOOGLE_BIGQUERY_CREDENTIALS")
         self.bigquery = get_bq_client(credentials_info)
+        self.mail_subject = mail_subject
         # self.workbook.close()
 
     def get_start_row_col(self, sheet: pyxlsb.Worksheet, value: str, start_col:int=0, end_col:Optional[int]=None, max_seek:int=5) -> int:
@@ -91,10 +92,12 @@ class ExtractReportData:
         print("parsed open_rtv")
         
 
-    def load_data_to_bigquery(self, table_id, data, extracted_at,  _retry=0, max_retry=3):
+    def load_data_to_bigquery(self, table_id, data, mail_recieved_at,  _retry=0, max_retry=3):
         """Load the data into BigQuery."""
         print(f"Loading {table_id} data to BigQuery")
-        data["pg_extracted_at"] = extracted_at
+        data["pg_mail_recieved_at"] = mail_recieved_at
+        data["pg_extracted_at"] = datetime.now()
+        data["pg_mail_subject"] = self.mail_subject
         # table = self.client.get_table(self.table_id)
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
@@ -109,7 +112,7 @@ class ExtractReportData:
                 print('Error:', str(e))
                 print(f"SLEEPING :: Error inserting to BQ retrying in {mint} min")
                 time.sleep(60*mint) # 15 min
-                return self.load_data_to_bigquery(data, extracted_at, _retry=_retry+1, max_retry=max_retry)
+                return self.load_data_to_bigquery(table_id, data, mail_recieved_at, _retry=_retry+1, max_retry=max_retry)
             raise e
         
     @staticmethod
