@@ -1,3 +1,4 @@
+
 CREATE OR REPLACE TABLE `shopify-pubsub-project.Data_Warehouse_ClickPost_Staging.sanity` AS
 WITH sources AS (
     SELECT 
