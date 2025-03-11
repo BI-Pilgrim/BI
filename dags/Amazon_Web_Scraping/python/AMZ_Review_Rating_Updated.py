@@ -269,7 +269,7 @@ def past_table_join(past_table,final_df):
 def main():
     home_page = "https://www.amazon.in/"
     username = Variable.get("AMAZON_LOGIN_MAIL")
-    password = Variable.get("AMAZON_LOGIN_PASSWORD") 
+    password = Variable.get("AMAZON_LOGIN_PASSWORD") #check
     project_id = 'shopify-pubsub-project'
     table_top_25 = 'Amazon_Market_Sizing.Top_products_for_review_scraping'
     
