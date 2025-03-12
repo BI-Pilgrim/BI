@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # Constants
 API_KEY = Variable.get("CLICKPOST_API_KEY")
 PROJECT_ID = 'shopify-pubsub-project'
-DATASET_ID = 'clickpost_data'
+DATASET_ID = 'pilgrim_bi_clickpost'
 
 # def get_google_credentials_info():
 #     """Get Google credentials from environment variables"""
