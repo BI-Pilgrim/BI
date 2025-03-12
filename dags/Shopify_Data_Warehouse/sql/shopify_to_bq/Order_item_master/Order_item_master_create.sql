@@ -43,12 +43,14 @@ with Orders_cte as
     PM.Range,
     OI.item_quantity,
     case when PM.Parent_SKU like 'PGJB%' then 28 
-    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' then 0 
-    else OI.item_price end as item_MRP_price,
+    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' or PM.Parent_SKU like '%GIFT%' or PM.Parent_SKU like '%PG-CL25%'
+    or PM.Parent_SKU like '%PG-GMP1%' then 0 
+    else PM.MRP_OG end as item_MRP_price,
 
     (case when PM.Parent_SKU like 'PGJB%' then 28 
-    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' then 0 
-    else OI.item_price end)*item_quantity as item_GMV,
+    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' or PM.Parent_SKU like '%GIFT%'  or PM.Parent_SKU like '%PG-CL25%'
+    or PM.Parent_SKU like '%PG-GMP1%'  then 0 
+    else PM.MRP_OG end)*item_quantity as item_GMV,
 
     
     
