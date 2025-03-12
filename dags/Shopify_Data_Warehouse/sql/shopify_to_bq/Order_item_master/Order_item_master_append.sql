@@ -45,7 +45,7 @@ with Orders_cte as
     
     
     from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items` as OI
-    left join `shopify-pubsub-project.adhoc_data_asia.Product_SKU_mapping_D2C` as PM
+    left join `shopify-pubsub-project.Product_SKU_Mapping.D2C_SKU_mapping` as PM
     on cast(OI.item_variant_id as string)= PM.variant_id
     -- where 1=1
   ),
