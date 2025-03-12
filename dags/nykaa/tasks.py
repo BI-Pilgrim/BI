@@ -61,8 +61,11 @@ def nykaa_email_report_sheet():
             attachment_data = attachments_client.get(userId="me", messageId=mail["id"], id=mail_attachment['body']['attachmentId']).execute()
             attachment_bytes = BytesIO(base64.urlsafe_b64decode(attachment_data['data'] + '=' * (4 - len(attachment_data['data']) % 4)))
             mail_date = datetime.fromtimestamp(int(email_data['internalDate'])//1000)
-            
-            extractor = ExtractReportData(attachment_bytes)
+            email_headers = email_data['payload']['headers']
+            mail_subject = [header['value'] for header in email_headers if header['name'] == 'Subject']
+            mail_subject = mail_subject[0] if mail_subject else None
+
+            extractor = ExtractReportData(attachment_bytes, mail_subject)
             extractor.sync(mail_date, int(datetime.now().strftime("%Y%m%d%H%M%S")), SCHEMA)
             messages_client.modify(userId="me", id=mail["id"], body=dict(removeLabelIds=["UNREAD"])).execute()
     
