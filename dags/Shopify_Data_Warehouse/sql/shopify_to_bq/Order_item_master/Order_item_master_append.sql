@@ -1,6 +1,5 @@
 MERGE INTO `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items_master` AS TARGET
 USING (
-
 with Orders_cte as 
 (
     SELECT 
@@ -12,9 +11,11 @@ with Orders_cte as
     sum(Order_total_price) as Order_total_price,
     
   FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` 
-  -- WHERE 1=1 
+  WHERE 1=1 
+
   -- and Order_fulfillment_status = 'fulfilled'
   -- and Order_financial_status not in ('voided','refunded')
+
   group by all
  
   ),
@@ -35,19 +36,21 @@ with Orders_cte as
     PM.Range,
     OI.item_quantity,
     case when PM.Parent_SKU like 'PGJB%' then 28 
-    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' then 0 
-    else OI.item_price end as item_MRP_price,
+    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' or PM.Parent_SKU like '%GIFT%' or PM.Parent_SKU like '%PG-CL25%'
+    or PM.Parent_SKU like '%PG-GMP1%' then 0 
+    else PM.MRP_OG end as item_MRP_price,
 
     (case when PM.Parent_SKU like 'PGJB%' then 28 
-    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' then 0 
-    else OI.item_price end)*item_quantity as item_GMV,
+    when PM.Parent_SKU like 'SAM%' or PM.Parent_SKU like '%MINI%' or PM.Parent_SKU like '%GIFT%'  or PM.Parent_SKU like '%PG-CL25%'
+    or PM.Parent_SKU like '%PG-GMP1%'  then 0 
+    else PM.MRP_OG end)*item_quantity as item_GMV,
 
     
     
     from `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items` as OI
     left join `shopify-pubsub-project.Product_SKU_Mapping.D2C_SKU_mapping` as PM
     on cast(OI.item_variant_id as string)= PM.variant_id
-    -- where 1=1
+    where 1=1
   ),
 
 derived_GMV as
