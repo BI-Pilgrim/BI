@@ -18,7 +18,7 @@ default_args = {
 } 
 
 with DAG(
-    dag_id='Shopify_Retention11',
+    dag_id='Shopify_Retention_KPI',
     default_args=default_args,
     description='Dag to append retention data to bigquery',
     schedule_interval='30 8 * * *',  # 8:00 AM IST (03:30 AM UTC)
