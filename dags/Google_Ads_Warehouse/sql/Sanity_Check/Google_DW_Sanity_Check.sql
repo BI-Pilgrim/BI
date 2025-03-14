@@ -351,7 +351,7 @@ select
 'keyword_view' as table_name,
 max(date(_airbyte_extracted_at)) as Staging_max_date,
 max(date(_airbyte_extracted_at)) as Latest_Valid_Date,
-count(distinct case when date(_airbyte_extracted_at) = (select max(date(_airbyte_extracted_at)) from `shopify-pubsub-project.pilgrim_bi_google_ads.keyword_view`) then concat(ad_group_id,segments_date,ad_group_criterion_keyword_text,ad_group_criterion_keyword_match_type) end ) as Staging_pk_count
+count(distinct case when date(segments_date) = (select max(date(segments_date)) from `shopify-pubsub-project.pilgrim_bi_google_ads.keyword_view`) then concat(ad_group_id,segments_date,ad_group_criterion_keyword_text,ad_group_criterion_keyword_match_type) end ) as Staging_pk_count
 from  `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.keyword_view`
 
 union all
@@ -561,40 +561,13 @@ max(date(segments_date)) as Staging_max_date,
 0 as Staging_pk_count
 from `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad`
 
-union all
-
-select 
-'ad_group_ad_respnsive_display_ad_head' as table_name,
-max(date(segments_date)) as Staging_max_date,
-(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE ad_group_ad_ad_responsive_display_ad_headlines IS NOT NULL) as Latest_Valid_Date,
-0 as Staging_pk_count
-from `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group_ad_respnsive_display_ad_head`
-
-union all
-
-select 
-'ad_group_ad_rresponsive_ad_long_head' as table_name,
-max(date(segments_date)) as Staging_max_date,
-(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE ad_group_ad_ad_video_responsive_ad_long_headlines IS NOT NULL) as Latest_Valid_Date,
-0 as Staging_pk_count
-from `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group_ad_rresponsive_ad_long_head`
-
-union all
-
-select 
-'ad_group_ad_search_ad_desc' as table_name,
-max(date(segments_date)) as Staging_max_date,
-(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE ad_group_ad_ad_responsive_search_ad_descriptions IS NOT NULL) as Latest_Valid_Date,
-0 as Staging_pk_count
-from `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group_ad_search_ad_desc`
-
 
 union all
 
 select 
 'ad_group_ad_vid_resp_ad_call_to_actions' as table_name,
 max(date(segments_date)) as Staging_max_date,
-(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE ad_group_ad_ad_video_responsive_ad_call_to_actions IS NOT NULL) as Latest_Valid_Date,
+(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE length(json_extract_scalar(ad_group_ad_ad_video_responsive_ad_call_to_actions,'$[0]')) IS NOT NULL) as Latest_Valid_Date,
 0 as Staging_pk_count
 from `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group_ad_vid_resp_ad_call_to_actions`
 
@@ -603,7 +576,7 @@ union all
 select 
 'ad_group_ad_video_responsive_ad_descriptions' as table_name,
 max(date(segments_date)) as Staging_max_date,
-(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE ad_group_ad_ad_video_responsive_ad_descriptions IS NOT NULL) as Latest_Valid_Date,
+(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE length(json_extract_scalar(ad_group_ad_ad_video_responsive_ad_descriptions,'$[0]')) IS NOT NULL) as Latest_Valid_Date,
 0 as Staging_pk_count
 from `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group_ad_video_responsive_ad_descriptions`
 
@@ -612,7 +585,7 @@ union all
 select 
 'ad_group_ad_video_responsive_ad_headlines' as table_name,
 max(date(segments_date)) as Staging_max_date,
-(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE ad_group_ad_ad_video_responsive_ad_headlines IS NOT NULL) as Latest_Valid_Date,
+(SELECT MAX(DATE(segments_date)) AS max_valid_date FROM `shopify-pubsub-project.pilgrim_bi_google_ads.ad_group_ad` WHERE length(json_extract_scalar(ad_group_ad_ad_video_responsive_ad_headlines,'$[0]')) IS NOT NULL) as Latest_Valid_Date,
 0 as Staging_pk_count
 from `shopify-pubsub-project.Data_Warehouse_GoogleAds_Staging.ad_group_ad_video_responsive_ad_headlines`
 

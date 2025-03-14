@@ -1627,7 +1627,7 @@ with DAG(
         task_id='sanity_check',
         configuration={
             "query": {
-                "query": sql_query_13,
+                "query": sql_query_95,
                 "useLegacySql": False,
                 "location": LOCATION,
             }
@@ -1839,7 +1839,7 @@ with DAG(
       append_ads_isnghts_conversion_values,
       append_ads_insights_conversions,
       append_ads_insights_cost_per_conv_value 
-    ] >> sanity_check >> finish_pipeline
+    ] >> sanity_check
     
     sanity_check >> run_python_task
     run_python_task >> finish_pipeline   
