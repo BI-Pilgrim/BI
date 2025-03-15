@@ -6,7 +6,7 @@ import sys
 from airflow.utils.dates import days_ago, timezone
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python import PythonOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator,BigQueryExecuteQueryOperator
 import os
 from fb_ads_warehouse.python.FB_DW_Sanity_Check_mail import send_sanity_check_email  # Import the function from the script
 LOCATION = "US"
@@ -48,7 +48,7 @@ with DAG(
     with open(Final_Report2_sql_path, 'r') as file:
         sql_query_1 = file.read()
 
-    CREATE_REPLACE_Final_Report2 = BigQueryInsertJobOperator(
+    CREATE_REPLACE_Final_Report2 = BigQueryExecuteQueryOperator(
         task_id='CREATE_REPLACE_Final_Report2',
         configuration={
             "query": {
@@ -64,7 +64,7 @@ with DAG(
     with open(facebook_ads_daily_tier_count_log_sql_path, 'r') as file:
         sql_query_1 = file.read()
 
-    APPEND_facebook_ads_daily_tier_count_log = BigQueryInsertJobOperator(
+    APPEND_facebook_ads_daily_tier_count_log = BigQueryExecuteQueryOperator(
         task_id='APPEND_facebook_ads_daily_tier_count_log',
         configuration={
             "query": {
