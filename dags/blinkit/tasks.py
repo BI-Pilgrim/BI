@@ -18,8 +18,8 @@ def blinkit_ad_summary():
 
     @task.python
     def fetch_and_store_data():
-        start_date = (datetime.today() - timedelta(days=1))
-        end_date = datetime.today()
+        start_date = (datetime.today() - timedelta(days=2))
+        end_date = (datetime.today() - timedelta(days=1))
         
         scraper = BlinkItAdsScraper()
         dfs = scraper.download_ad_summary(start_date, end_date)
@@ -28,8 +28,12 @@ def blinkit_ad_summary():
         client = get_bq_client(credentials_info)
         job_config = bigquery.LoadJobConfig(write_disposition=bigquery.WriteDisposition.WRITE_APPEND)
         
-        for table_name, df in zip([TABLE_NAME_PRODUCT_LISTING, TABLE_NAME_BRAND_BOOSTER, TABLE_NAME_PRODUCT_RECOMMENDATION], dfs):
-            df = scraper._process_dataframe(df, start_date, end_date)
+        if not dfs:
+            print("No reports found")
+            return
+        
+        for table_name, df_key in zip([TABLE_NAME_PRODUCT_LISTING, TABLE_NAME_BRAND_BOOSTER, TABLE_NAME_PRODUCT_RECOMMENDATION], dfs):
+            df = scraper._process_dataframe(dfs[df_key], start_date, end_date)
             try:
                 job = client.load_table_from_dataframe(df, table_name, job_config=job_config)
                 job.result()

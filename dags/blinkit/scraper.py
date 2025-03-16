@@ -132,8 +132,10 @@ class BlinkItAdsScraper:
         
         if not data["success"]:
             raise Exception("Failed to download ad summary")
-        
-        report_url = data["data"]["url"]
+        print(data)
+        report_url = data["data"].get('url')
+        if not report_url:
+            return []
         return self._download_excel(report_url)
     
     def _download_excel(self, url: str) -> Tuple[pd.DataFrame]:
