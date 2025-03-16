@@ -8,7 +8,7 @@ from fuzzywuzzy import fuzz
 # Login function - using Sync API (no async involved)
 def Login_AMZ(homepage, username, password, df): 
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True)
+        browser = p.firefox.launch(headless=True) #check
         page = browser.new_page()
         page.goto(homepage,wait_until='load') 
         page.locator('#nav-link-accountList').click() 
@@ -268,8 +268,8 @@ def past_table_join(past_table,final_df):
 
 def main():
     home_page = "https://www.amazon.in/"
-    username = "7352988587"
-    password = "aryan@pil" 
+    username = Variable.get("AMAZON_LOGIN_MAIL")
+    password = Variable.get("AMAZON_LOGIN_PASSWORD") #check
     project_id = 'shopify-pubsub-project'
     table_top_25 = 'Amazon_Market_Sizing.Top_products_for_review_scraping'
     

@@ -8,21 +8,12 @@ WITH Ordercte AS (
         Order_total_price, 
         Order_fulfillment_status, 
         order_financial_status,
-        CASE 
-            WHEN LOWER(COALESCE(discount_application, '') || COALESCE(discount_code, '')) LIKE '%b1g1%' THEN 'B1G1' 
-            --WHEN LOWER(COALESCE(discount_application, '') || COALESCE(discount_code, '')) LIKE '%bogo%' THEN 'B1G1'
-            WHEN LOWER(COALESCE(discount_application, '') || COALESCE(discount_code, '')) LIKE '%b2g2%' THEN 'B2G2'
-            WHEN LOWER(COALESCE(discount_application, '') || COALESCE(discount_code, '')) LIKE '%b3g3%' THEN 'B3G3'
-            WHEN LOWER(COALESCE(discount_application, '') || COALESCE(discount_code, '')) LIKE '%replacement%' THEN 'Replacement'
-            ELSE LOWER(COALESCE(discount_application, '') || COALESCE(discount_code, '')) 
-        END AS discount_final,
+        discount_final,
         ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_created_at) AS order_rank
     FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` o  
     WHERE DATE(order_created_at) >= DATE(DATE_TRUNC(CURRENT_DATE, MONTH)- INTERVAL 1 MONTH - INTERVAL 13 MONTH) 
-  --  WHERE 
-  -- Order_fulfillment_status = 'fulfilled' 
-  -- AND Order_financial_status NOT IN ('voided', 'refunded')
-), 
+) ,
+--select * from ordercte WHERE LOWER(discount_final) LIKE '%b1g1%'
 revenue as (
     select date_trunc(order_created_at,month) as year_month, 
     sum(order_total_price) as total_revenue, 
@@ -30,6 +21,7 @@ revenue as (
     from ordercte  
     group by 1 
 ),
+--SELECT * FROM revenue
 disc as(
 SELECT date_trunc(order_created_at,month) as year_month, 
 sum(order_total_price) as total_bogo_discount, 
@@ -38,10 +30,11 @@ FROM Ordercte
 WHERE LOWER(discount_final) LIKE '%b1g1%' 
 AND 
    Order_fulfillment_status = 'fulfilled' 
-   AND Order_financial_status NOT IN ('voided', 'refunded')
+   AND Order_financial_status NOT IN ('voided', 'refunded') 
 group by 1 
 order by year_month desc 
-) 
+)
+--select * from disc
 select r.year_month,
 d.total_bogo_discount, 
 d.rc_dis_bogo, 

@@ -1,6 +1,6 @@
 from airflow import DAG 
 from datetime import datetime, timedelta
-from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator 
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator,BigQueryExecuteQueryOperator
 from airflow.models import Variable
 
 GOOGLE_CONN_ID = "google_cloud_default"
@@ -18,7 +18,7 @@ default_args = {
 } 
 
 with DAG(
-    dag_id='Shopify_Retention',
+    dag_id='Shopify_Retention_KPI',
     default_args=default_args,
     description='Dag to append retention data to bigquery',
     schedule_interval='30 8 * * *',  # 8:00 AM IST (03:30 AM UTC)
@@ -52,16 +52,14 @@ with DAG(
 
     # Define the queries to run
     def create_query_task(query, task_id):
-        return BigQueryInsertJobOperator(
-            task_id=task_id,
-            configuration={
-                "query": {
-                    "query": query,
-                    "useLegacySql": False,
-                    "location": LOCATION,
-                }
-            }
-        )
+        return BigQueryExecuteQueryOperator(
+        task_id=task_id,
+        gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
+        location=LOCATION,  # Change based on your dataset location
+        impersonation_chain=["composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com"],
+        sql=query,
+        use_legacy_sql=False,
+    )
 
     # Create tasks for queries 1 to 10
     task_query_1 = create_query_task(sql_query_1, 'Shopify_Overall_Cohort')
@@ -80,3 +78,4 @@ with DAG(
 
     [task_query_1,task_query_2, task_query_3 ,task_query_4, task_query_5,task_query_6, task_query_7, task_query_8,task_query_9,task_query_10] >>task_query_11
     
+

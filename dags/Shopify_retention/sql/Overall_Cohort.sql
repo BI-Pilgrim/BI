@@ -6,11 +6,13 @@ WITH Ordercte AS (
         order_name,
         order_created_at,
         Order_total_price,
+        Order_fulfillment_status,
+        Order_financial_status,
         ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_created_at) AS order_rank
     FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Orders` o 
-    WHERE 
-        Order_fulfillment_status = 'fulfilled' 
-        AND Order_financial_status NOT IN ('voided', 'refunded')
+   -- WHERE 
+   --    Order_fulfillment_status = 'fulfilled' 
+   --    AND Order_financial_status NOT IN ('voided', 'refunded')
 ),
 
 Acquisitioncte AS (
@@ -49,7 +51,10 @@ Day_tagging AS (
         CASE WHEN day_diff <= 365 AND order_rank > 1 THEN 1 ELSE 0 END AS D360,
         CASE WHEN day_diff <= 395 AND order_rank > 1 THEN 1 ELSE 0 END AS D390,
         CASE WHEN day_diff <= 1500 AND order_rank > 1 THEN 1 ELSE 0 END AS D360plus
-    FROM Base
+    FROM Base 
+    WHERE 
+        Order_fulfillment_status = 'fulfilled' 
+        AND Order_financial_status NOT IN ('voided', 'refunded')
 ),
 
 customer_cohort AS (

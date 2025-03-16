@@ -510,7 +510,7 @@ Staging as
   'inventory_details' as table_name,
   max(date(last_update_date)) as import_date,
   max(date(last_update_date)) as Latest_Valid_Date,
-  count(distinct case when date(creation_date) = (select max(date(last_update_date)) from `shopify-pubsub-project.easycom.inventory_details`) then concat(product_id,company_product_id) end ) as Staging_pk_count
+  count(distinct case when date(last_update_date) = (select max(date(last_update_date)) from `shopify-pubsub-project.easycom.inventory_details`) then concat(product_id,company_product_id) end ) as Staging_pk_count
   from  `shopify-pubsub-project.Data_Warehouse_Easyecom_Staging.Inventory_details`
 
 
