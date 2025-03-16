@@ -6,9 +6,7 @@ OPTIONS(
  require_partition_filter = False
  )
  AS
-
-
-select
+SELECT
   SAFE_CAST(cp_id AS STRING) AS cp_id, 
   SAFE_CAST(product_id AS STRING) AS product_id, 
   SAFE_CAST(sku AS STRING) AS sku, 
@@ -45,6 +43,13 @@ select
   custom_fields,
   sub_products,
   tax_rate,
-  ee_extracted_at
-  FROM `shopify-pubsub-project.easycom.master_products`
-
+  ee_extracted_at,
+  row_num
+FROM
+(
+SELECT
+*,
+ROW_NUMBER() OVER(PARTITION BY cp_id ORDER BY ee_extracted_at DESC) as row_num
+FROM `shopify-pubsub-project.easycom.master_products`
+)
+WHERE row_num = 1 
