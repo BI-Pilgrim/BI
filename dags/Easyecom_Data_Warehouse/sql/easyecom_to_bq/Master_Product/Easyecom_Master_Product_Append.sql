@@ -38,16 +38,16 @@ SELECT
   custom_fields,
   sub_products,
   tax_rate,
-  ee_extracted_at
+  ee_extracted_at,
+  row_num
 FROM
 (
 SELECT
 *,
-ROW_NUMBER() OVER(PARTITION BY ee_extracted_at ORDER BY ee_extracted_at DESC) as row_num
+ROW_NUMBER() OVER(PARTITION BY cp_id ORDER BY ee_extracted_at DESC) as row_num
 FROM `shopify-pubsub-project.easycom.master_products`
-WHERE DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 )
-WHERE row_num = 1 -- Keep only the most recent row per customer_id and segments_date
+WHERE row_num = 1 and DATE(ee_extracted_at) >= DATE_SUB(CURRENT_DATE("Asia/Kolkata"), INTERVAL 10 DAY)
 ) AS SOURCE
 ON SOURCE.cp_id = TARGET.cp_id
 WHEN MATCHED AND TARGET.updated_at < SOURCE.updated_at
