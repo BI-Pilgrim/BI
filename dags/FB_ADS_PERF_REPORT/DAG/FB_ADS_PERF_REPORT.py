@@ -50,34 +50,30 @@ with DAG(
 
     CREATE_REPLACE_Final_Report2 = BigQueryExecuteQueryOperator(
         task_id='CREATE_REPLACE_Final_Report2',
-        configuration={
-            "query": {
-                "query": sql_query_1,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
+        gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
+        location = LOCATION,  # Change based on your dataset location
+        impersonation_chain = ["composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com"],
+        sql=sql_query_1,
+        use_legacy_sql = False,
     )
 
     # facebook_ads_daily_tier_count_log Table Refresh - APPEND / UPDATE
     facebook_ads_daily_tier_count_log_sql_path = os.path.join(SQL_DIR, "facebook_ads_daily_tier_count_log.sql")
     with open(facebook_ads_daily_tier_count_log_sql_path, 'r') as file:
-        sql_query_1 = file.read()
+        sql_query_2 = file.read()
 
     APPEND_facebook_ads_daily_tier_count_log = BigQueryExecuteQueryOperator(
         task_id='APPEND_facebook_ads_daily_tier_count_log',
-        configuration={
-            "query": {
-                "query": sql_query_1,
-                "useLegacySql": False,
-            },
-            "location": LOCATION,
-        }
+        gcp_conn_id="google_cloud_default",  # Ensure this is set correctly
+        location = LOCATION,  # Change based on your dataset location
+        impersonation_chain=["composer-bi-scheduling@shopify-pubsub-project.iam.gserviceaccount.com"],
+        sql = sql_query_2,
+        use_legacy_sql = False,
     )
 
     # End of the pipeline
     finish_pipeline = DummyOperator(
-        task_id='finish_pipeline'
+        task_id = 'finish_pipeline'
     )
 
     # Task Orchestration
