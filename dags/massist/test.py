@@ -8,8 +8,8 @@ headers = {
     'Content-Type': 'application/x-www-form-urlencoded'
 }
 data = {
-    'username': 'pilgrimapi',
-    'password': 'pilgrim',
+    'username': 'dummy',
+    'password': 'dummy',
     'grant_type': 'password'
 }
 
