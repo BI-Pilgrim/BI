@@ -102,4 +102,4 @@ class MassistAPI:
             raise AuthException("Unable to fetch order data")
         response_data = response.json()
         massist_response = MassistResponse(**response_data)
-        return MassistResponse
+        return massist_response

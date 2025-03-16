@@ -1,17 +1,22 @@
+from copy import deepcopy
+from datetime import datetime
 import json
 import re
 import base64
-from typing import Optional
+from typing import List, Optional
 from requests import Session
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from airflow.models import Variable
+from pydantic import BaseModel
+from bigbasket.data_models import Transaction, TransactionsResponseData, TransactionsResponse
 
 from utils.mail_utils import get_mail_body
 
 class BigBasketScraper:
+    BASE_URL = "https://nucleus.bigbasket.com"
     def __init__(self):
         self.session = Session()
         self.default_headers = {
@@ -58,12 +63,13 @@ class BigBasketScraper:
             body = get_mail_body(msg)
             match = re.search(r'\b\d{6}\b', body)
             if match:
+                messages_client.modify(userId="me", id=mail["id"], body=dict(removeLabelIds=["UNREAD"])).execute()
                 return match.group(0)
         raise Exception("OTP not found in emails")
 
     def login(self):
 
-        resp = self.session.post("https://nucleus.bigbasket.com/authz/v1/vendor/otp/", 
+        resp = self.session.post(f"{self.BASE_URL}/authz/v1/vendor/otp/", 
                                  data=json.dumps({"email":self.email}))
         if not resp.ok:
             raise Exception(f"Failed to send OTP to {self.email}\n" + resp.text)
@@ -75,17 +81,73 @@ class BigBasketScraper:
         otp = self.extract_otp(mails, messages_client)
         
         otp_payload = json.dumps({"email": self.email, "otp": int(otp)})
-        resp = self.session.post("https://nucleus.bigbasket.com/authz/v1/vendor/login/", data=otp_payload)
+        resp = self.session.post(f"{self.BASE_URL}/authz/v1/vendor/login/", data=otp_payload)
 
         if not resp.ok:
             raise Exception(f"Failed to validate OTP to {self.email}, {otp}\n" + resp.text)
 
-    def post_login_endpoint(self, url: str, data: Optional[dict] = None) -> dict:
-        response = self.session.post(url, json=data)
+    def get_report_variables(self, report_slug="analytics_manufacturer_bbdaily-sales-report") -> dict:
+        url = f"{self.BASE_URL}/stitch/vendor/report_variables/?report_slug={report_slug}"
+        response = self.session.get(url)
         response.raise_for_status()
         return response.json()
+    
+    def trigger_analytics_manuf_bbdaily_sales_report(self, start_date: datetime, end_date: datetime, cities: List[int]=None) -> dict:
+        report_slug = "analytics_manufacturer_bbdaily-sales-report"
+        report_variables = self.get_report_variables(report_slug)
+        
+        variables = report_variables['data']['variables']
+        field_ids = {var['name']: var['id'] for var in variables}
+        
+        start_date_str = start_date.strftime("%Y-%m-%d")
+        end_date_str = end_date.strftime("%Y-%m-%d")
+
+        headers = deepcopy(self.default_headers)
+        del headers['content-type']
+        
+        payload = [
+            ('report-type', (None, report_slug)),
+            (str(field_ids['start_date']), (None, start_date_str)),
+            (str(field_ids['end_date']), (None, end_date_str)),
+        ]
+        
+        if cities is None:
+            city_var = None
+            for var in variables:
+                if var['name'] == 'city':
+                    cities = [city['id'] for city in var['options']]
+                    city_var = var
+                    break
+            if city_var is None: raise Exception("City variable not found")
+            cities = [cval['value'] for cval in city_var['meta']['value']]
+
+        for city in cities:
+            payload.append(
+                (str(field_ids['city']), (None, str(city)))
+            )
+        
+        payload.append(('email', (None, '')))
+
+        response = self.session.post(
+            f"{self.BASE_URL}/stitch/vendor/generate/report/",
+            headers=headers,
+            data=payload
+        )
+        
+        response.raise_for_status()
+        return response.json()
+    
+    def get_reports(self) -> dict:
+        pass
+
+    def get_reports(self, page: int = 1, page_size: int = 10, group: int = 0) -> TransactionsResponse:
+        url = f"{self.BASE_URL}/stitch/vendor/transactions/?page={page}&page_size={page_size}&group={group}"
+        response = self.session.get(url)
+        response.raise_for_status()
+        return TransactionsResponse(**response.json())
+
 
 # Example usage:
 # scraper = BigBasketScraper()
-# response = scraper.post_login_endpoint("https://nucleus.bigbasket.com/api/some_endpoint", {"key": "value"})
-# print(response)
+# transactions = scraper.get_reports()
+# print(transactions)

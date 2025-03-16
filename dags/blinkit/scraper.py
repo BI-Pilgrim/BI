@@ -1,8 +1,10 @@
 import base64
+import io
 import json
+import os
 import re
 import time
-from typing import Optional
+from typing import Optional, Tuple
 import pandas as pd
 from requests import Session
 from datetime import datetime
@@ -15,10 +17,13 @@ from playwright_stealth import Stealth
 from airflow.models import Variable
 
 from utils.mail_utils import get_mail_body
+from utils.google_cloud import get_gcs_client, upload_to_gcs
 
 class BlinkItAdsScraper:
+    BASE_URL = "https://brands.blinkit.com"
     def __init__(self):
         self.session = Session()
+        self.gcs_client = get_gcs_client(Variable.get("GOOGLE_CLOUD_STORE_TOKEN"))
         self.default_headers = {
             'accept': 'application/json, text/plain, */*',
             'accept-language': 'en-US,en;q=0.9',
@@ -30,6 +35,7 @@ class BlinkItAdsScraper:
         self.session.headers.update(self.default_headers)
         self.token = self.login_and_get_token()
         self.session.headers.update({"firebase_user_token": self.token})
+        print(self.gcs_client, "GCS CLIENT")
 
     def get_login_url(self) -> str:
         creds = self.get_gmail_credentials()
@@ -65,6 +71,7 @@ class BlinkItAdsScraper:
             match = re.search(r'\"(https:\/\/[\w.]+sendgrid\.net\/[^"]+)', body)
             print(match, len(match.groups()), match.group(1))
             if match and len(match.groups()) >= 1:
+                messages_client.modify(userId="me", id=mail["id"], body=dict(removeLabelIds=["UNREAD"])).execute()
                 return match.group(1)
         raise Exception("Login URL not found in emails")
 
@@ -75,30 +82,78 @@ class BlinkItAdsScraper:
             context = browser.new_context()
             stealth.apply_stealth_sync(context)
             page = context.new_page()
-            page.goto("https://brands.blinkit.com/")
+            page.goto(self.BASE_URL)
             page.locator(".sc-dcJsrY").click()
             page.locator("#login_email").fill("meghna@discoverpilgrim.com") # Update
             page.locator("#login_persist").click()
             page.locator("#login > div:nth-child(4) > div > div > div > button").click()
-            page.screenshot(path="login.png")
+            page.screenshot(path="login.ignore.png")
+            self._upload_screenshot_to_gcs("login.ignore.png", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
             time.sleep(10)
-            page.screenshot(path="login2.png")
+            page.screenshot(path="login2.ignore.png")
+            self._upload_screenshot_to_gcs("login2.ignore.png", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
             login_url = self.get_login_url()
             page.goto(login_url)
             time.sleep(10)
             ss = page.context.storage_state()
             state_str = [x for x in ss['origins'][0]['localStorage'] if x["name"] == "state"][0]["value"]
             token = json.loads(state_str)["login"]["token"]
-            page.screenshot(path="token.png")
+            page.screenshot(path="token.ignore.png")
+            self._upload_screenshot_to_gcs("token.ignore.png", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+            
             browser.close()
             return token
 
-    def post_login_endpoint(self, url: str, data: Optional[dict] = None) -> dict:
-        response = self.session.post(url, json=data)
+    def _upload_screenshot_to_gcs(self, file_path: str, run_datetime: str):
+        bucket_name = "airflow-data-download"
+        destination_blob_name = f"brands.blinkit.com/{run_datetime}/{os.path.basename(file_path)}"
+        upload_to_gcs(self.gcs_client, bucket_name, file_path, destination_blob_name)
+
+    def download_ad_summary(self, from_date: datetime, to_date: datetime, campaign_types: Optional[list] = None) -> dict:
+        if campaign_types is None:
+            campaign_types = [
+                "PRODUCT_LISTING",
+                "BANNER_LISTING",
+                "PRODUCT_RECOMMENDATION",
+                "SEARCH_SUGGESTION",
+                "BRAND_BOOSTER"
+            ]
+        from_date_str = from_date.strftime("%m/%d/%Y")
+        to_date_str = to_date.strftime("%m/%d/%Y")
+        url = f'{self.BASE_URL}/adservice/v2/advertisers/campaigns/reports/download'
+        data = {
+            "from_date": from_date_str,
+            "to_date": to_date_str,
+            "campaign_types": campaign_types
+        }
+        response = self.session.post(url, headers=self.default_headers, json=data)
         response.raise_for_status()
-        # read excel
-        df_map = pd.read_excel("dags/blinkit/Report_2025-03-01_to_2025-03-08.xls", sheet_name=None) 
-        return response.json()
+        data = response.json()
+        
+        if not data["success"]:
+            raise Exception("Failed to download ad summary")
+        
+        report_url = data["data"]["url"]
+        return self._download_excel(report_url)
+    
+    def _download_excel(self, url: str) -> Tuple[pd.DataFrame]:
+        """
+        returns DFs product_listing, brand_booster, product_recommendation 
+        """
+        response = self.session.get(url, headers=self.default_headers)
+        response.raise_for_status()
+        data = io.BytesIO(response.content)
+        dfs = pd.read_excel(data, sheet_name=None)
+        return dfs
+
+    def _process_dataframe(self, df: pd.DataFrame, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
+        df["pg_extracted_at"] = datetime.now()
+        if "start_date" not in df.columns:
+            df["start_date"] = start_date
+        if "end_date" not in df.columns:
+            df["end_date"] = end_date
+        return df
     
 
 # Example usage:
