@@ -22,6 +22,6 @@ FROM
     SELECT
       *,
       ROW_NUMBER() OVER(PARTITION BY `Order ID`, `AWB` ORDER BY `Ingestion Date` DESC) AS row_num
-    FROM `shopify-pubsub-project.clickpost_data.shipping`
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.shipping` WHERE `Order ID` IS NOT NULL
   )
 WHERE row_num = 1;
