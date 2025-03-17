@@ -3,7 +3,7 @@ PARTITION BY Ingestion_Date
 AS 
 SELECT
     `Order ID` AS Order_ID, 
-    `Reference Number` AS Reference_Number,
+    REGEXP_REPLACE(`Reference Number`, r'\.0$', '') AS Reference_Number,
     `Order Date` AS Order_Date,
     `Invoice Number` AS Invoice_Number,
     `Invoice Date` AS Invoice_Date,
@@ -20,7 +20,7 @@ FROM
   ( 
     SELECT
       *,
-      ROW_NUMBER() OVER(PARTITION BY `Order ID`,`Reference Number` ORDER BY `Ingestion Date` DESC) AS row_num
-    FROM `shopify-pubsub-project.clickpost_data.orders`
+      ROW_NUMBER() OVER(PARTITION BY `Order ID`,REGEXP_REPLACE(`Reference Number`, r'\.0$', '') ORDER BY `Ingestion Date` DESC) AS row_num
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.orders`
   )
 WHERE row_num = 1;
