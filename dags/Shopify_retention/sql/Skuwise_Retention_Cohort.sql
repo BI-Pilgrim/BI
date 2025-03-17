@@ -139,7 +139,7 @@ SUM(CASE WHEN D360plus = 1 AND DATE_ADD(DATE(acquisition_date), INTERVAL 395 DAY
 
 
 from Day_tagging 
-where DATE(acquisition_date) >= DATE(DATE_TRUNC(CURRENT_DATE, MONTH)- INTERVAL 1 MONTH - INTERVAL 13 MONTH) 
+where DATE(acquisition_date) >= DATE(DATE_TRUNC(CURRENT_DATE, MONTH)- INTERVAL 2 MONTH - INTERVAL 2 YEAR) 
   
 group by 1,2,3
 order by 1

@@ -107,7 +107,7 @@ customer_cohort AS (
         SUM(CASE WHEN D360plus = 1 AND DATE_ADD(DATE(acquisition_date), INTERVAL 395 DAY) < CURRENT_DATE() - 1 THEN order_total_price END) AS D360plus_rev
     FROM Day_tagging
     WHERE 
-        DATE(acquisition_date) >= DATE(DATE_TRUNC(CURRENT_DATE(), MONTH) - INTERVAL 1 MONTH - INTERVAL 13 MONTH) 
+        DATE(acquisition_date) >= DATE(DATE_TRUNC(CURRENT_DATE(), MONTH) - INTERVAL 2 MONTH - INTERVAL 2 YEAR) 
        -- AND DATE(acquisition_date) <= DATE_TRUNC(CURRENT_DATE(), MONTH) - 1
     GROUP BY year_month
     ORDER BY year_month
