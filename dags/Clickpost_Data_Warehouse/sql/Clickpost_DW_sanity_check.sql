@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE TABLE `shopify-pubsub-project.Data_Warehouse_ClickPost_Staging.sanity` AS
 WITH sources AS (
     SELECT 
@@ -9,10 +8,10 @@ WITH sources AS (
             CASE 
                 WHEN DATE(`Ingestion Date`) = (SELECT MAX(DATE(Ingestion_Date)) 
                                                 FROM `shopify-pubsub-project.Data_Warehouse_ClickPost_Staging.Orders`) 
-                THEN CONCAT(`Reference Number`) 
+                THEN CONCAT(`Order ID`,`Reference Number`) 
             END
         ) AS Source_pk_count
-    FROM `shopify-pubsub-project.clickpost_data.orders`
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.orders`
 
     UNION ALL
 
@@ -27,7 +26,7 @@ WITH sources AS (
                 THEN `Order ID` 
             END
         ) AS Source_pk_count
-    FROM `shopify-pubsub-project.clickpost_data.addresses` 
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.addresses` 
 
     UNION ALL
 
@@ -42,7 +41,7 @@ WITH sources AS (
                 THEN CONCAT(`Order ID`,`SKU`) 
             END
         ) AS Source_pk_count
-    FROM `shopify-pubsub-project.clickpost_data.package` 
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.package` 
 
     UNION ALL 
 
@@ -57,7 +56,7 @@ WITH sources AS (
                 THEN CONCAT(`Order ID`,`AWB`) 
             END
         ) AS Source_pk_count
-    FROM `shopify-pubsub-project.clickpost_data.shipping` 
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.shipping` 
 
     UNION ALL
 
@@ -72,7 +71,7 @@ WITH sources AS (
                 THEN `Order ID` 
             END
         ) AS Source_pk_count
-    FROM `shopify-pubsub-project.clickpost_data.tracking`
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.tracking`
 ), 
 
 staging AS (
@@ -82,7 +81,7 @@ staging AS (
         COUNT(DISTINCT 
             CASE 
                 WHEN DATE(Ingestion_Date) = (SELECT MAX(DATE(`Ingestion Date`)) 
-                                                FROM `shopify-pubsub-project.clickpost_data.orders`) 
+                                                FROM `shopify-pubsub-project.pilgrim_bi_clickpost.orders`) 
                 THEN CONCAT(Reference_Number) 
             END
         ) AS Staging_pk_count
@@ -96,7 +95,7 @@ staging AS (
         COUNT(DISTINCT 
             CASE 
                 WHEN DATE(Ingestion_Date) = (SELECT MAX(DATE(`Ingestion Date`)) 
-                                                FROM `shopify-pubsub-project.clickpost_data.addresses`) 
+                                                FROM `shopify-pubsub-project.pilgrim_bi_clickpost.addresses`) 
                 THEN Order_ID 
             END
         ) AS Staging_pk_count
@@ -110,7 +109,7 @@ staging AS (
         COUNT(DISTINCT 
             CASE 
                 WHEN DATE(Ingestion_Date) = (SELECT MAX(DATE(`Ingestion Date`)) 
-                                                FROM `shopify-pubsub-project.clickpost_data.package`) 
+                                                FROM `shopify-pubsub-project.pilgrim_bi_clickpost.package`) 
                 THEN CONCAT(Order_ID,SKU) 
             END
         ) AS Staging_pk_count
@@ -124,7 +123,7 @@ staging AS (
         COUNT(DISTINCT 
             CASE 
                 WHEN DATE(Ingestion_Date) = (SELECT MAX(DATE(`Ingestion Date`)) 
-                                                FROM `shopify-pubsub-project.clickpost_data.shipping`) 
+                                                FROM `shopify-pubsub-project.pilgrim_bi_clickpost.shipping`) 
                 THEN CONCAT(Order_ID,AWB) 
             END
         ) AS Staging_pk_count
@@ -138,7 +137,7 @@ staging AS (
         COUNT(DISTINCT 
             CASE 
                 WHEN DATE(Ingestion_Date) = (SELECT MAX(DATE(`Ingestion Date`)) 
-                                                FROM `shopify-pubsub-project.clickpost_data.tracking`) 
+                                                FROM `shopify-pubsub-project.pilgrim_bi_clickpost.tracking`) 
                 THEN Order_ID 
             END
         ) AS Staging_pk_count
