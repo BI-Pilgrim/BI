@@ -38,7 +38,7 @@ class BigBasketScraper:
             'Pragma': 'no-cache'
         }
         self.session.headers.update(self.default_headers)
-        self.email = "mini@discoverpilgrim.com"
+        self.email = Variable.get("BIGBASKET_LOGIN_EMAIL")
         self.login()
 
     def get_gmail_credentials(self) -> Credentials:

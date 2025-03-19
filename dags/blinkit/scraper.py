@@ -84,7 +84,7 @@ class BlinkItAdsScraper:
             page = context.new_page()
             page.goto(self.BASE_URL)
             page.locator(".sc-dcJsrY").click()
-            page.locator("#login_email").fill("meghna@discoverpilgrim.com") # Update
+            page.locator("#login_email").fill(Variable.get("BLINKIT_LOGIN_EMAIL")) # Update
             page.locator("#login_persist").click()
             page.locator("#login > div:nth-child(4) > div > div > div > button").click()
             page.screenshot(path="login.ignore.png")
