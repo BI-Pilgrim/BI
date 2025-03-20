@@ -30,7 +30,7 @@ with DAG(
     catchup=False,
 ) as dag: 
     
-    with open('../dags/Category_HealthCard_Monthly/sql/Master_Query.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Category_HealthCard_Monthly/sql/Master_Query.sql', 'r') as file: 
         sql_query_1 = file.read() 
 
 
