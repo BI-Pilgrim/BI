@@ -34,7 +34,7 @@ FROM
     SELECT
       *,
       ROW_NUMBER() OVER(PARTITION BY `Order ID` ORDER BY `Ingestion Date` DESC) AS row_num
-    FROM `shopify-pubsub-project.clickpost_data.addresses`
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.addresses` WHERE `Order ID` IS NOT NULL
   )
 WHERE row_num = 1 
 ) AS source  on target.Order_ID = source.`Order ID` 

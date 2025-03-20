@@ -43,7 +43,8 @@ def send_sanity_check_email():
     df['Date1'] = pd.to_datetime(df['Date1'], errors='coerce')  
 
     filtered_df = df[(df['Source_max_date'] != df['Staging_max_date']) |
-                 (df['Source_pk_count'] != df['Staging_pk_count'])]
+                 (df['Source_pk_count'] != df['Staging_pk_count'])  | 
+                (df['Date1']  != df['Source_max_date'])]
     
     SENDER_EMAIL = "cloud@discoverpilgrim.com"
     RECIPIENT_EMAILS = "bi@discoverpilgrim.com"

@@ -13,15 +13,16 @@ item_sku_map AS (
          oi.order_name, 
          oi.order_created_at,
          oi.item_sku_code, 
-         CASE WHEN mt.parent_sku IN ('PGKS-AHGS1','PGKS-RAAHGSDPS1','PGGTM-RAAHGS1','PGKS-RAAHGS1') THEN 'ALL_HGS' 
-         ELSE mt.parent_sku END AS parent_sku, 
+         mt.master_sku as parent_sku,
+        -- CASE WHEN mt.master_sku as parent_sku, --IN ('PGKS-AHGS1','PGKS-RAAHGSDPS1','PGGTM-RAAHGS1','PGKS-RAAHGS1') THEN 'ALL_HGS' 
+         --ELSE mt.parent_sku END AS parent_sku, 
          --CASE WHEN mt.parent_sku IN ('PGKS-AHGS1','PGKS-RAAHGSDPS1','PGGTM-RAAHGS1','PGKS-RAAHGS1') THEN 'HAIR GROWTH SERUM' 
          --ELSE mt.product
          mt.master_title as product_title,
          DENSE_RANK() OVER (PARTITION BY oi.customer_id ORDER BY oi.order_created_at) AS order_rank
   FROM `shopify-pubsub-project.Data_Warehouse_Shopify_Staging.Order_items` oi
   LEFT JOIN (
-    SELECT DISTINCT Master_Title, Parent_SKU,Variant_ID-- AS INT) AS Variant_ID
+    SELECT DISTINCT Master_Title, Master_SKU,Variant_ID-- AS INT) AS Variant_ID
     FROM `shopify-pubsub-project.Product_SKU_Mapping.D2C_SKU_mapping` where Type_of_Product in('Single') AND Parent_SKU not in('')
   ) mt ON oi.item_variant_id = mt.Variant_ID
 ),
@@ -138,7 +139,7 @@ SUM(CASE WHEN D360plus = 1 AND DATE_ADD(DATE(acquisition_date), INTERVAL 395 DAY
 
 
 from Day_tagging 
-where DATE(acquisition_date) >= DATE(DATE_TRUNC(CURRENT_DATE, MONTH)- INTERVAL 1 MONTH - INTERVAL 13 MONTH) 
+where DATE(acquisition_date) >= DATE(DATE_TRUNC(CURRENT_DATE, MONTH)- INTERVAL 2 MONTH - INTERVAL 2 YEAR) 
   
 group by 1,2,3
 order by 1
@@ -218,4 +219,4 @@ SELECT * FROM revenuecte
 UNION ALL
 SELECT * FROM total_order_cte
 ) 
-select * from cte_check where acquired_sku is not null --AND acquired_sku = 'PGKABPPS1'
+select * from cte_check where acquired_sku is not null --AND Product_title = 'Bullet Lipstick'--AND acquired_sku = 'PGKABPPS1'

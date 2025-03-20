@@ -41,7 +41,7 @@ USING (
     SELECT
       *,
       ROW_NUMBER() OVER(PARTITION BY `Order ID` ORDER BY `Ingestion Date` DESC) AS row_num
-    FROM `shopify-pubsub-project.clickpost_data.tracking`
+    FROM `shopify-pubsub-project.pilgrim_bi_clickpost.tracking` WHERE `Order ID` IS NOT NULL
   )
   WHERE row_num = 1
 ) AS source
@@ -103,7 +103,7 @@ WHEN NOT MATCHED THEN
     Out_For_Delivery_4th_Attempt,
     Out_For_Delivery_5th_Attempt,
     Out_For_Delivery_Attempts,
-    Reason_For_Last_Failed_Delivery, 
+    Reason_For_Last_Failed_Delivery,
     TimeStamp_Of_Last_Failed_Delivery,
     Remark_Of_Last_Failed_Delivery,
     Is_shipment_stuck_in_lifecycle,

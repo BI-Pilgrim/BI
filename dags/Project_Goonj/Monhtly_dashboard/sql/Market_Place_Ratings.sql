@@ -39,5 +39,5 @@ select
 distinct
 Parent_SKU,
 Product_Title,
-from `shopify-pubsub-project.adhoc_data_asia.Product_SKU_mapping_D2C`) as M
+from `shopify-pubsub-project.Product_SKU_Mapping.D2C_SKU_mapping`) as M
 on C.SKU_ID = M.Parent_SKU;
