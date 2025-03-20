@@ -53,7 +53,7 @@ with DAG(
     # Create tasks for each table
     tasks = {}
     for table in tables:
-        file_path = f'../dags/Amazon_Ads_Data_Warehouse/sql/amz_ads_to_bq/{table}/{table}_APPEND.sql'
+        file_path = f'/home/airflow/gcs/dags/Amazon_Ads_Data_Warehouse/sql/amz_ads_to_bq/{table}/{table}_APPEND.sql'
         with open(file_path, 'r') as file:
             sql_query = file.read()
 
