@@ -24,8 +24,8 @@ default_args = {
 
 # Define constants
 LOCATION = "US"  # Replace with your BigQuery dataset location (e.g., "US", "EU")
-# SQL_DIR = "/home/airflow/gcs/dags/nykaa_warehouse/sql/nykaa_to_bq"  # Adjust this path if necessary
-SQL_DIR = "../dags/nykaa_warehouse/sql/nykaa_to_bq/"  # Adjust this path if necessary
+SQL_DIR = "/home/airflow/gcs/dags/nykaa_warehouse/sql/nykaa_to_bq"  # Adjust this path if necessary
+# SQL_DIR = "../dags/nykaa_warehouse/sql/nykaa_to_bq/"  # Adjust this path if necessary
 
 # Define the DAG
 with DAG(
@@ -253,8 +253,8 @@ with DAG(
 
     # Sanity Check of all table
     # Load SQL query from file
-    with open("../dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
-    # with open("/home/airflow/gcs/dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
+    # with open("../dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
+    with open("/home/airflow/gcs/dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
         sql_query_14 = file.read()
 
         DW_Sanity_check = BigQueryInsertJobOperator(
@@ -269,8 +269,8 @@ with DAG(
     )
         
     def run_main_script():
-        script_path = '../dags/nykaa_warehouse/dag/Nykaa_DAG.py'
-        # script_path = '/home/airflow/gcs/dags/nykaa_warehouse/dag/Nykaa_DAG.py'
+        # script_path = '../dags/nykaa_warehouse/dag/Nykaa_DAG.py'
+        script_path = '/home/airflow/gcs/dags/nykaa_warehouse/dag/Nykaa_DAG.py'
         try:
          # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
