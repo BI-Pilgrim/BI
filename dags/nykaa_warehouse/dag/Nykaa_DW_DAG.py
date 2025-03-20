@@ -270,7 +270,7 @@ with DAG(
         
     def run_main_script():
         # script_path = '../dags/nykaa_warehouse/dag/Nykaa_DAG.py'
-        script_path = '/home/airflow/gcs/dags/nykaa_warehouse/dag/Nykaa_DAG.py'
+        script_path = '/home/airflow/gcs/dags/nykaa_warehouse/dag/Nykaa_DW_DAG.py'
         try:
          # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
