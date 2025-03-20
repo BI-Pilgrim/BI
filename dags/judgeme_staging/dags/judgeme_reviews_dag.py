@@ -30,7 +30,7 @@ with DAG(
     catchup=False,
 ) as dag: 
     
-    with open('../dags/judgeme_staging/sql/judgeme_reviews_append.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/judgeme_staging/sql/judgeme_reviews_append.sql', 'r') as file: 
         sql_query_1 = file.read() 
 
 
