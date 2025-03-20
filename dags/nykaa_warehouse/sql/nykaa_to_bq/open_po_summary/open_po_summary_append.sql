@@ -1,0 +1,85 @@
+-- merge into `shopify-pubsub-project.Data_Warehouse_Nykaa_Staging.open_po_summary` as target
+-- using
+-- (
+-- select
+-- * except(rn)
+-- from
+-- (
+--   select
+--   wh_location,
+--   brand_name,
+--   scm_analyst_supply,
+--   po_aging,
+--   current_status,
+--   appointment_date,
+--   skucode,
+--   pocode,
+--   po_qty,
+--   open_po_value,
+--   RIGHT(TRIM(pg_mail_subject), 6) AS reporting_week,
+--   DATE(pg_mail_recieved_at) AS mail_received_at,
+--   FORMAT_TIMESTAMP('%A', pg_mail_recieved_at) AS day_name,
+--   row_number() over(partition by wh_location,po_aging,current_status, appointment_date, RIGHT(TRIM(pg_mail_subject), 6) order by DATE(pg_mail_recieved_at)) as rn
+--   from `shopify-pubsub-project.pilgrim_bi_nykaa.open_po_summary`
+-- )
+-- where rn = 1 and mail_received_at >= date_sub(current_date("Asia/Kolkata"), INTERVAL 10 day)
+-- ) as source
+
+-- on target.wh_location = source.wh_location
+-- and target.po_aging = source.po_aging
+-- and target.current_status = source.current_status
+-- and target.appointment_date = source.appointment_date
+-- and target.reporting_week = source.reporting_week
+
+-- when matched and target.mail_received_at < source.mail_received_at
+-- then update set
+
+-- source.wh_location = source.wh_location,
+-- source.brand_name = source.brand_name,
+-- source.scm_analyst_supply = source.scm_analyst_supply,
+-- source.po_aging = source.po_aging,
+-- source.current_status = source.current_status,
+-- source.appointment_date = source.appointment_date,
+-- source.skucode = source.skucode,
+-- source.pocode = source.pocode,
+-- source.po_qty = source.po_qty,
+-- source.open_po_value = source.open_po_value,
+-- source.reporting_week = source.reporting_week,
+-- source.mail_received_at = source.mail_received_at,
+-- source.day_name = source.day_name
+
+
+-- when not matched
+-- then insert
+-- (
+-- wh_location,
+-- brand_name,
+-- scm_analyst_supply,
+-- po_aging,
+-- current_status,
+-- appointment_date,
+-- skucode,
+-- pocode,
+-- po_qty,
+-- open_po_value,
+-- reporting_week,
+-- mail_received_at,
+-- day_name
+-- )
+-- values
+-- (
+-- source.wh_location,
+-- source.brand_name,
+-- source.scm_analyst_supply,
+-- source.po_aging,
+-- source.current_status,
+-- source.appointment_date,
+-- source.skucode,
+-- source.pocode,
+-- source.po_qty,
+-- source.open_po_value,
+-- source.reporting_week,
+-- source.mail_received_at,
+-- source.day_name
+
+-- )
