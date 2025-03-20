@@ -1,0 +1,26 @@
+create or replace table `shopify-pubsub-project.Data_Warehouse_Nykaa_Staging.open_po_summary`
+-- partition by mail_received_at
+-- as
+
+-- select
+-- * except(rn)
+-- from
+-- (
+--   select
+--   wh_location,
+--   brand_name,
+--   scm_analyst_supply,
+--   po_aging,
+--   current_status,
+--   appointment_date,
+--   skucode,
+--   pocode,
+--   po_qty,
+--   open_po_value,
+--   RIGHT(TRIM(pg_mail_subject), 6) AS reporting_week,
+--   DATE(pg_mail_recieved_at) AS mail_received_at,
+--   FORMAT_TIMESTAMP('%A', pg_mail_recieved_at) AS day_name,
+--   row_number() over(partition by wh_location,po_aging,current_status, appointment_date, RIGHT(TRIM(pg_mail_subject), 6) order by DATE(pg_mail_recieved_at)) as rn
+--   from `shopify-pubsub-project.pilgrim_bi_nykaa.open_po_summary`
+-- )
+-- where rn = 1
