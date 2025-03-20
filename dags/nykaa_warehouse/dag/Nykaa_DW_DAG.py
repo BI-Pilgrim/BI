@@ -24,8 +24,8 @@ default_args = {
 
 # Define constants
 LOCATION = "US"  # Replace with your BigQuery dataset location (e.g., "US", "EU")
-# SQL_DIR = "/home/airflow/gcs/dags/nykaa_warehouse/sql/nykaa_to_bq"  # Adjust this path if necessary
-SQL_DIR = "../dags/nykaa_warehouse/sql/nykaa_to_bq/"  # Adjust this path if necessary
+SQL_DIR = "/home/airflow/gcs/dags/nykaa_warehouse/sql/nykaa_to_bq"  # Adjust this path if necessary
+# SQL_DIR = "../dags/nykaa_warehouse/sql/nykaa_to_bq/"  # Adjust this path if necessary
 
 # Define the DAG
 with DAG(
@@ -42,13 +42,13 @@ with DAG(
         task_id='start_pipeline'
     )
 
-    # appointment_adherence Staging Table Refresh - Append
-    appointment_adherence_sql_path = os.path.join(SQL_DIR, "appointment_adherence/appointment_adherence_Append.sql")
+    # appointment_adherence Staging Table Refresh - append
+    appointment_adherence_sql_path = os.path.join(SQL_DIR, "appointment_adherence/appointment_adherence_append.sql")
     with open(appointment_adherence_sql_path, 'r') as file:
         sql_query_1 = file.read()
 
-    appointment_adherence_Append = BigQueryInsertJobOperator(
-        task_id='appointment_adherence_Append',
+    appointment_adherence_append = BigQueryInsertJobOperator(
+        task_id='appointment_adherence_append',
         configuration={
             "query": {
                 "query": sql_query_1,
@@ -58,13 +58,13 @@ with DAG(
         }
     )
 
-    # assortments Staging Table Refresh - Append
-    assortments_sql_path = os.path.join(SQL_DIR, "assortments/assortments_Append.sql")
+    # assortments Staging Table Refresh - append
+    assortments_sql_path = os.path.join(SQL_DIR, "assortments/assortments_append.sql")
     with open(assortments_sql_path, 'r') as file:
         sql_query_2 = file.read()
 
-    assortments_Append = BigQueryInsertJobOperator(
-        task_id='assortments_Append',
+    assortments_append = BigQueryInsertJobOperator(
+        task_id='assortments_append',
         configuration={
             "query": {
                 "query": sql_query_2,
@@ -74,13 +74,13 @@ with DAG(
         }
     )
 
-    # # brand_lvl_dashboard Staging Table Refresh - Append
-    brand_lvl_dashboard_sql_path = os.path.join(SQL_DIR, "brand_lvl_dashboard/brand_lvl_dashboard_Append.sql")
+    # # brand_lvl_dashboard Staging Table Refresh - append
+    brand_lvl_dashboard_sql_path = os.path.join(SQL_DIR, "brand_lvl_dashboard/brand_lvl_dashboard_append.sql")
     with open(brand_lvl_dashboard_sql_path, 'r') as file:
         sql_query_3 = file.read()
 
-    brand_lvl_dashboard_Append = BigQueryInsertJobOperator(
-        task_id='brand_lvl_dashboard_Append',
+    brand_lvl_dashboard_append = BigQueryInsertJobOperator(
+        task_id='brand_lvl_dashboard_append',
         configuration={
             "query": {
                 "query": sql_query_3,
@@ -90,13 +90,13 @@ with DAG(
         }
     )
 
-    # fill_summary Staging Table Refresh - Append
-    fill_summary_sql_path = os.path.join(SQL_DIR, "fill_summary/fill_summary_Append.sql")
+    # fill_summary Staging Table Refresh - append
+    fill_summary_sql_path = os.path.join(SQL_DIR, "fill_summary/fill_summary_append.sql")
     with open(fill_summary_sql_path, 'r') as file:
         sql_query_4 = file.read()
 
-    fill_summary_Append = BigQueryInsertJobOperator(
-        task_id='fill_summary_Append',
+    fill_summary_append = BigQueryInsertJobOperator(
+        task_id='fill_summary_append',
         configuration={
             "query": {
                 "query": sql_query_4,
@@ -106,13 +106,13 @@ with DAG(
         }
     )
 
-    # grn_details Staging Table Refresh - Append
-    grn_details_sql_path = os.path.join(SQL_DIR, "grn_details/grn_details_Append.sql")
+    # grn_details Staging Table Refresh - append
+    grn_details_sql_path = os.path.join(SQL_DIR, "grn_details/grn_details_append.sql")
     with open(grn_details_sql_path, 'r') as file:
         sql_query_5 = file.read()
 
-    grn_details_Append = BigQueryInsertJobOperator(
-        task_id='grn_details_Append',
+    grn_details_append = BigQueryInsertJobOperator(
+        task_id='grn_details_append',
         configuration={
             "query": {
                 "query": sql_query_5,
@@ -122,13 +122,13 @@ with DAG(
         }
     )
 
-    # inv_ageing Staging Table Refresh - Append
-    inv_ageing_sql_path = os.path.join(SQL_DIR, "inv_ageing/inv_ageing_Append.sql")
+    # inv_ageing Staging Table Refresh - append
+    inv_ageing_sql_path = os.path.join(SQL_DIR, "inv_ageing/inv_ageing_append.sql")
     with open(inv_ageing_sql_path, 'r') as file:
         sql_query_6 = file.read()
 
-    inv_ageing_Append = BigQueryInsertJobOperator(
-        task_id='inv_ageing_Append',
+    inv_ageing_append = BigQueryInsertJobOperator(
+        task_id='inv_ageing_append',
         configuration={
             "query": {
                 "query": sql_query_6,
@@ -138,13 +138,13 @@ with DAG(
         }
     )
 
-    # inward_discrepancy Staging Table Refresh - Append
-    inward_discrepancy_sql_path = os.path.join(SQL_DIR, "inward_discrepancy/inward_discrepancy_Append.sql")
+    # inward_discrepancy Staging Table Refresh - append
+    inward_discrepancy_sql_path = os.path.join(SQL_DIR, "inward_discrepancy/inward_discrepancy_append.sql")
     with open(inward_discrepancy_sql_path, 'r') as file:
         sql_query_7 = file.read()
 
-    inward_discrepancy_Append = BigQueryInsertJobOperator(
-        task_id='inward_discrepancy_Append',
+    inward_discrepancy_append = BigQueryInsertJobOperator(
+        task_id='inward_discrepancy_append',
         configuration={
             "query": {
                 "query": sql_query_7,
@@ -154,13 +154,13 @@ with DAG(
         }
     )
 
-    # # open_po_summary Staging Table Refresh - Append
-    # open_po_summary_sql_path = os.path.join(SQL_DIR, "open_po_summary/open_po_summary_Append.sql")
+    # # open_po_summary Staging Table Refresh - append
+    # open_po_summary_sql_path = os.path.join(SQL_DIR, "open_po_summary/open_po_summary_append.sql")
     # with open(open_po_summary_sql_path, 'r') as file:
     #     sql_query_8 = file.read()
 
-    # open_po_summary_Append = BigQueryInsertJobOperator(
-    #     task_id='open_po_summary_Append',
+    # open_po_summary_append = BigQueryInsertJobOperator(
+    #     task_id='open_po_summary_append',
     #     configuration={
     #         "query": {
     #             "query": sql_query_8,
@@ -170,13 +170,13 @@ with DAG(
     #     }
     # )
 
-    # open_rtv Staging Table Refresh - Append
-    open_rtv_sql_path = os.path.join(SQL_DIR, "open_rtv/open_rtv_Append.sql")
+    # open_rtv Staging Table Refresh - append
+    open_rtv_sql_path = os.path.join(SQL_DIR, "open_rtv/open_rtv_append.sql")
     with open(open_rtv_sql_path, 'r') as file:
         sql_query_9 = file.read()
 
-    open_rtv_Append = BigQueryInsertJobOperator(
-        task_id='open_rtv_Append',
+    open_rtv_append = BigQueryInsertJobOperator(
+        task_id='open_rtv_append',
         configuration={
             "query": {
                 "query": sql_query_9,
@@ -186,13 +186,13 @@ with DAG(
         }
     )
 
-    # sku_inv Staging Table Refresh - Append
-    sku_inv_sql_path = os.path.join(SQL_DIR, "sku_inv/sku_inv_Append.sql")
+    # sku_inv Staging Table Refresh - append
+    sku_inv_sql_path = os.path.join(SQL_DIR, "sku_inv/sku_inv_append.sql")
     with open(sku_inv_sql_path, 'r') as file:
         sql_query_10 = file.read()
 
-    sku_inv_Append = BigQueryInsertJobOperator(
-        task_id='sku_inv_Append',
+    sku_inv_append = BigQueryInsertJobOperator(
+        task_id='sku_inv_append',
         configuration={
             "query": {
                 "query": sql_query_10,
@@ -202,13 +202,13 @@ with DAG(
         }
     )
 
-    # sku_level_fill Staging Table Refresh - Append
-    sku_level_fill_sql_path = os.path.join(SQL_DIR, "sku_level_fill/sku_level_fill_Append.sql")
+    # sku_level_fill Staging Table Refresh - append
+    sku_level_fill_sql_path = os.path.join(SQL_DIR, "sku_level_fill/sku_level_fill_append.sql")
     with open(sku_level_fill_sql_path, 'r') as file:
         sql_query_11 = file.read()
 
-    sku_level_fill_Append = BigQueryInsertJobOperator(
-        task_id='sku_level_fill_Append',
+    sku_level_fill_append = BigQueryInsertJobOperator(
+        task_id='sku_level_fill_append',
         configuration={
             "query": {
                 "query": sql_query_11,
@@ -218,13 +218,13 @@ with DAG(
         }
     )
 
-    # sku_lvl_dashboard Staging Table Refresh - Append
-    sku_lvl_dashboard_sql_path = os.path.join(SQL_DIR, "sku_lvl_dashboard/sku_lvl_dashboard_Append.sql")
+    # sku_lvl_dashboard Staging Table Refresh - append
+    sku_lvl_dashboard_sql_path = os.path.join(SQL_DIR, "sku_lvl_dashboard/sku_lvl_dashboard_append.sql")
     with open(sku_lvl_dashboard_sql_path, 'r') as file:
         sql_query_12 = file.read()
 
-    sku_lvl_dashboard_Append = BigQueryInsertJobOperator(
-        task_id='sku_lvl_dashboard_Append',
+    sku_lvl_dashboard_append = BigQueryInsertJobOperator(
+        task_id='sku_lvl_dashboard_append',
         configuration={
             "query": {
                 "query": sql_query_12,
@@ -234,13 +234,13 @@ with DAG(
         }
     )
 
-    # velocity_lvl_dashboard Staging Table Refresh - Append
-    velocity_lvl_dashboard_sql_path = os.path.join(SQL_DIR, "velocity_lvl_dashboard/velocity_lvl_dashboard_Append.sql")
+    # velocity_lvl_dashboard Staging Table Refresh - append
+    velocity_lvl_dashboard_sql_path = os.path.join(SQL_DIR, "velocity_lvl_dashboard/velocity_lvl_dashboard_append.sql")
     with open(velocity_lvl_dashboard_sql_path, 'r') as file:
         sql_query_13 = file.read()
 
-    velocity_lvl_dashboard_Append = BigQueryInsertJobOperator(
-        task_id='velocity_lvl_dashboard_Append',
+    velocity_lvl_dashboard_append = BigQueryInsertJobOperator(
+        task_id='velocity_lvl_dashboard_append',
         configuration={
             "query": {
                 "query": sql_query_13,
@@ -253,8 +253,8 @@ with DAG(
 
     # Sanity Check of all table
     # Load SQL query from file
-    with open("../dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
-    # with open("/home/airflow/gcs/dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
+    # with open("../dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
+    with open("/home/airflow/gcs/dags/nykaa_warehouse/sql/datawarehouse_sanity_check/nykaa_sanity_check.sql", 'r') as file:
         sql_query_14 = file.read()
 
         DW_Sanity_check = BigQueryInsertJobOperator(
@@ -269,8 +269,8 @@ with DAG(
     )
         
     def run_main_script():
-        script_path = '../dags/nykaa_warehouse/dag/Nykaa_DAG.py'
-        # script_path = '/home/airflow/gcs/dags/nykaa_warehouse/dag/Nykaa_DAG.py'
+        # script_path = '../dags/nykaa_warehouse/dag/Nykaa_DAG.py'
+        script_path = '/home/airflow/gcs/dags/nykaa_warehouse/dag/Nykaa_DW_DAG.py'
         try:
          # Use subprocess to run the Python script with the specified path
             result = subprocess.run(
@@ -301,36 +301,36 @@ with DAG(
 
     # Orchestrate tasks
     start_pipeline >> [
-        appointment_adherence_Append,
-        assortments_Append,
-        brand_lvl_dashboard_Append,
-        fill_summary_Append,
-        grn_details_Append,
-        inv_ageing_Append,
-        inward_discrepancy_Append,
-        # open_po_summary_Append,
-        open_rtv_Append,
-        sku_inv_Append,
-        sku_level_fill_Append,
-        sku_lvl_dashboard_Append,
-        velocity_lvl_dashboard_Append,
+        appointment_adherence_append,
+        assortments_append,
+        brand_lvl_dashboard_append,
+        fill_summary_append,
+        grn_details_append,
+        inv_ageing_append,
+        inward_discrepancy_append,
+        # open_po_summary_append,
+        open_rtv_append,
+        sku_inv_append,
+        sku_level_fill_append,
+        sku_lvl_dashboard_append,
+        velocity_lvl_dashboard_append,
     ]
 
     # Ensure all tasks finish at the end
     [
-        appointment_adherence_Append,
-        assortments_Append,
-        brand_lvl_dashboard_Append,
-        fill_summary_Append,
-        grn_details_Append,
-        inv_ageing_Append,
-        inward_discrepancy_Append,
-        # open_po_summary_Append,
-        open_rtv_Append,
-        sku_inv_Append,
-        sku_level_fill_Append,
-        sku_lvl_dashboard_Append,
-        velocity_lvl_dashboard_Append,
+        appointment_adherence_append,
+        assortments_append,
+        brand_lvl_dashboard_append,
+        fill_summary_append,
+        grn_details_append,
+        inv_ageing_append,
+        inward_discrepancy_append,
+        # open_po_summary_append,
+        open_rtv_append,
+        sku_inv_append,
+        sku_level_fill_append,
+        sku_lvl_dashboard_append,
+        velocity_lvl_dashboard_append,
     ] >> DW_Sanity_check
 
     DW_Sanity_check >> run_python_task

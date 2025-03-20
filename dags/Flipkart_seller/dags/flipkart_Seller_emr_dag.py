@@ -30,7 +30,7 @@ with DAG(
     catchup=False,
 ) as dag: 
     
-    with open('../dags/Flipkart_seller/sql/filpkart_Seller_earn_more_report_append.sql', 'r') as file: 
+    with open('/home/airflow/gcs/dags/Flipkart_seller/sql/filpkart_Seller_earn_more_report_append.sql', 'r') as file: 
         sql_query_1 = file.read() 
 
 
