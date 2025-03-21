@@ -8,7 +8,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCheckOperator, BigQueryInsertJobOperator
 import os
-from Easyecom_Data_Warehouse.python.Easyecom_DW_Sanity_check_mail import send_sanity_check_email
+from Easyecom_Data_Warehouse.python.Nykaa_DW_Sanity_Check_Mail import send_sanity_check_email
 
 
 # Define default arguments for the DAG
